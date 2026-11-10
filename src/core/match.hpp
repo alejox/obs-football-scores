@@ -30,6 +30,7 @@ struct GoalInfo {
 	std::string team_id;
 	std::string minute; // "67'", "90'+3'"
 	std::string scorer;
+	std::string scorer_photo_url; // ESPN has a headshot for some players only
 	bool own_goal = false;
 	bool penalty = false;
 };

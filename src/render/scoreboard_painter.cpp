@@ -319,7 +319,25 @@ void draw_goal_banner(QPainter &painter, const Layout &l, const ScoreView &view,
 		const QRectF crest_rect = view.goal_home
 						  ? QRectF(own.left(), own.center().y() - crest / 2, crest, crest)
 						  : QRectF(own.right() - crest, own.center().y() - crest / 2, crest, crest);
-		draw_contained(painter, side.logo, crest_rect);
+		if (view.goal_photo.isNull()) {
+			draw_contained(painter, side.logo, crest_rect);
+		} else {
+			// Round headshot with the crest as a small badge on its corner.
+			painter.save();
+			QPainterPath circle;
+			circle.addEllipse(crest_rect);
+			painter.fillPath(circle, QColor(255, 255, 255, 40));
+			painter.setClipPath(circle);
+			const QImage &photo = view.goal_photo;
+			const QSizeF cover = QSizeF(photo.size()).scaled(crest_rect.size(), Qt::KeepAspectRatioByExpanding);
+			painter.drawImage(QRectF(crest_rect.center().x() - cover.width() / 2, crest_rect.top(), cover.width(),
+						 cover.height()),
+					  photo);
+			painter.restore();
+			const qreal badge = crest_rect.width() * 0.4;
+			draw_contained(painter, side.logo,
+				       QRectF(crest_rect.right() - badge * 0.8, crest_rect.bottom() - badge, badge, badge));
+		}
 		const qreal gap = l.unit * 0.12;
 		const QRectF title_rect = view.goal_home
 						  ? QRectF(crest_rect.right() + gap, own.top(),

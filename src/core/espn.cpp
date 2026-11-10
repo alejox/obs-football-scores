@@ -135,8 +135,10 @@ std::vector<GoalInfo> parse_goals(const json &competition)
 		goal.team_id = str(child(detail, "team"), "id");
 		goal.minute = str(child(detail, "clock"), "displayValue");
 		const json &athletes = child(detail, "athletesInvolved");
-		if (athletes.is_array() && !athletes.empty())
+		if (athletes.is_array() && !athletes.empty()) {
 			goal.scorer = str(athletes.front(), "displayName");
+			goal.scorer_photo_url = https_url(str(athletes.front(), "headshot"));
+		}
 		const json &own = child(detail, "ownGoal");
 		goal.own_goal = own.is_boolean() && own.get<bool>();
 		const json &penalty = child(detail, "penaltyKick");

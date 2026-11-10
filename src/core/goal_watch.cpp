@@ -40,6 +40,7 @@ std::optional<GoalEvent> GoalWatch::observe(const Match &match)
 		else if ((event.side == Side::Home) != for_home)
 			continue;
 		event.scorer = it->scorer;
+		event.scorer_photo_url = it->scorer_photo_url;
 		event.minute = it->minute;
 		event.own_goal = it->own_goal;
 		event.penalty = it->penalty;

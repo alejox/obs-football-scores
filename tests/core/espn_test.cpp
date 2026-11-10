@@ -60,6 +60,10 @@ TEST_CASE(parses_a_real_day_scoreboard)
 	CHECK_EQ(last.home.score.value_or(-1), 1);
 	CHECK_EQ(last.away.score.value_or(-1), 2);
 	CHECK_EQ(last.goals.size(), 3u);
+	CHECK(last.goals[0].scorer_photo_url.empty()); // most players have no headshot
+	CHECK_EQ(board->matches[3].goals[0].scorer, std::string("Tajon Buchanan"));
+	CHECK_EQ(board->matches[3].goals[0].scorer_photo_url,
+		 std::string("https://a.espncdn.com/i/headshots/soccer/players/full/284769.png"));
 }
 
 TEST_CASE(home_and_away_follow_the_feed_not_the_order)

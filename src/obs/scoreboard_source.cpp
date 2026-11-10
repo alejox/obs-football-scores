@@ -295,6 +295,7 @@ render::ScoreView build_view(ScoreboardSource &self)
 		view.goal_home = self.goal->side == Side::Home;
 		view.goal_title = text("Football.Goal");
 		view.goal_detail = goal_detail(*self.goal);
+		view.goal_photo = image_for(self, self.goal->scorer_photo_url);
 	}
 	return view;
 }
@@ -327,6 +328,7 @@ GoalEvent test_goal_event(const ScoreboardSource &self)
 		const GoalInfo &last = match->goals.back();
 		event.side = last.team_id == match->away.id ? Side::Away : Side::Home;
 		event.scorer = last.scorer;
+		event.scorer_photo_url = last.scorer_photo_url;
 		event.minute = last.minute;
 		event.own_goal = last.own_goal;
 		event.penalty = last.penalty;

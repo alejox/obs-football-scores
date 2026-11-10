@@ -45,6 +45,7 @@ struct ScoreView {
 	bool goal_home = true;
 	QString goal_title;  // "GOAL!"
 	QString goal_detail; // "F. López 66'"
+	QImage goal_photo;   // the scorer's headshot, replaces the crest when set
 };
 
 // Paints one frame into a transparent ARGB32_Premultiplied image. Safe to call

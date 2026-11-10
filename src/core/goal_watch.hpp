@@ -13,6 +13,7 @@ enum class Side { Home, Away };
 struct GoalEvent {
 	Side side = Side::Home;   // the team whose score went up
 	std::string scorer;       // empty when the feed has not named them yet
+	std::string scorer_photo_url; // empty when ESPN has no headshot
 	std::string minute;
 	bool own_goal = false;
 	bool penalty = false;
