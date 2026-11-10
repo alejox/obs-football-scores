@@ -157,10 +157,20 @@ jobs:
           if-no-files-found: error
 
   macos-arm64:
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
+
+      # OBS 33 checks for the macOS 26.5 SDK: pick the newest Xcode 26 on the runner.
+      - name: Select Xcode
+        run: |
+          ls -d /Applications/Xcode*.app
+          xcode="$(ls -d /Applications/Xcode_26*.app | sort -V | tail -n 1)"
+          test -n "$xcode"
+          sudo xcode-select -s "$xcode/Contents/Developer"
+          xcodebuild -version
+          xcrun --show-sdk-version
 
       # Key on the buildspec "dependencies" section only, so a version bump keeps the cache.
       - name: Compute OBS dependencies key
