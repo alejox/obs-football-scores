@@ -1,0 +1,34 @@
+# OBS Football Scores
+
+Native OBS Studio plugin that shows **one football match** with its live score, team crests and the league's flag.
+
+In the source properties pick **League → Match** (e.g. *LaLiga → Real Madrid vs Barcelona*) and the source shows only that match.
+
+[Español](README.md)
+
+## Features
+
+- **League → Match**: 30 competitions (LaLiga, Premier League, Serie A, Bundesliga, Ligue 1, Champions League, Libertadores, Liga BetPlay, Liga MX, MLS, World Cup, Nations League…).
+- **Fixed or automatic match**: choose one match, or "Automatic" for the league's live match (otherwise the last result for a few hours, then the next match).
+- **Live score**: minute, half time and full time; before kick-off, the local time and day. Refreshes every 15 s during the match.
+- **Crests and flags**: each team's crest (the flag for national teams), the league logo and its country flag.
+- **Goal animation** with crest, "GOAL!" and the scorer; a button and a hotkey to test it.
+- **Styles** Minimal, Bold and Neon; accent and text colors, full/short/abbreviated names, any size.
+
+## Install
+
+Download your platform's file from [Releases](https://github.com/alejox/obs-football-scores/releases) and follow `INSTALL.txt`. Then in OBS: **Sources → + → Football Scoreboard**.
+
+## Data
+
+Scores, crests and flags come from ESPN's public API (`site.api.espn.com`, `a.espncdn.com`); no key or account needed. The API is unofficial and may change without notice.
+
+## Build
+
+```bash
+cmake --preset linux-x86_64        # or windows-x64 / macos
+cmake --build --preset linux-x86_64
+cmake -S tests -B build_tests && cmake --build build_tests && ctest --test-dir build_tests
+```
+
+License: GPL-2.0, like OBS Studio.
