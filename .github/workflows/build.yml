@@ -155,3 +155,80 @@ jobs:
           name: obs-football-scores-linux-x86_64
           path: ${{ env.PACKAGE }}
           if-no-files-found: error
+
+  macos-arm64:
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+
+      # Key on the buildspec "dependencies" section only, so a version bump keeps the cache.
+      - name: Compute OBS dependencies key
+        id: deps-key
+        run: echo "hash=$(jq -cS .dependencies buildspec.json | shasum -a 256 | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore OBS dependencies
+        id: restore-deps
+        uses: actions/cache/restore@v6
+        with:
+          path: .deps
+          key: deps-macos-${{ steps.deps-key.outputs.hash }}-${{ hashFiles('cmake/common/buildspec_common.cmake', 'cmake/macos/buildspec.cmake') }}
+          restore-keys: |
+            deps-macos-
+
+      # Configure downloads OBS sources and obs-deps from GitHub; retry transient HTTP errors.
+      - name: Configure
+        run: |
+          for attempt in 1 2 3; do
+            cmake --preset macos && exit 0
+            echo "Configure attempt $attempt failed; retrying in 30 s"
+            rm -rf build_macos
+            sleep 30
+          done
+          exit 1
+
+      - name: Save OBS dependencies
+        if: steps.restore-deps.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: .deps
+          key: ${{ steps.restore-deps.outputs.cache-primary-key }}
+
+      # Unsigned build: no CODESIGN_IDENT in CI, so Xcode signs ad hoc.
+      - name: Build
+        run: cmake --build --preset macos
+
+      - name: Test
+        run: |
+          cmake -S tests -B build_tests -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          cmake --build build_tests --parallel
+          ctest --test-dir build_tests --output-on-failure
+
+      - name: Package
+        run: |
+          version="$(jq -r .version buildspec.json)"
+          package="obs-football-scores-${version}-macos.zip"
+          bundle="$(find build_macos -type d -name 'obs-football-scores.plugin' -path '*RelWithDebInfo*' | head -n 1)"
+          if [ -z "$bundle" ]; then
+            find build_macos -name '*.plugin' -maxdepth 4
+            echo "obs-football-scores.plugin is missing from the build tree"; exit 1
+          fi
+          mkdir -p stage
+          ditto "$bundle" stage/obs-football-scores.plugin
+          test -f stage/obs-football-scores.plugin/Contents/Resources/locale/es-ES.ini
+          cat > stage/INSTALL.txt <<EOT
+          OBS Football Scores ${version} for macOS 13+ (Apple Silicon), built against OBS 33.0.1.
+          1. Close OBS.
+          2. Copy obs-football-scores.plugin into:
+               ~/Library/Application Support/obs-studio/plugins/
+          3. The plugin is not notarized. If macOS blocks it, run once in Terminal:
+               xattr -dr com.apple.quarantine ~/Library/Application\ Support/obs-studio/plugins/obs-football-scores.plugin
+          EOT
+          (cd stage && ditto -c -k --keepParent obs-football-scores.plugin "../${package}" && zip -q "../${package}" INSTALL.txt)
+          echo "PACKAGE=${package}" >> "${GITHUB_ENV}"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: obs-football-scores-macos
+          path: ${{ env.PACKAGE }}
+          if-no-files-found: error
