@@ -13,7 +13,8 @@ In the source properties pick **League → Match** (e.g. *LaLiga → Real Madrid
 - **Live score**: minute, half time and full time; before kick-off, the local time and day. Refreshes every 15 s during the match.
 - **Crests and flags**: each team's crest (the flag for national teams), the league logo and its country flag.
 - **Goal animation** with "GOAL!", the scorer and their photo when ESPN has one (otherwise the crest); a button and a hotkey to test it.
-- **Styles** Minimal, Bold and Neon; accent and text colors, full/short/abbreviated names, any size.
+- **6 designs**: Classic (slim bar), Stadium (crests pop out of the bar), Clash (diagonal team colors), Card (for a corner), Floating (big crests over the score, transparent background) and Clean (crests and score only). The large-crest designs keep their proportions: you only pick the width.
+- **Styles** for Classic: Minimal, Bold and Neon; accent and text colors, full/short/abbreviated names, any size.
 
 ## Install
 

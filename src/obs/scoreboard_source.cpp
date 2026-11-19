@@ -1,5 +1,6 @@
 #include "obs/scoreboard_source.hpp"
 
+#include "core/board_design.hpp"
 #include "core/goal_animation.hpp"
 #include "core/goal_watch.hpp"
 #include "core/league_catalog.hpp"
@@ -42,6 +43,7 @@ constexpr const char *kShowLeagueKey = "show_league";
 constexpr const char *kGoalAnimationKey = "goal_animation";
 constexpr const char *kTestGoalKey = "test_goal";
 constexpr const char *kStyleKey = "style";
+constexpr const char *kDesignKey = "design";
 constexpr const char *kAccentKey = "accent_color";
 constexpr const char *kTextColorKey = "text_color";
 constexpr const char *kWidthKey = "width";
@@ -49,6 +51,7 @@ constexpr const char *kHeightKey = "height";
 constexpr const char *kTestHotkeyName = "football_scores.test_goal";
 
 constexpr const char *kDefaultLeague = "esp.1";
+constexpr BoardDesign kDefaultDesign = BoardDesign::Stadium;
 constexpr long long kDefaultWidth = 960;
 constexpr long long kDefaultHeight = 120;
 // OBS colors are 0xAABBGGRR.
@@ -254,8 +257,8 @@ render::ScoreView build_view(ScoreboardSource &self)
 {
 	render::ScoreView view;
 	const League *league = find_league(self.league);
-	view.league_name = QString::fromStdString(self.snapshot.league_name.empty() && league ? league->name
-											   : self.snapshot.league_name);
+	// The catalog's short name ("LaLiga") reads better than the feed's ("Spanish LALIGA").
+	view.league_name = QString::fromStdString(league ? league->name : self.snapshot.league_name);
 	view.league_logo = image_for(self, self.snapshot.league_logo_url);
 	if (league)
 		view.league_flag = image_for(self, country_flag_url(league->country));
@@ -285,8 +288,13 @@ render::ScoreView build_view(ScoreboardSource &self)
 	}
 
 	view.has_match = true;
-	view.home = {team_name(match->home, self.names), image_for(self, match->home.logo_url), team_color(match->home)};
-	view.away = {team_name(match->away, self.names), image_for(self, match->away.logo_url), team_color(match->away)};
+	view.home = {team_name(match->home, self.names), team_name(match->home, NameMode::Abbreviation),
+		     image_for(self, match->home.logo_url), team_color(match->home)};
+	view.away = {team_name(match->away, self.names), team_name(match->away, NameMode::Abbreviation),
+		     image_for(self, match->away.logo_url), team_color(match->away)};
+	view.has_score = match->started();
+	view.score_home = QString::number(match->home.score.value_or(0));
+	view.score_away = QString::number(match->away.score.value_or(0));
 	fill_center_and_status(*match, view, obs_locale());
 	view.blink = self.blink_on ? 1.0 : 0.25;
 
@@ -355,12 +363,15 @@ void scoreboard_update(void *data, obs_data_t *settings)
 		std::lock_guard lock(self->update_mutex);
 		self->names = name_mode_from_id(obs_data_get_string(settings, kNamesKey));
 		self->goal_animation = obs_data_get_bool(settings, kGoalAnimationKey);
+		self->style.design = board_design_from_id(obs_data_get_string(settings, kDesignKey));
 		self->style.preset = style_preset_from_id(obs_data_get_string(settings, kStyleKey));
 		self->style.accent = color_from_obs(obs_data_get_int(settings, kAccentKey));
 		self->style.text = color_from_obs(obs_data_get_int(settings, kTextColorKey));
 		self->style.show_league = obs_data_get_bool(settings, kShowLeagueKey);
 		self->width = read_dimension(settings, kWidthKey, kDefaultWidth);
-		self->height = read_dimension(settings, kHeightKey, kDefaultHeight);
+		// The large-crest designs keep their proportions: the height follows the width.
+		self->height = design_height_for_width(self->style.design, self->width,
+						       read_dimension(settings, kHeightKey, kDefaultHeight));
 
 		if (!self->feed || league != self->league || match_id != self->match_id) {
 			self->league = league;
@@ -530,6 +541,7 @@ void scoreboard_defaults(obs_data_t *settings)
 	obs_data_set_default_string(settings, kNamesKey, "full");
 	obs_data_set_default_bool(settings, kShowLeagueKey, true);
 	obs_data_set_default_bool(settings, kGoalAnimationKey, true);
+	obs_data_set_default_string(settings, kDesignKey, std::string(board_design_id(kDefaultDesign)).c_str());
 	obs_data_set_default_string(settings, kStyleKey, std::string(style_preset_id(StylePreset::Bold)).c_str());
 	obs_data_set_default_int(settings, kAccentKey, kDefaultAccent);
 	obs_data_set_default_int(settings, kTextColorKey, kDefaultText);
@@ -638,6 +650,15 @@ bool refresh_clicked(obs_properties_t *props, obs_property_t *, void *data)
 	return true;
 }
 
+// Style presets and a free height only apply to the Classic bar.
+bool design_changed(obs_properties_t *props, obs_property_t *, obs_data_t *settings)
+{
+	const bool classic = board_design_from_id(obs_data_get_string(settings, kDesignKey)) == BoardDesign::Classic;
+	obs_property_set_visible(obs_properties_get(props, kStyleKey), classic);
+	obs_property_set_visible(obs_properties_get(props, kHeightKey), classic);
+	return true;
+}
+
 bool test_goal_clicked(obs_properties_t *, obs_property_t *, void *data)
 {
 	if (auto *self = static_cast<ScoreboardSource *>(data))
@@ -681,6 +702,15 @@ obs_properties_t *scoreboard_properties(void *data)
 	obs_properties_add_bool(props, kShowLeagueKey, obs_module_text("Football.ShowLeague"));
 	obs_properties_add_bool(props, kGoalAnimationKey, obs_module_text("Football.GoalAnimation"));
 	obs_properties_add_button2(props, kTestGoalKey, obs_module_text("Football.TestGoal"), test_goal_clicked, self);
+
+	obs_property_t *design = obs_properties_add_list(props, kDesignKey, obs_module_text("Football.Design"),
+							 OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+	for (const BoardDesign entry : kBoardDesigns) {
+		const std::string id(board_design_id(entry));
+		const std::string key = "Football.Design." + id;
+		obs_property_list_add_string(design, obs_module_text(key.c_str()), id.c_str());
+	}
+	obs_property_set_modified_callback(design, design_changed);
 
 	obs_property_t *style = obs_properties_add_list(props, kStyleKey, obs_module_text("Football.Style"),
 							OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);

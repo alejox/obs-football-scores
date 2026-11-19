@@ -38,6 +38,7 @@ target_sources(
     src/plugin_main.cpp
     src/obs/scoreboard_source.cpp
     src/obs/services.cpp
+    src/render/design_painter.cpp
     src/render/scoreboard_painter.cpp
 )
 

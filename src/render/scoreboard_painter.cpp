@@ -370,6 +370,9 @@ void draw_message(QPainter &painter, const Layout &l, const QString &message, co
 
 QImage ScoreboardPainter::paint(const ScoreView &view, const BoardStyle &style, QSize size)
 {
+	if (style.design != BoardDesign::Classic)
+		return paint_design(view, style, size);
+
 	QImage image(size, QImage::Format_ARGB32_Premultiplied);
 	image.fill(Qt::transparent);
 	if (size.isEmpty())

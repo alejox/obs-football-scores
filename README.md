@@ -13,7 +13,8 @@ En las propiedades de la fuente eliges **Liga → Partido** (p. ej. *LaLiga → 
 - **Marcador en vivo**: minuto, descanso y final; antes del partido, la hora local y el día. Se actualiza cada 15 s durante el partido.
 - **Escudos y banderas**: escudo de cada equipo (la bandera en partidos de selecciones), logo de la liga y bandera del país.
 - **Animación de gol**: banner con «¡GOOOL!», el goleador y su foto cuando ESPN la tiene (si no, el escudo). Botón y atajo de teclado para probarla.
-- **Estilos** Minimalista, Intenso y Neón; color de acento, color de texto, nombres completos, cortos o abreviados (RMA, FCB), y tamaño libre.
+- **6 diseños**: Clásico (barra delgada), Estadio (escudos que sobresalen de la barra), Choque (colores de los equipos en diagonal), Tarjeta (para una esquina), Flotante (escudos grandes encima del marcador, fondo transparente) y Limpio (solo escudos y marcador, sin fondo). Los diseños con escudos grandes mantienen su proporción: solo eliges el ancho.
+- **Estilos** del diseño Clásico: Minimalista, Intenso y Neón; color de acento, color de texto, nombres completos, cortos o abreviados (RMA, FCB), y tamaño libre.
 
 ## Instalación
 

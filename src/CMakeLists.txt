@@ -20,6 +20,7 @@ FetchContent_MakeAvailable(nlohmann_json_header)
 
 add_library(
   football-core STATIC
+  core/board_design.cpp
   core/cancel_token.cpp
   core/espn.cpp
   core/goal_animation.cpp

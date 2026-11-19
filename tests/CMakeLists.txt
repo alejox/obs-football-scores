@@ -33,6 +33,7 @@ function(add_core_test name)
 endfunction()
 
 add_core_test(cancel_token_test core/cancel_token_test.cpp)
+add_core_test(board_design_test core/board_design_test.cpp)
 add_core_test(time_util_test core/time_util_test.cpp)
 add_core_test(espn_test core/espn_test.cpp)
 add_core_test(league_catalog_test core/league_catalog_test.cpp)
