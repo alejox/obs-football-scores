@@ -354,8 +354,9 @@ void paint_clash(QPainter &p, const ScoreView &v, const BoardStyle &style)
 
 	p.save();
 	p.setClipPath(base);
-	const QColor home_color = team(v.home, QColor(70, 74, 90));
-	const QColor away_color = team(v.away, QColor(50, 54, 70));
+	// White text sits on these: darken light team colors (white, sky blue, gold).
+	const QColor home_color = readable(team(v.home, QColor(70, 74, 90)));
+	const QColor away_color = readable(team(v.away, QColor(50, 54, 70)));
 	QLinearGradient hg(bar.topLeft(), bar.bottomLeft());
 	hg.setColorAt(0, home_color);
 	hg.setColorAt(1, home_color.darker(170));
