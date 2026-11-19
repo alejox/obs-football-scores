@@ -4,11 +4,11 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/common/bootstrap.cmake" NO_POLICY_SCO
 
 project(${_name} VERSION ${_version})
 
-option(ENABLE_FRONTEND_API "Use obs-frontend-api for UI functionality" OFF)
+option(ENABLE_FRONTEND_API "Use obs-frontend-api for UI functionality" ON)
 option(ENABLE_QT "Use Qt functionality" ON)
 
-if(NOT ENABLE_QT)
-  message(FATAL_ERROR "obs-football-scores requires ENABLE_QT (the scoreboard is painted with QtGui).")
+if(NOT ENABLE_FRONTEND_API OR NOT ENABLE_QT)
+  message(FATAL_ERROR "obs-football-scores requires ENABLE_FRONTEND_API and ENABLE_QT.")
 endif()
 
 include(compilerconfig)
@@ -20,16 +20,19 @@ add_subdirectory(src)
 add_library(${CMAKE_PROJECT_NAME} MODULE)
 
 find_package(libobs REQUIRED)
-find_package(Qt6 REQUIRED COMPONENTS Core Gui)
+find_package(obs-frontend-api REQUIRED)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
 
 target_link_libraries(
   ${CMAKE_PROJECT_NAME}
-  PRIVATE football-core football-feed OBS::libobs Qt6::Core Qt6::Gui
+  PRIVATE football-core football-feed football-update OBS::libobs OBS::obs-frontend-api Qt6::Core Qt6::Gui Qt6::Widgets
 )
 target_compile_options(
   ${CMAKE_PROJECT_NAME}
   PRIVATE $<$<C_COMPILER_ID:Clang,AppleClang>:-Wno-quoted-include-in-framework-header -Wno-comma>
 )
+
+set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES AUTOMOC ON AUTOUIC ON AUTORCC ON)
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
 target_sources(
@@ -40,6 +43,9 @@ target_sources(
     src/obs/services.cpp
     src/render/design_painter.cpp
     src/render/scoreboard_painter.cpp
+    src/ui/support_dialog.cpp
+    src/ui/update_controller.cpp
+    src/update/update_service.cpp
 )
 
 # System HTTPS stack: OBS does not ship Qt's TLS plugins on Windows or macOS, so

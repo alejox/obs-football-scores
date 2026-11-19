@@ -50,3 +50,15 @@ endfunction()
 add_feed_test(match_feed_test feed/match_feed_test.cpp)
 add_feed_test(image_store_test feed/image_store_test.cpp)
 add_feed_test(league_listing_test feed/league_listing_test.cpp)
+
+add_core_test(sha256_test core/sha256_test.cpp)
+
+function(add_update_test name)
+  add_core_test(${name} ${ARGN})
+  target_link_libraries(${name} PRIVATE football-update)
+endfunction()
+
+add_update_test(update_check_test update/update_check_test.cpp)
+add_update_test(staging_test update/staging_test.cpp)
+add_update_test(install_plan_test update/install_plan_test.cpp)
+add_update_test(update_settings_test update/update_settings_test.cpp)

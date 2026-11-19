@@ -1,0 +1,90 @@
+name: Release
+
+# Publishes a GitHub Release with the macOS, Windows and Linux packages built by build.yml.
+# Runs when a change to "version" in buildspec.json reaches main, when a v<version> tag is
+# pushed, or by hand (Actions → Release → Run workflow). The tag is always v<version>; if it
+# already exists, nothing is published. The notes are the "## <version>" section of
+# CHANGELOG.md: the plugin's updater shows its items before installing (the Spanish ones when
+# OBS is in Spanish, the English ones otherwise).
+on:
+  push:
+    branches: [main]
+    paths: [buildspec.json]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    outputs:
+      tag: ${{ steps.tag.outputs.name }}
+      publish: ${{ steps.tag.outputs.publish }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Version and tag
+        id: tag
+        run: |
+          version="$(python3 -c "import json; print(json.load(open('buildspec.json'))['version'])")"
+          tag="v$version"
+          echo "name=$tag" >> "$GITHUB_OUTPUT"
+          grep -qx "## $version" CHANGELOG.md || { echo "CHANGELOG.md has no '## $version' section"; exit 1; }
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            [ "$tag" = "$GITHUB_REF_NAME" ] || { echo "Tag $GITHUB_REF_NAME but buildspec.json says $tag"; exit 1; }
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          elif git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null; then
+            echo "Tag $tag already exists: nothing to publish (bump the version in buildspec.json)."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    needs: prepare
+    if: needs.prepare.outputs.publish == 'true'
+    uses: ./.github/workflows/build.yml
+
+  publish:
+    needs: [prepare, build]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v7
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Check the packages
+        env:
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          version="${TAG#v}"
+          ls -la dist
+          for file in "obs-football-scores-$version-macos-arm64.zip" "obs-football-scores-$version-windows-x64.zip" \
+                      "obs-football-scores-$version-linux-x86_64.tar.gz"; do
+            test -s "dist/$file" || { echo "Missing $file"; exit 1; }
+          done
+          unzip -l "dist/obs-football-scores-$version-macos-arm64.zip" | grep -q 'obs-football-scores.plugin/Contents/MacOS/obs-football-scores$'
+          unzip -l "dist/obs-football-scores-$version-windows-x64.zip" | grep -q 'obs-football-scores/bin/64bit/obs-football-scores.dll$'
+          tar -tzf "dist/obs-football-scores-$version-linux-x86_64.tar.gz" | grep -q 'obs-football-scores/data/locale/es-ES.ini$'
+      - name: Release notes
+        env:
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          version="${TAG#v}"
+          awk -v v="## $version" '$0==v{on=1;next} /^## /{on=0} on' CHANGELOG.md > notes.md
+          grep -q '^- ' notes.md || { echo "The '## $version' section of CHANGELOG.md has no items"; exit 1; }
+          cat notes.md
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          gh release create "$TAG" dist/* --target "$GITHUB_SHA" --title "AC Football Scores $TAG" --notes-file notes.md
+      - name: Update alejoxcode
+        env:
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          [ -n "$VERCEL_DEPLOY_HOOK" ] || { echo "No VERCEL_DEPLOY_HOOK: skipped"; exit 0; }
+          curl -fsS -X POST "$VERCEL_DEPLOY_HOOK"

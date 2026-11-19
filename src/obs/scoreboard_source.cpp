@@ -10,7 +10,9 @@
 #include "feed/match_feed.hpp"
 #include "obs/services.hpp"
 #include "render/scoreboard_painter.hpp"
+#include "ui/support_dialog.hpp"
 
+#include <obs-frontend-api.h>
 #include <obs-module.h>
 #include <plugin-support.h>
 
@@ -18,6 +20,7 @@
 #include <QImage>
 #include <QLocale>
 #include <QString>
+#include <QWidget>
 
 #include <algorithm>
 #include <atomic>
@@ -675,6 +678,13 @@ bool refresh_clicked(obs_properties_t *props, obs_property_t *, void *data)
 	return true;
 }
 
+// Last in the properties, low-key: the Ko-fi support message. Only opens on click.
+bool support_clicked(obs_properties_t *, obs_property_t *, void *)
+{
+	ui::run_support_dialog(static_cast<QWidget *>(obs_frontend_get_main_window()));
+	return false;
+}
+
 // Style presets and a free height only apply to the Classic bar.
 bool design_changed(obs_properties_t *props, obs_property_t *, obs_data_t *settings)
 {
@@ -753,6 +763,8 @@ obs_properties_t *scoreboard_properties(void *data)
 	obs_properties_add_int(props, kHeightKey, obs_module_text("Football.Height"), 16, 4096, 1);
 
 	obs_properties_add_text(props, "data_notice", obs_module_text("Football.DataNotice"), OBS_TEXT_INFO);
+	const std::string support = std::string("☕ ") + obs_module_text("Support.Link");
+	obs_properties_add_button2(props, "support", support.c_str(), support_clicked, nullptr);
 	return props;
 }
 

@@ -1,4 +1,4 @@
-# OBS Football Scores
+# AC Football Scores
 
 Plugin nativo para OBS Studio que muestra **un partido de fútbol** con su marcador en vivo, los escudos de los equipos y la bandera de la liga.
 
@@ -16,6 +16,7 @@ En las propiedades de la fuente eliges **Liga → Partido** (p. ej. *LaLiga → 
 - **Escudos y banderas**: escudo de cada equipo (la bandera en partidos de selecciones), logo de la liga y bandera del país.
 - **Animación de gol**: banner con «¡GOOOL!», el goleador y su foto cuando ESPN la tiene (si no, el escudo). Botón y atajo de teclado para probarla.
 - **6 diseños**: Clásico (barra delgada), Estadio (escudos que sobresalen de la barra), Choque (colores de los equipos en diagonal), Tarjeta (para una esquina), Flotante (escudos grandes encima del marcador, fondo transparente) y Limpio (solo escudos y marcador, sin fondo). Los diseños con escudos grandes mantienen su proporción: solo eliges el ancho.
+- **Se actualiza solo**: al abrir OBS revisa (una vez al día) si hay versión nueva, muestra sus novedades y la instala al reiniciar OBS. También en **Herramientas → AC Football Scores: Buscar actualizaciones**.
 - **Estilos** del diseño Clásico: Minimalista, Intenso y Neón; color de acento, color de texto, nombres completos, cortos o abreviados (RMA, FCB), y tamaño libre.
 
 ## Instalación
@@ -23,7 +24,10 @@ En las propiedades de la fuente eliges **Liga → Partido** (p. ej. *LaLiga → 
 Descarga el archivo de tu sistema desde [Releases](https://github.com/alejox/obs-football-scores/releases) y sigue `INSTALL.txt`:
 
 - **Windows**: cierra OBS y extrae la carpeta `obs-football-scores` en `C:\ProgramData\obs-studio\plugins\`.
+- **macOS** (Apple Silicon, macOS 13+): cierra OBS y copia `obs-football-scores.plugin` en `~/Library/Application Support/obs-studio/plugins/`. No está notarizado: si macOS lo bloquea, ejecuta `xattr -dr com.apple.quarantine ~/Library/Application\ Support/obs-studio/plugins/obs-football-scores.plugin`.
 - **Linux**: `tar -xzf obs-football-scores-*-linux-x86_64.tar.gz -C ~/.config/obs-studio/plugins`
+
+Desde la 0.2.0 las siguientes versiones se instalan solas desde OBS.
 
 Luego en OBS: **Fuentes → + → Marcador de fútbol**.
 
@@ -57,5 +61,12 @@ ctest --test-dir build_tests --output-on-failure
 | `src/render` | Dibujo del marcador con QPainter. |
 | `src/obs` | La fuente de OBS y los servicios compartidos. |
 | `src/net` | HTTPS con la pila del sistema (WinHTTP, NSURLSession, libcurl). |
+
+## Publicar una versión
+
+1. Agrega la sección `## <versión>` a `CHANGELOG.md` (con `### Español` y `### English`): es lo que el aviso de actualización muestra.
+2. Sube la versión en `buildspec.json` y súbelo a `main`. El workflow **Release** compila Windows, macOS y Linux y publica la Release `v<versión>`.
+
+¿Te sirve? [Invítame un café en Ko-fi](https://ko-fi.com/alejoxcode).
 
 Licencia GPL-2.0, como OBS Studio.

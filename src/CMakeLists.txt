@@ -27,6 +27,7 @@ add_library(
   core/goal_watch.cpp
   core/league_catalog.cpp
   core/match_selection.cpp
+  core/sha256.cpp
   core/style_preset.cpp
   core/time_util.cpp
   core/version.cpp)
@@ -42,3 +43,17 @@ find_package(Threads REQUIRED)
 add_library(football-feed STATIC feed/image_store.cpp feed/league_listing.cpp feed/match_feed.cpp)
 target_link_libraries(football-feed PUBLIC football-core Threads::Threads)
 set_target_properties(football-feed PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+# Updater logic: release check, staging manifest, installer script and settings. Plain
+# C++ and the standard library; the Qt service in the plugin does the network and UI.
+add_library(
+  football-update STATIC
+  update/atomic_file.cpp
+  update/install_plan.cpp
+  update/staging.cpp
+  update/update_check.cpp
+  update/update_settings.cpp
+  update/update_settings_file.cpp)
+target_link_libraries(football-update PUBLIC football-core)
+target_include_directories(football-update SYSTEM PRIVATE "${nlohmann_json_header_SOURCE_DIR}")
+set_target_properties(football-update PROPERTIES POSITION_INDEPENDENT_CODE ON)
