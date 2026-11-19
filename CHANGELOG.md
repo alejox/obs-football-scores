@@ -3,6 +3,16 @@
 Each `## <version>` section becomes the description of that release, and the plugin's updater shows
 its items before installing (the Spanish ones when OBS is in Spanish, the English ones otherwise).
 
+## 0.2.1
+
+### Español
+
+- Las propiedades ya no muestran el aviso sobre el origen de los datos.
+
+### English
+
+- The properties no longer show the notice about where the data comes from.
+
 ## 0.2.0
 
 ### Español

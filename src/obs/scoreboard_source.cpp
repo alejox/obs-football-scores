@@ -762,7 +762,6 @@ obs_properties_t *scoreboard_properties(void *data)
 	obs_properties_add_int(props, kWidthKey, obs_module_text("Football.Width"), 16, 4096, 1);
 	obs_properties_add_int(props, kHeightKey, obs_module_text("Football.Height"), 16, 4096, 1);
 
-	obs_properties_add_text(props, "data_notice", obs_module_text("Football.DataNotice"), OBS_TEXT_INFO);
 	const std::string support = std::string("☕ ") + obs_module_text("Support.Link");
 	obs_properties_add_button2(props, "support", support.c_str(), support_clicked, nullptr);
 	return props;
