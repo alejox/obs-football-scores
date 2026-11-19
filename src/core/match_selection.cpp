@@ -13,28 +13,23 @@ constexpr size_t kMinUpcoming = 10;
 
 } // namespace
 
-std::vector<Match> listable_matches(const std::vector<Match> &all, int64_t now, int ahead_days, int behind_hours)
+std::vector<Match> listable_matches(const std::vector<Match> &all, int64_t now, bool live_only, int ahead_days)
 {
-	std::vector<Match> live, upcoming, finished;
+	std::vector<Match> live, upcoming;
 	std::unordered_set<std::string> seen;
 	const int64_t ahead_limit = now + static_cast<int64_t>(ahead_days) * 86400;
-	const int64_t behind_limit = now - static_cast<int64_t>(behind_hours) * 3600;
+	// A scheduled match whose kick-off passed a little ago is about to start.
+	const int64_t late_limit = now - 3 * 3600;
 
 	for (const Match &match : all) {
 		if (!seen.insert(match.id).second)
 			continue;
-		if (match.in_progress()) {
+		if (match.in_progress())
 			live.push_back(match);
-		} else if (match.state == MatchState::Finished) {
-			if (match.start_utc >= behind_limit)
-				finished.push_back(match);
-		} else if (match.state == MatchState::Postponed) {
-			// Only a postponed match that still has a date ahead is worth offering.
-			if (match.start_utc >= now)
-				upcoming.push_back(match);
-		} else if (match.start_utc >= behind_limit) {
+		else if (live_only || match.state == MatchState::Finished)
+			continue;
+		else if (match.state == MatchState::Postponed ? match.start_utc >= now : match.start_utc >= late_limit)
 			upcoming.push_back(match);
-		}
 	}
 
 	const auto by_kickoff = [](const Match &a, const Match &b) { return a.start_utc < b.start_utc; };
@@ -46,14 +41,9 @@ std::vector<Match> listable_matches(const std::vector<Match> &all, int64_t now, 
 	while (keep < upcoming.size() && (upcoming[keep].start_utc <= ahead_limit || keep < kMinUpcoming))
 		++keep;
 	upcoming.resize(keep);
-	std::stable_sort(finished.begin(), finished.end(),
-			 [](const Match &a, const Match &b) { return a.start_utc > b.start_utc; });
 
-	std::vector<Match> result;
-	result.reserve(live.size() + upcoming.size() + finished.size());
-	result.insert(result.end(), live.begin(), live.end());
+	std::vector<Match> result = std::move(live);
 	result.insert(result.end(), upcoming.begin(), upcoming.end());
-	result.insert(result.end(), finished.begin(), finished.end());
 	return result;
 }
 

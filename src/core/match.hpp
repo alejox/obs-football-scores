@@ -37,6 +37,8 @@ struct GoalInfo {
 
 struct Match {
 	std::string id;
+	std::string league_id; // ESPN's numeric league id, from the event uid; empty when unknown
+	std::string competition; // the feed's own competition name ("FIFA U-17 World Cup"); may be empty
 	int64_t start_utc = 0; // seconds since the Unix epoch
 	Team home;
 	Team away;

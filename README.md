@@ -9,6 +9,8 @@ En las propiedades de la fuente eliges **Liga → Partido** (p. ej. *LaLiga → 
 ## Funciones
 
 - **Liga → Partido**: 30 competiciones (LaLiga, Premier, Serie A, Bundesliga, Ligue 1, Champions, Libertadores, Liga BetPlay, Liga MX, Liga Profesional Argentina, Brasileirão, MLS, Mundial, Nations League…).
+- **En vivo ahora**: la opción «🔴 En vivo ahora (todas las ligas)» lista solo los partidos que se están jugando en este momento en cualquier competición que cubra ESPN, con el nombre de su liga.
+- **Lista limpia**: la lista de partidos solo muestra los que están en vivo y los próximos; los terminados desaparecen.
 - **Partido fijo o automático**: elige un partido concreto, o «Automático» para mostrar el partido en vivo de la liga (si no hay, el último resultado durante unas horas y luego el próximo).
 - **Marcador en vivo**: minuto, descanso y final; antes del partido, la hora local y el día. Se actualiza cada 15 s durante el partido.
 - **Escudos y banderas**: escudo de cada equipo (la bandera en partidos de selecciones), logo de la liga y bandera del país.

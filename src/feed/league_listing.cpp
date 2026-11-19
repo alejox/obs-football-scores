@@ -1,6 +1,7 @@
 #include "feed/league_listing.hpp"
 
 #include "core/espn.hpp"
+#include "core/league_catalog.hpp"
 #include "core/time_util.hpp"
 
 #include <utility>
@@ -8,9 +9,39 @@
 
 namespace fscore {
 
+namespace {
+
+// "all" has no month view; its day boards (US Eastern days) cover today.
+std::optional<Scoreboard> fetch_all_leagues_today(int64_t now, const HttpGet &http, CancelToken *cancel)
+{
+	std::optional<Scoreboard> merged;
+	for (const std::string &day : espn::candidate_days(now)) {
+		if (cancel && cancel->cancelled())
+			return std::nullopt;
+		const HttpResult result = http(espn::day_url(kAllLeagues, day), cancel);
+		if (!result.ok())
+			continue;
+		auto board = espn::parse_scoreboard(result.body);
+		if (!board)
+			continue;
+		if (!merged) {
+			merged = Scoreboard{};
+			merged->league_name = "All";
+		}
+		for (Match &match : board->matches)
+			merged->matches.push_back(std::move(match));
+	}
+	return merged;
+}
+
+} // namespace
+
 std::optional<Scoreboard> fetch_league_matches(const std::string &league, int64_t now, const HttpGet &http,
 					       CancelToken *cancel)
 {
+	if (league == kAllLeagues)
+		return fetch_all_leagues_today(now, http, cancel);
+
 	const CivilDate today = utc_date(now);
 	std::vector<std::pair<int, int>> months;
 	auto add_month = [&months](int year, int month) {

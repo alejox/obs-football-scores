@@ -14,7 +14,7 @@ constexpr int64_t kDay = 86400;
 
 } // namespace
 
-TEST_CASE(lists_live_then_upcoming_then_recent_results)
+TEST_CASE(lists_live_then_upcoming_and_drops_finished)
 {
 	const std::vector<Match> all = {
 		make_match("old", kNow - 5 * kDay, MatchState::Finished, 1, 0),
@@ -26,15 +26,30 @@ TEST_CASE(lists_live_then_upcoming_then_recent_results)
 		make_match("live", kNow - kHour, MatchState::Live, 1, 0), // duplicate from a second month
 		make_match("ht", kNow - 2 * kHour, MatchState::HalfTime, 0, 0),
 		make_match("postponed", kNow - 3 * kHour, MatchState::Postponed),
+		make_match("stale", kNow - 10 * kHour, MatchState::Scheduled), // never started: dropped
 	};
 	const auto listed = listable_matches(all, kNow);
-	REQUIRE(listed.size() == 6u);
+	REQUIRE(listed.size() == 5u);
 	CHECK_EQ(listed[0].id, std::string("ht"));
 	CHECK_EQ(listed[1].id, std::string("live"));
 	CHECK_EQ(listed[2].id, std::string("next1"));
 	CHECK_EQ(listed[3].id, std::string("next2"));
 	CHECK_EQ(listed[4].id, std::string("far")); // fewer than ten upcoming: kept past the window
-	CHECK_EQ(listed[5].id, std::string("done"));
+}
+
+TEST_CASE(live_only_keeps_just_the_matches_in_play)
+{
+	const std::vector<Match> all = {
+		make_match("next", kNow + kHour, MatchState::Scheduled),
+		make_match("live", kNow - kHour, MatchState::Live, 1, 0),
+		make_match("done", kNow - 2 * kHour, MatchState::Finished, 1, 1),
+		make_match("ht", kNow - kHour, MatchState::HalfTime, 0, 0),
+	};
+	const auto listed = listable_matches(all, kNow, true);
+	REQUIRE(listed.size() == 2u);
+	CHECK_EQ(listed[0].id, std::string("live"));
+	CHECK_EQ(listed[1].id, std::string("ht"));
+	CHECK(listable_matches({make_match("done", kNow, MatchState::Finished)}, kNow, true).empty());
 }
 
 TEST_CASE(the_window_applies_once_there_are_enough_upcoming_matches)

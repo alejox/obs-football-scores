@@ -9,6 +9,8 @@ In the source properties pick **League → Match** (e.g. *LaLiga → Real Madrid
 ## Features
 
 - **League → Match**: 30 competitions (LaLiga, Premier League, Serie A, Bundesliga, Ligue 1, Champions League, Libertadores, Liga BetPlay, Liga MX, MLS, World Cup, Nations League…).
+- **Live now**: the "🔴 Live now (all leagues)" option lists only the matches being played right now in any competition ESPN covers, with their league.
+- **Clean list**: the match list only shows live and upcoming matches; finished ones drop out.
 - **Fixed or automatic match**: choose one match, or "Automatic" for the league's live match (otherwise the last result for a few hours, then the next match).
 - **Live score**: minute, half time and full time; before kick-off, the local time and day. Refreshes every 15 s during the match.
 - **Crests and flags**: each team's crest (the flag for national teams), the league logo and its country flag.

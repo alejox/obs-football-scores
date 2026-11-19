@@ -12,11 +12,11 @@ namespace fscore {
 
 // Matches worth offering in the "Match" list at `now`: live ones first, then
 // the upcoming ones (within `ahead_days`, but at least the next ten) in
-// kick-off order, then the ones that
-// finished in the last `behind_hours`, most recent first. Duplicated ids are
-// dropped. A postponed match is listed only while its date is ahead.
-std::vector<Match> listable_matches(const std::vector<Match> &all, int64_t now, int ahead_days = 10,
-				    int behind_hours = 36);
+// kick-off order. Finished matches are left out, and so is everything but the
+// live ones with `live_only`. Duplicated ids are dropped. A postponed match is
+// listed only while its date is ahead.
+std::vector<Match> listable_matches(const std::vector<Match> &all, int64_t now, bool live_only = false,
+				    int ahead_days = 10);
 
 // The match "Automatic" shows: the first live one, else one that finished in
 // the last hours (its final score stays up), else the next one to kick off,

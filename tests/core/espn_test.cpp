@@ -13,9 +13,9 @@ namespace {
 std::string live_board(const std::string &status_name, const std::string &state, const std::string &home_score)
 {
 	return R"({"leagues":[{"name":"Spanish LALIGA","logos":[{"href":"http://a.espncdn.com/l.png"}]}],
-	"events":[{"id":"9","date":"2026-11-22T20:00Z","status":{"displayClock":"67'","type":{"name":")" +
+	"events":[{"id":"9","uid":"s:600~l:740~e:9","date":"2026-11-22T20:00Z","status":{"displayClock":"67'","type":{"name":")" +
 	       status_name + R"(","state":")" + state + R"(","shortDetail":"67'"}},
-	"competitions":[{"competitors":[
+	"competitions":[{"altGameNote":"FIFA U-17 World Cup, Group C","competitors":[
 	  {"homeAway":"away","score":"1","team":{"id":"83","displayName":"Barcelona","shortDisplayName":"Barça","abbreviation":"FCB","logo":"https://a.espncdn.com/b.png","color":"A50044"}},
 	  {"homeAway":"home","score":")" +
 	       home_score + R"(","team":{"id":"86","displayName":"Real Madrid","abbreviation":"RMA","logos":[{"href":"https://a.espncdn.com/r.png"}]}}],
@@ -73,6 +73,8 @@ TEST_CASE(home_and_away_follow_the_feed_not_the_order)
 	const Match &match = board->matches[0];
 	CHECK_EQ(match.home.name, std::string("Real Madrid"));
 	CHECK_EQ(match.away.name, std::string("Barcelona"));
+	CHECK_EQ(match.league_id, std::string("740")); // from the uid
+	CHECK_EQ(match.competition, std::string("FIFA U-17 World Cup"));
 	CHECK_EQ(match.away.short_name, std::string("Barça"));
 	CHECK_EQ(match.home.short_name, std::string("Real Madrid")); // falls back to the name
 	CHECK_EQ(match.home.logo_url, std::string("https://a.espncdn.com/r.png")); // from "logos"

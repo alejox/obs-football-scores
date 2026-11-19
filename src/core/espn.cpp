@@ -148,6 +148,16 @@ std::vector<GoalInfo> parse_goals(const json &competition)
 	return goals;
 }
 
+// "s:600~l:740~e:401882814" -> "740"
+std::string league_id_from_uid(const std::string &uid)
+{
+	const size_t start = uid.find("~l:");
+	if (start == std::string::npos)
+		return {};
+	const size_t end = uid.find('~', start + 3);
+	return uid.substr(start + 3, end == std::string::npos ? std::string::npos : end - start - 3);
+}
+
 std::optional<Match> parse_event(const json &event)
 {
 	const json &competitions = child(event, "competitions");
@@ -162,6 +172,7 @@ std::optional<Match> parse_event(const json &event)
 	match.id = str(event, "id");
 	if (match.id.empty())
 		return std::nullopt;
+	match.league_id = league_id_from_uid(str(event, "uid"));
 	std::string date = str(event, "date");
 	if (date.empty())
 		date = str(competition, "date");
@@ -194,6 +205,10 @@ std::optional<Match> parse_event(const json &event)
 		match.away.score = parse_score(*away);
 	}
 	match.goals = parse_goals(competition);
+	// "FIFA U-17 World Cup, Group C" -> "FIFA U-17 World Cup"
+	match.competition = str(competition, "altGameNote");
+	if (const size_t comma = match.competition.find(','); comma != std::string::npos)
+		match.competition.erase(comma);
 	return match;
 }
 

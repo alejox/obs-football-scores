@@ -256,14 +256,23 @@ QImage image_for(ScoreboardSource &self, const std::string &url)
 render::ScoreView build_view(ScoreboardSource &self)
 {
 	render::ScoreView view;
-	const League *league = find_league(self.league);
-	// The catalog's short name ("LaLiga") reads better than the feed's ("Spanish LALIGA").
-	view.league_name = QString::fromStdString(league ? league->name : self.snapshot.league_name);
-	view.league_logo = image_for(self, self.snapshot.league_logo_url);
-	if (league)
-		view.league_flag = image_for(self, country_flag_url(league->country));
-
 	const std::optional<Match> &match = self.snapshot.match;
+	// The match's own league first: with "all leagues" each match has a different one.
+	const League *league = match ? find_league_by_espn_id(match->league_id) : nullptr;
+	if (!league)
+		league = find_league(self.league);
+	// The catalog's short name ("LaLiga") reads better than the feed's ("Spanish LALIGA").
+	if (league) {
+		view.league_name = QString::fromStdString(league->name);
+		view.league_logo = image_for(self, league->logo);
+		view.league_flag = image_for(self, country_flag_url(league->country));
+	} else if (self.league != kAllLeagues) {
+		view.league_name = QString::fromStdString(self.snapshot.league_name);
+		view.league_logo = image_for(self, self.snapshot.league_logo_url);
+	} else if (match) {
+		view.league_name = QString::fromStdString(match->competition); // a league outside the catalog
+	}
+
 	if (self.league.empty()) {
 		view.message = text("Football.Message.ChooseLeague");
 		return view;
@@ -597,10 +606,26 @@ void fill_match_list(obs_property_t *list, const std::string &league, const std:
 	}
 
 	const QLocale locale = obs_locale();
+	const bool all_leagues = league == kAllLeagues;
 	bool selected_listed = selected.empty();
-	for (const Match &match : listable_matches(board->matches, now_seconds())) {
-		obs_property_list_add_string(list, match_label(match, locale).c_str(), match.id.c_str());
+	// Only live and upcoming matches; with "all leagues", only the live ones.
+	const std::vector<Match> listed = listable_matches(board->matches, now_seconds(), all_leagues);
+	for (const Match &match : listed) {
+		std::string label = match_label(match, locale);
+		if (all_leagues) {
+			const League *own = find_league_by_espn_id(match.league_id);
+			const std::string name = own ? own->name
+						     : !match.competition.empty() ? match.competition
+						     : obs_module_text("Football.League.Other");
+			label = name + "  ·  " + label;
+		}
+		obs_property_list_add_string(list, label.c_str(), match.id.c_str());
 		selected_listed = selected_listed || match.id == selected;
+	}
+	if (listed.empty()) {
+		const size_t index = obs_property_list_add_string(
+			list, obs_module_text(all_leagues ? "Football.Match.NoneLive" : "Football.Match.None"), "-");
+		obs_property_list_item_disable(list, index, true);
 	}
 	// Keep a saved choice selectable even once it drops out of the window.
 	if (!selected_listed) {
@@ -683,6 +708,7 @@ obs_properties_t *scoreboard_properties(void *data)
 	obs_property_t *leagues = obs_properties_add_list(props, kLeagueKey, obs_module_text("Football.League"),
 							  OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
 	obs_property_list_add_string(leagues, obs_module_text("Football.League.Choose"), "");
+	obs_property_list_add_string(leagues, obs_module_text("Football.League.AllLive"), kAllLeagues);
 	for (const League &entry : league_catalog())
 		obs_property_list_add_string(leagues, entry.name, entry.slug);
 	obs_property_set_modified_callback(leagues, league_changed);

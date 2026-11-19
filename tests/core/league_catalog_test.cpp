@@ -17,6 +17,20 @@ TEST_CASE(slugs_are_unique_and_found)
 	}
 	CHECK(find_league("esp.1") != nullptr);
 	CHECK(find_league("nope.9") == nullptr);
+	CHECK(find_league(kAllLeagues) == nullptr); // a pseudo league, not in the catalog
+}
+
+TEST_CASE(espn_ids_map_back_to_leagues)
+{
+	std::set<std::string> ids;
+	for (const League &league : league_catalog()) {
+		CHECK(ids.insert(league.espn_id).second);
+		CHECK(find_league_by_espn_id(league.espn_id) == &league);
+		CHECK(std::string(league.logo).rfind("https://", 0) == 0);
+	}
+	CHECK_EQ(std::string(find_league_by_espn_id("740")->slug), std::string("esp.1"));
+	CHECK(find_league_by_espn_id("19483") == nullptr);
+	CHECK(find_league_by_espn_id("") == nullptr);
 }
 
 TEST_CASE(flag_urls)

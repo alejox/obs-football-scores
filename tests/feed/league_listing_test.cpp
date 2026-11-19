@@ -44,6 +44,19 @@ TEST_CASE(reads_the_previous_month_at_the_start)
 	CHECK_EQ(requests[1], espn::month_url("esp.1", 2027, 1));
 }
 
+TEST_CASE(all_leagues_reads_the_day_boards)
+{
+	FakeHttp http;
+	// 2026-11-08T13:00Z: one candidate day.
+	http.set(espn::day_url("all", "20261108"), one_event("live-anywhere"));
+	const auto board = fetch_league_matches("all", 1794142800, http.get());
+	REQUIRE(board.has_value());
+	REQUIRE(board->matches.size() == 1u);
+	CHECK_EQ(board->matches[0].id, std::string("live-anywhere"));
+	REQUIRE(http.requests().size() == 1u);
+	CHECK_EQ(http.requests()[0], espn::day_url("all", "20261108"));
+}
+
 TEST_CASE(nothing_readable_is_nullopt)
 {
 	FakeHttp http;
