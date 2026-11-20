@@ -562,8 +562,14 @@ void enable_monitoring_once(void *param)
 		obs_data_t *settings = obs_source_get_settings(source);
 		if (!obs_data_get_bool(settings, kMonitoringSetKey)) {
 			obs_data_set_bool(settings, kMonitoringSetKey, true);
+#if LIBOBS_API_VER >= MAKE_SEMANTIC_VERSION(33, 0, 0)
+			// OBS 33 replaced the monitoring types with an on/off switch.
+			if (!obs_source_get_monitoring_enabled(source))
+				obs_source_set_monitoring_enabled(source, true);
+#else
 			if (obs_source_get_monitoring_type(source) == OBS_MONITORING_TYPE_NONE)
 				obs_source_set_monitoring_type(source, OBS_MONITORING_TYPE_MONITOR_AND_OUTPUT);
+#endif
 		}
 		obs_data_release(settings);
 		obs_source_release(source);
