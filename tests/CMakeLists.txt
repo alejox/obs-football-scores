@@ -5,7 +5,7 @@
 #   ctest --test-dir build_tests --output-on-failure
 cmake_minimum_required(VERSION 3.28...3.30)
 
-project(obs-football-scores-tests LANGUAGES CXX)
+project(obs-football-scores-tests LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
@@ -62,3 +62,7 @@ add_update_test(update_check_test update/update_check_test.cpp)
 add_update_test(staging_test update/staging_test.cpp)
 add_update_test(install_plan_test update/install_plan_test.cpp)
 add_update_test(update_settings_test update/update_settings_test.cpp)
+
+add_core_test(audio_clip_test audio/audio_clip_test.cpp)
+target_link_libraries(audio_clip_test PRIVATE football-audio)
+target_compile_definitions(audio_clip_test PRIVATE GOAL_WAV="${CMAKE_CURRENT_LIST_DIR}/../data/sounds/goal.wav")

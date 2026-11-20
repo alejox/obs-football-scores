@@ -14,6 +14,7 @@ En las propiedades de la fuente eliges **Liga → Partido** (p. ej. *LaLiga → 
 - **Partido fijo o automático**: elige un partido concreto, o «Automático» para mostrar el partido en vivo de la liga (si no hay, el último resultado durante unas horas y luego el próximo).
 - **Marcador en vivo**: minuto, descanso y final; antes del partido, la hora local y el día. Se actualiza cada 15 s durante el partido.
 - **Escudos y banderas**: escudo de cada equipo (la bandera en partidos de selecciones), logo de la liga y bandera del país.
+- **Sonido de gol**: uno incluido (bocina y público) o el tuyo (WAV, MP3 o FLAC), con volumen; y opcionalmente una fuente multimedia de OBS que se reproduce con cada gol.
 - **Animación de gol**: banner con «¡GOOOL!», el goleador y su foto cuando ESPN la tiene (si no, el escudo). Botón y atajo de teclado para probarla.
 - **6 diseños**: Clásico (barra delgada), Estadio (escudos que sobresalen de la barra), Choque (colores de los equipos en diagonal), Tarjeta (para una esquina), Flotante (escudos grandes encima del marcador, fondo transparente) y Limpio (solo escudos y marcador, sin fondo). Los diseños con escudos grandes mantienen su proporción: solo eliges el ancho.
 - **Se actualiza solo**: al abrir OBS revisa (una vez al día) si hay versión nueva, muestra sus novedades y la instala al reiniciar OBS. También en **Herramientas → AC Football Scores: Buscar actualizaciones**.
@@ -68,5 +69,7 @@ ctest --test-dir build_tests --output-on-failure
 2. Sube la versión en `buildspec.json` y súbelo a `main`. El workflow **Release** compila Windows, macOS y Linux y publica la Release `v<versión>`.
 
 ¿Te sirve? [Invítame un café en Ko-fi](https://ko-fi.com/alejoxcode).
+
+El sonido de gol incluido (`data/sounds/goal.wav`) está generado por `tools/make_goal_sound.py`, sin audio de terceros. La lectura de WAV, MP3 y FLAC usa [dr_libs](https://github.com/mackron/dr_libs) (dominio público).
 
 Licencia GPL-2.0, como OBS Studio.

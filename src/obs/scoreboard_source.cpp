@@ -8,6 +8,7 @@
 #include "core/match_selection.hpp"
 #include "core/style_preset.hpp"
 #include "feed/match_feed.hpp"
+#include "obs/goal_sound.hpp"
 #include "obs/services.hpp"
 #include "render/scoreboard_painter.hpp"
 #include "ui/support_dialog.hpp"
@@ -52,6 +53,12 @@ constexpr const char *kTextColorKey = "text_color";
 constexpr const char *kWidthKey = "width";
 constexpr const char *kHeightKey = "height";
 constexpr const char *kTestHotkeyName = "football_scores.test_goal";
+constexpr const char *kGoalSoundKey = "goal_sound";
+constexpr const char *kGoalSoundFileKey = "goal_sound_file";
+constexpr const char *kGoalSoundVolumeKey = "goal_sound_volume";
+constexpr const char *kGoalMediaKey = "goal_media";
+// Set once the source has had its first audio monitoring setup (see scoreboard_create).
+constexpr const char *kMonitoringSetKey = "goal_sound_monitoring_set";
 
 constexpr const char *kDefaultLeague = "esp.1";
 constexpr BoardDesign kDefaultDesign = BoardDesign::Stadium;
@@ -82,6 +89,8 @@ struct ScoreboardSource {
 	std::string match_id;
 	NameMode names = NameMode::Full;
 	bool goal_animation = true;
+	GoalSound sound;
+	std::string goal_media; // a media source to restart on every goal; empty for none
 	render::BoardStyle style;
 	std::unique_ptr<MatchFeed> feed;
 
@@ -339,6 +348,21 @@ void start_goal_locked(ScoreboardSource &self, GoalEvent event)
 	self.dirty = true;
 }
 
+// Sound and media for a goal (real or test), whether or not the animation is on.
+// Caller holds update_mutex.
+void play_goal_media_locked(ScoreboardSource &self)
+{
+	self.sound.trigger();
+	if (self.goal_media.empty())
+		return;
+	if (obs_source_t *media = obs_get_source_by_name(self.goal_media.c_str())) {
+		obs_source_media_restart(media);
+		obs_source_release(media);
+	} else {
+		obs_log(LOG_WARNING, "goal media source '%s' not found", self.goal_media.c_str());
+	}
+}
+
 // A test goal for the home team, with the scorer of the last real goal if any.
 GoalEvent test_goal_event(const ScoreboardSource &self)
 {
@@ -375,6 +399,10 @@ void scoreboard_update(void *data, obs_data_t *settings)
 		std::lock_guard lock(self->update_mutex);
 		self->names = name_mode_from_id(obs_data_get_string(settings, kNamesKey));
 		self->goal_animation = obs_data_get_bool(settings, kGoalAnimationKey);
+		self->sound.configure(goal_sound_mode_from_id(obs_data_get_string(settings, kGoalSoundKey)),
+				      obs_data_get_string(settings, kGoalSoundFileKey),
+				      static_cast<int>(obs_data_get_int(settings, kGoalSoundVolumeKey)));
+		self->goal_media = obs_data_get_string(settings, kGoalMediaKey);
 		self->style.design = board_design_from_id(obs_data_get_string(settings, kDesignKey));
 		self->style.preset = style_preset_from_id(obs_data_get_string(settings, kStyleKey));
 		self->style.accent = color_from_obs(obs_data_get_int(settings, kAccentKey));
@@ -419,6 +447,7 @@ void scoreboard_tick(void *data, float seconds)
 						self->snapshot.match->home.score.value_or(0),
 						self->snapshot.match->away.score.value_or(0),
 						self->snapshot.match->away.name.c_str());
+					play_goal_media_locked(*self);
 					if (self->goal_animation)
 						start_goal_locked(*self, std::move(*goal));
 				}
@@ -426,8 +455,12 @@ void scoreboard_tick(void *data, float seconds)
 		}
 	}
 
-	if (self->test_goal_requested.exchange(false) && self->snapshot.match)
-		start_goal_locked(*self, test_goal_event(*self));
+	if (self->test_goal_requested.exchange(false)) {
+		play_goal_media_locked(*self); // the sound can be tested before a match is picked
+		if (self->snapshot.match)
+			start_goal_locked(*self, test_goal_event(*self));
+	}
+	self->sound.pump(self->source);
 
 	if (self->goal) {
 		self->goal_elapsed += seconds;
@@ -519,11 +552,32 @@ void test_hotkey_pressed(void *data, obs_hotkey_id, obs_hotkey_t *, bool pressed
 		static_cast<ScoreboardSource *>(data)->test_goal_requested = true;
 }
 
+// The goal sound is only heard locally when OBS monitors the source. Turned on once per
+// source (stream and monitor), after OBS has restored the source's saved audio settings;
+// a user's later choice in Advanced Audio Properties is kept.
+void enable_monitoring_once(void *param)
+{
+	obs_weak_source_t *weak = static_cast<obs_weak_source_t *>(param);
+	if (obs_source_t *source = obs_weak_source_get_source(weak)) {
+		obs_data_t *settings = obs_source_get_settings(source);
+		if (!obs_data_get_bool(settings, kMonitoringSetKey)) {
+			obs_data_set_bool(settings, kMonitoringSetKey, true);
+			if (obs_source_get_monitoring_type(source) == OBS_MONITORING_TYPE_NONE)
+				obs_source_set_monitoring_type(source, OBS_MONITORING_TYPE_MONITOR_AND_OUTPUT);
+		}
+		obs_data_release(settings);
+		obs_source_release(source);
+	}
+	obs_weak_source_release(weak);
+}
+
 void *scoreboard_create(obs_data_t *settings, obs_source_t *source)
 {
 	auto *self = new ScoreboardSource();
 	self->source = source;
 	scoreboard_update(self, settings);
+	if (!obs_data_get_bool(settings, kMonitoringSetKey))
+		obs_queue_task(OBS_TASK_UI, enable_monitoring_once, obs_source_get_weak_source(source), false);
 	self->test_hotkey = obs_hotkey_register_source(source, kTestHotkeyName, obs_module_text("Football.TestGoal"),
 						       test_hotkey_pressed, self);
 	return self;
@@ -553,6 +607,9 @@ void scoreboard_defaults(obs_data_t *settings)
 	obs_data_set_default_string(settings, kNamesKey, "full");
 	obs_data_set_default_bool(settings, kShowLeagueKey, true);
 	obs_data_set_default_bool(settings, kGoalAnimationKey, true);
+	obs_data_set_default_string(settings, kGoalSoundKey, "builtin");
+	obs_data_set_default_int(settings, kGoalSoundVolumeKey, 80);
+	obs_data_set_default_string(settings, kGoalMediaKey, "");
 	obs_data_set_default_string(settings, kDesignKey, std::string(board_design_id(kDefaultDesign)).c_str());
 	obs_data_set_default_string(settings, kStyleKey, std::string(style_preset_id(StylePreset::Bold)).c_str());
 	obs_data_set_default_int(settings, kAccentKey, kDefaultAccent);
@@ -685,6 +742,31 @@ bool support_clicked(obs_properties_t *, obs_property_t *, void *)
 	return false;
 }
 
+// The file and volume rows only matter for the sound they belong to.
+bool sound_changed(obs_properties_t *props, obs_property_t *, obs_data_t *settings)
+{
+	const GoalSoundMode mode = goal_sound_mode_from_id(obs_data_get_string(settings, kGoalSoundKey));
+	obs_property_set_visible(obs_properties_get(props, kGoalSoundFileKey), mode == GoalSoundMode::File);
+	obs_property_set_visible(obs_properties_get(props, kGoalSoundVolumeKey), mode != GoalSoundMode::None);
+	return true;
+}
+
+// Every media source (audio or video file) the user can have restarted on a goal.
+void fill_media_list(obs_property_t *list)
+{
+	obs_property_list_add_string(list, obs_module_text("Football.GoalMedia.None"), "");
+	obs_enum_sources(
+		[](void *param, obs_source_t *source) {
+			if (obs_source_get_output_flags(source) & OBS_SOURCE_CONTROLLABLE_MEDIA) {
+				const char *name = obs_source_get_name(source);
+				if (name && *name)
+					obs_property_list_add_string(static_cast<obs_property_t *>(param), name, name);
+			}
+			return true;
+		},
+		list);
+}
+
 // Style presets and a free height only apply to the Classic bar.
 bool design_changed(obs_properties_t *props, obs_property_t *, obs_data_t *settings)
 {
@@ -737,6 +819,21 @@ obs_properties_t *scoreboard_properties(void *data)
 
 	obs_properties_add_bool(props, kShowLeagueKey, obs_module_text("Football.ShowLeague"));
 	obs_properties_add_bool(props, kGoalAnimationKey, obs_module_text("Football.GoalAnimation"));
+	obs_property_t *sound = obs_properties_add_list(props, kGoalSoundKey, obs_module_text("Football.Sound"),
+							OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+	obs_property_list_add_string(sound, obs_module_text("Football.Sound.BuiltIn"), "builtin");
+	obs_property_list_add_string(sound, obs_module_text("Football.Sound.File"), "file");
+	obs_property_list_add_string(sound, obs_module_text("Football.Sound.None"), "none");
+	obs_property_set_modified_callback(sound, sound_changed);
+	obs_properties_add_path(props, kGoalSoundFileKey, obs_module_text("Football.SoundFile"), OBS_PATH_FILE,
+				obs_module_text("Football.SoundFile.Filter"), nullptr);
+	obs_property_t *volume = obs_properties_add_int_slider(props, kGoalSoundVolumeKey,
+								obs_module_text("Football.SoundVolume"), 0, 100, 1);
+	obs_property_int_set_suffix(volume, " %");
+	obs_property_t *media = obs_properties_add_list(props, kGoalMediaKey, obs_module_text("Football.GoalMedia"),
+							OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+	obs_property_set_long_description(media, obs_module_text("Football.GoalMedia.Help"));
+	fill_media_list(media);
 	obs_properties_add_button2(props, kTestGoalKey, obs_module_text("Football.TestGoal"), test_goal_clicked, self);
 
 	obs_property_t *design = obs_properties_add_list(props, kDesignKey, obs_module_text("Football.Design"),
@@ -774,7 +871,7 @@ void register_scoreboard_source()
 	obs_source_info info = {};
 	info.id = kSourceId;
 	info.type = OBS_SOURCE_TYPE_INPUT;
-	info.output_flags = OBS_SOURCE_VIDEO | OBS_SOURCE_SRGB;
+	info.output_flags = OBS_SOURCE_VIDEO | OBS_SOURCE_AUDIO | OBS_SOURCE_SRGB;
 	info.icon_type = OBS_ICON_TYPE_TEXT;
 	info.get_name = scoreboard_name;
 	info.create = scoreboard_create;

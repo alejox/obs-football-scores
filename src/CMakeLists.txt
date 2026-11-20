@@ -57,3 +57,30 @@ add_library(
 target_link_libraries(football-update PUBLIC football-core)
 target_include_directories(football-update SYSTEM PRIVATE "${nlohmann_json_header_SOURCE_DIR}")
 set_target_properties(football-update PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+# Goal sounds: WAV, MP3 and FLAC decoding with dr_libs (public domain / MIT-0, header
+# only), pinned to one commit. Plain C/C++, so the tests cover it.
+set(dr_libs_commit e381981afa52800b9a3864df548353ff67252fbc)
+set(dr_libs_dir "${CMAKE_CURRENT_BINARY_DIR}/dr_libs")
+foreach(entry "dr_wav.h|b36c32661cfbbfb1cc0beb19f7a9d2567065e5a297f64172dcebfff59885f37b"
+              "dr_mp3.h|bd539c0cafee96a73b6075607aa3caae375ca1eda7eeb8479b87b33b16212570"
+              "dr_flac.h|bd569c910a7c465e481fd50af84e2871e81e2154e30ac510d98f953cc0d5a546")
+  string(REPLACE "|" ";" parts "${entry}")
+  list(GET parts 0 header)
+  list(GET parts 1 hash)
+  if(NOT EXISTS "${dr_libs_dir}/${header}")
+    file(DOWNLOAD "https://raw.githubusercontent.com/mackron/dr_libs/${dr_libs_commit}/${header}"
+         "${dr_libs_dir}/${header}" EXPECTED_HASH SHA256=${hash} TLS_VERIFY ON STATUS status)
+    list(GET status 0 code)
+    if(NOT code EQUAL 0)
+      file(REMOVE "${dr_libs_dir}/${header}")
+      message(FATAL_ERROR "Could not download ${header}: ${status}")
+    endif()
+  endif()
+endforeach()
+
+add_library(football-audio STATIC audio/audio_clip.cpp audio/dr_libs.c)
+target_include_directories(football-audio PUBLIC "${CMAKE_CURRENT_LIST_DIR}")
+target_include_directories(football-audio SYSTEM PRIVATE "${dr_libs_dir}")
+target_compile_features(football-audio PUBLIC cxx_std_17)
+set_target_properties(football-audio PROPERTIES POSITION_INDEPENDENT_CODE ON)

@@ -3,6 +3,22 @@
 Each `## <version>` section becomes the description of that release, and the plugin's updater shows
 its items before installing (the Spanish ones when OBS is in Spanish, the English ones otherwise).
 
+## 0.2.2
+
+### Español
+
+- **Nuevo:** sonido de gol. Viene uno incluido (bocina de estadio y público) y puedes poner el tuyo (WAV, MP3 o FLAC), con control de volumen.
+- **Nuevo:** «Además, reproducir esta fuente al marcar gol»: elige cualquier fuente multimedia (un clip o un sonido en otro formato) y se reproduce con cada gol.
+- El sonido sale por la propia fuente: aparece en el mezclador de OBS y se escucha en el directo y en tus auriculares.
+- «Probar animación de gol» también prueba el sonido.
+
+### English
+
+- **New:** goal sound. A built-in one (stadium horn and crowd), or your own (WAV, MP3 or FLAC), with a volume control.
+- **New:** "Also play this source on a goal": pick any media source (a clip, or a sound in another format) and it plays on every goal.
+- The sound comes out of the source itself: it shows in the OBS mixer and is heard on stream and in your headphones.
+- "Test goal animation" tests the sound too.
+
 ## 0.2.1
 
 ### Español

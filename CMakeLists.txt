@@ -25,7 +25,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
 
 target_link_libraries(
   ${CMAKE_PROJECT_NAME}
-  PRIVATE football-core football-feed football-update OBS::libobs OBS::obs-frontend-api Qt6::Core Qt6::Gui Qt6::Widgets
+  PRIVATE football-core football-feed football-update football-audio OBS::libobs OBS::obs-frontend-api Qt6::Core Qt6::Gui Qt6::Widgets
 )
 target_compile_options(
   ${CMAKE_PROJECT_NAME}
@@ -39,6 +39,7 @@ target_sources(
   ${CMAKE_PROJECT_NAME}
   PRIVATE
     src/plugin_main.cpp
+    src/obs/goal_sound.cpp
     src/obs/scoreboard_source.cpp
     src/obs/services.cpp
     src/render/design_painter.cpp
