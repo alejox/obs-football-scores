@@ -26,7 +26,10 @@ add_library(
   core/goal_animation.cpp
   core/goal_watch.cpp
   core/league_catalog.cpp
+  core/match_details.cpp
   core/match_selection.cpp
+  core/pitch.cpp
+  core/standings.cpp
   core/sha256.cpp
   core/style_preset.cpp
   core/time_util.cpp
@@ -40,7 +43,7 @@ set_target_properties(football-core PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # Feed: polling worker, league listing and image downloads. Plain C++ and threads;
 # HTTP and the clock are injected by the OBS adapter, so the tests drive them with fakes.
 find_package(Threads REQUIRED)
-add_library(football-feed STATIC feed/image_store.cpp feed/league_listing.cpp feed/match_feed.cpp)
+add_library(football-feed STATIC feed/details_feed.cpp feed/image_store.cpp feed/league_listing.cpp feed/match_feed.cpp)
 target_link_libraries(football-feed PUBLIC football-core Threads::Threads)
 set_target_properties(football-feed PROPERTIES POSITION_INDEPENDENT_CODE ON)
 

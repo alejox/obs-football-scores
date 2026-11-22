@@ -14,6 +14,7 @@ En las propiedades de la fuente eliges **Liga → Partido** (p. ej. *LaLiga → 
 - **Partido fijo o automático**: elige un partido concreto, o «Automático» para mostrar el partido en vivo de la liga (si no hay, el último resultado durante unas horas y luego el próximo).
 - **Marcador en vivo**: minuto, descanso y final; antes del partido, la hora local y el día. Se actualiza cada 15 s durante el partido.
 - **Escudos y banderas**: escudo de cada equipo (la bandera en partidos de selecciones), logo de la liga y bandera del país.
+- **Panel de fútbol (cancha en vivo)**: fuente aparte que dibuja cada jugada del partido en la cancha (remates, goles, córners, faltas, fueras de juego) con una barra de presión; también alineaciones en la cancha, estadísticas y tabla de posiciones.
 - **Sonido de gol**: uno incluido (bocina y público) o el tuyo (WAV, MP3 o FLAC), con volumen; y opcionalmente una fuente multimedia de OBS que se reproduce con cada gol.
 - **Animación de gol**: banner con «¡GOOOL!», el goleador y su foto cuando ESPN la tiene (si no, el escudo). Botón y atajo de teclado para probarla.
 - **6 diseños**: Clásico (barra delgada), Estadio (escudos que sobresalen de la barra), Choque (colores de los equipos en diagonal), Tarjeta (para una esquina), Flotante (escudos grandes encima del marcador, fondo transparente) y Limpio (solo escudos y marcador, sin fondo). Los diseños con escudos grandes mantienen su proporción: solo eliges el ancho.

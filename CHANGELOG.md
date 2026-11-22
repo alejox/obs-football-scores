@@ -3,6 +3,20 @@
 Each `## <version>` section becomes the description of that release, and the plugin's updater shows
 its items before installing (the Spanish ones when OBS is in Spanish, the English ones otherwise).
 
+## 0.3.0
+
+### Español
+
+- **Nuevo:** fuente «Panel de fútbol» con la **cancha en vivo**: cada remate, gol, córner, falta y fuera de juego dibujado donde ocurrió, la última jugada resaltada y una barra de presión de los últimos minutos.
+- **Nuevo:** alineaciones dibujadas en la cancha con su formación, estadísticas del partido (posesión, remates, córners, pases…) y tabla de posiciones con los equipos del partido resaltados.
+- Se actualiza cada 15 segundos durante el partido.
+
+### English
+
+- **New:** "Football Panel" source with the **live pitch**: every shot, goal, corner, foul and offside drawn where it happened, the latest play highlighted and a pressure bar for the last minutes.
+- **New:** lineups drawn on the pitch in their formation, match stats (possession, shots, corners, passes…) and the league table with the match teams highlighted.
+- Updates every 15 seconds during the match.
+
 ## 0.2.2
 
 ### Español

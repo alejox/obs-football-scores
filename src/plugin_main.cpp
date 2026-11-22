@@ -19,6 +19,7 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 // Composition root: wires the core to its OBS and Qt adapters.
 
 #include "core/version.hpp"
+#include "obs/panel_source.hpp"
 #include "obs/scoreboard_source.hpp"
 #include "obs/services.hpp"
 #include "ui/update_controller.hpp"
@@ -97,6 +98,7 @@ bool obs_module_load(void)
 {
 	fscore::obs::start_services();
 	fscore::obs::register_scoreboard_source();
+	fscore::obs::register_panel_source();
 	updates = make_update_controller();
 	updates->start(kUpdateCheckDelayMs);
 	obs_frontend_add_event_callback(on_frontend_event, nullptr);

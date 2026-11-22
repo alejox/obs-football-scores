@@ -40,9 +40,13 @@ target_sources(
   PRIVATE
     src/plugin_main.cpp
     src/obs/goal_sound.cpp
+    src/obs/match_picker.cpp
+    src/obs/panel_source.cpp
     src/obs/scoreboard_source.cpp
     src/obs/services.cpp
     src/render/design_painter.cpp
+    src/render/panel_builder.cpp
+    src/render/panel_painter.cpp
     src/render/scoreboard_painter.cpp
     src/ui/support_dialog.cpp
     src/ui/update_controller.cpp

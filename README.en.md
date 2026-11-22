@@ -14,6 +14,7 @@ In the source properties pick **League → Match** (e.g. *LaLiga → Real Madrid
 - **Fixed or automatic match**: choose one match, or "Automatic" for the league's live match (otherwise the last result for a few hours, then the next match).
 - **Live score**: minute, half time and full time; before kick-off, the local time and day. Refreshes every 15 s during the match.
 - **Crests and flags**: each team's crest (the flag for national teams), the league logo and its country flag.
+- **Football Panel (live pitch)**: a separate source that draws every play of the match on the pitch (shots, goals, corners, fouls, offsides) with a pressure bar; also lineups on the pitch, match stats and the league table.
 - **Goal sound**: a built-in one (horn and crowd) or your own (WAV, MP3 or FLAC), with volume; optionally an OBS media source that plays on every goal.
 - **Goal animation** with "GOAL!", the scorer and their photo when ESPN has one (otherwise the crest); a button and a hotkey to test it.
 - **6 designs**: Classic (slim bar), Stadium (crests pop out of the bar), Clash (diagonal team colors), Card (for a corner), Floating (big crests over the score, transparent background) and Clean (crests and score only). The large-crest designs keep their proportions: you only pick the width.

@@ -1,0 +1,2132 @@
+{
+"uid": "s:600~l:606",
+"id": "8675309",
+"name": "FIFA World Cup",
+"abbreviation": "FIFA World Cup",
+"children": [
+{
+"uid": "s:600~l:606~g:1",
+"id": "1",
+"name": "Group A",
+"abbreviation": "Group A",
+"standings": {
+"id": "0",
+"name": "overall",
+"displayName": "Standings",
+"links": [
+{
+"language": "en-US",
+"rel": [
+"standings",
+"desktop"
+],
+"href": "https://www.espn.com/soccer/table/_/league/fifa.world",
+"text": "Full Table",
+"shortText": "Standings",
+"isExternal": false,
+"isPremium": false
+}
+],
+"season": 2026,
+"seasonType": 1,
+"seasonDisplayName": "2026 FIFA World Cup",
+"entries": [
+{
+"team": {
+"id": "203",
+"displayName": "Mexico",
+"shortDisplayName": "Mexico",
+"abbreviation": "MEX",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/countries/500/mex.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2023-10-25T16:19Z"
+}
+]
+},
+"note": {
+"color": "#81D6AC",
+"description": "Advance to Round of 32",
+"rank": 1
+},
+"stats": [
+{
+"name": "gamesPlayed",
+"displayName": "Games Played",
+"shortDisplayName": "GP",
+"description": "Number of Games Played",
+"abbreviation": "GP",
+"type": "gamesplayed",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "losses",
+"displayName": "Losses",
+"shortDisplayName": "L",
+"description": "Losses",
+"abbreviation": "L",
+"type": "losses",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "pointDifferential",
+"displayName": "Goal Difference",
+"shortDisplayName": "GD",
+"description": "Goal Difference",
+"abbreviation": "GD",
+"type": "pointdifferential",
+"value": 6.0,
+"displayValue": "+6"
+},
+{
+"name": "points",
+"displayName": "Points",
+"shortDisplayName": "P",
+"description": "Points",
+"abbreviation": "P",
+"type": "points",
+"value": 9.0,
+"displayValue": "9"
+},
+{
+"name": "pointsAgainst",
+"displayName": "Goals Against",
+"shortDisplayName": "A",
+"description": "Goals Against",
+"abbreviation": "A",
+"type": "pointsagainst",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "pointsFor",
+"displayName": "Goals For",
+"shortDisplayName": "F",
+"description": "Goals For",
+"abbreviation": "F",
+"type": "pointsfor",
+"value": 6.0,
+"displayValue": "6"
+},
+{
+"name": "ties",
+"displayName": "Draws",
+"shortDisplayName": "D",
+"description": "Draws",
+"abbreviation": "D",
+"type": "ties",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "wins",
+"displayName": "Wins",
+"shortDisplayName": "W",
+"description": "Wins",
+"abbreviation": "W",
+"type": "wins",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "advanced",
+"displayName": "Advanced",
+"shortDisplayName": "ADV",
+"description": "Advanced",
+"abbreviation": "ADV",
+"type": "advanced",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "deductions",
+"displayName": "Point Deductions",
+"shortDisplayName": "Deductions",
+"description": "Point Deductions",
+"abbreviation": "PD",
+"type": "deductions",
+"value": 0.0,
+"displayValue": ""
+},
+{
+"name": "ppg",
+"displayName": "Points Per Game",
+"shortDisplayName": "PPG",
+"description": "Points Per Game",
+"abbreviation": "PPG",
+"type": "ppg",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "rank",
+"displayName": "Rank",
+"shortDisplayName": "Rank",
+"description": "Rank",
+"abbreviation": "R",
+"type": "rank",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "rankChange",
+"displayName": "Rank Change",
+"shortDisplayName": "Rank Change",
+"description": "Rank Change",
+"abbreviation": "RC",
+"type": "rankchange",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"id": "0",
+"name": "overall",
+"abbreviation": "Total",
+"displayName": "Overall",
+"shortDisplayName": "OVER",
+"description": "Overall Record",
+"type": "total",
+"summary": "3-0-0",
+"displayValue": "3-0-0"
+}
+]
+},
+{
+"team": {
+"id": "450",
+"displayName": "Czechia",
+"shortDisplayName": "Czechia",
+"abbreviation": "CZE",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/countries/500/cze.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2023-10-25T16:20Z"
+}
+]
+},
+"note": {
+"color": "#FF7F84",
+"description": "Eliminated",
+"rank": 4
+},
+"stats": [
+{
+"name": "gamesPlayed",
+"displayName": "Games Played",
+"shortDisplayName": "GP",
+"description": "Number of Games Played",
+"abbreviation": "GP",
+"type": "gamesplayed",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "losses",
+"displayName": "Losses",
+"shortDisplayName": "L",
+"description": "Losses",
+"abbreviation": "L",
+"type": "losses",
+"value": 2.0,
+"displayValue": "2"
+},
+{
+"name": "pointDifferential",
+"displayName": "Goal Difference",
+"shortDisplayName": "GD",
+"description": "Goal Difference",
+"abbreviation": "GD",
+"type": "pointdifferential",
+"value": -4.0,
+"displayValue": "-4"
+},
+{
+"name": "points",
+"displayName": "Points",
+"shortDisplayName": "P",
+"description": "Points",
+"abbreviation": "P",
+"type": "points",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "pointsAgainst",
+"displayName": "Goals Against",
+"shortDisplayName": "A",
+"description": "Goals Against",
+"abbreviation": "A",
+"type": "pointsagainst",
+"value": 6.0,
+"displayValue": "6"
+},
+{
+"name": "pointsFor",
+"displayName": "Goals For",
+"shortDisplayName": "F",
+"description": "Goals For",
+"abbreviation": "F",
+"type": "pointsfor",
+"value": 2.0,
+"displayValue": "2"
+},
+{
+"name": "ties",
+"displayName": "Draws",
+"shortDisplayName": "D",
+"description": "Draws",
+"abbreviation": "D",
+"type": "ties",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "wins",
+"displayName": "Wins",
+"shortDisplayName": "W",
+"description": "Wins",
+"abbreviation": "W",
+"type": "wins",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "advanced",
+"displayName": "Advanced",
+"shortDisplayName": "ADV",
+"description": "Advanced",
+"abbreviation": "ADV",
+"type": "advanced",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "deductions",
+"displayName": "Point Deductions",
+"shortDisplayName": "Deductions",
+"description": "Point Deductions",
+"abbreviation": "PD",
+"type": "deductions",
+"value": 0.0,
+"displayValue": ""
+},
+{
+"name": "ppg",
+"displayName": "Points Per Game",
+"shortDisplayName": "PPG",
+"description": "Points Per Game",
+"abbreviation": "PPG",
+"type": "ppg",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "rank",
+"displayName": "Rank",
+"shortDisplayName": "Rank",
+"description": "Rank",
+"abbreviation": "R",
+"type": "rank",
+"value": 4.0,
+"displayValue": "4"
+},
+{
+"name": "rankChange",
+"displayName": "Rank Change",
+"shortDisplayName": "Rank Change",
+"description": "Rank Change",
+"abbreviation": "RC",
+"type": "rankchange",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"id": "0",
+"name": "overall",
+"abbreviation": "Total",
+"displayName": "Overall",
+"shortDisplayName": "OVER",
+"description": "Overall Record",
+"type": "total",
+"summary": "0-1-2",
+"displayValue": "0-1-2"
+}
+]
+},
+{
+"team": {
+"id": "451",
+"displayName": "South Korea",
+"shortDisplayName": "South Korea",
+"abbreviation": "KOR",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/countries/500/kors.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2018-06-05T12:06Z"
+}
+]
+},
+"note": {
+"color": "#B5E7CE",
+"description": "Best 8 advance",
+"rank": 3
+},
+"stats": [
+{
+"name": "gamesPlayed",
+"displayName": "Games Played",
+"shortDisplayName": "GP",
+"description": "Number of Games Played",
+"abbreviation": "GP",
+"type": "gamesplayed",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "losses",
+"displayName": "Losses",
+"shortDisplayName": "L",
+"description": "Losses",
+"abbreviation": "L",
+"type": "losses",
+"value": 2.0,
+"displayValue": "2"
+},
+{
+"name": "pointDifferential",
+"displayName": "Goal Difference",
+"shortDisplayName": "GD",
+"description": "Goal Difference",
+"abbreviation": "GD",
+"type": "pointdifferential",
+"value": -1.0,
+"displayValue": "-1"
+},
+{
+"name": "points",
+"displayName": "Points",
+"shortDisplayName": "P",
+"description": "Points",
+"abbreviation": "P",
+"type": "points",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "pointsAgainst",
+"displayName": "Goals Against",
+"shortDisplayName": "A",
+"description": "Goals Against",
+"abbreviation": "A",
+"type": "pointsagainst",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "pointsFor",
+"displayName": "Goals For",
+"shortDisplayName": "F",
+"description": "Goals For",
+"abbreviation": "F",
+"type": "pointsfor",
+"value": 2.0,
+"displayValue": "2"
+},
+{
+"name": "ties",
+"displayName": "Draws",
+"shortDisplayName": "D",
+"description": "Draws",
+"abbreviation": "D",
+"type": "ties",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "wins",
+"displayName": "Wins",
+"shortDisplayName": "W",
+"description": "Wins",
+"abbreviation": "W",
+"type": "wins",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "advanced",
+"displayName": "Advanced",
+"shortDisplayName": "ADV",
+"description": "Advanced",
+"abbreviation": "ADV",
+"type": "advanced",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "deductions",
+"displayName": "Point Deductions",
+"shortDisplayName": "Deductions",
+"description": "Point Deductions",
+"abbreviation": "PD",
+"type": "deductions",
+"value": 0.0,
+"displayValue": ""
+},
+{
+"name": "ppg",
+"displayName": "Points Per Game",
+"shortDisplayName": "PPG",
+"description": "Points Per Game",
+"abbreviation": "PPG",
+"type": "ppg",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "rank",
+"displayName": "Rank",
+"shortDisplayName": "Rank",
+"description": "Rank",
+"abbreviation": "R",
+"type": "rank",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "rankChange",
+"displayName": "Rank Change",
+"shortDisplayName": "Rank Change",
+"description": "Rank Change",
+"abbreviation": "RC",
+"type": "rankchange",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"id": "0",
+"name": "overall",
+"abbreviation": "Total",
+"displayName": "Overall",
+"shortDisplayName": "OVER",
+"description": "Overall Record",
+"type": "total",
+"summary": "1-0-2",
+"displayValue": "1-0-2"
+}
+]
+},
+{
+"team": {
+"id": "467",
+"displayName": "South Africa",
+"shortDisplayName": "South Africa",
+"abbreviation": "RSA",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/countries/500/rsa.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2023-10-25T16:21Z"
+}
+]
+},
+"note": {
+"color": "#81D6AC",
+"description": "Advance to Round of 32",
+"rank": 2
+},
+"stats": [
+{
+"name": "gamesPlayed",
+"displayName": "Games Played",
+"shortDisplayName": "GP",
+"description": "Number of Games Played",
+"abbreviation": "GP",
+"type": "gamesplayed",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "losses",
+"displayName": "Losses",
+"shortDisplayName": "L",
+"description": "Losses",
+"abbreviation": "L",
+"type": "losses",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "pointDifferential",
+"displayName": "Goal Difference",
+"shortDisplayName": "GD",
+"description": "Goal Difference",
+"abbreviation": "GD",
+"type": "pointdifferential",
+"value": -1.0,
+"displayValue": "-1"
+},
+{
+"name": "points",
+"displayName": "Points",
+"shortDisplayName": "P",
+"description": "Points",
+"abbreviation": "P",
+"type": "points",
+"value": 4.0,
+"displayValue": "4"
+},
+{
+"name": "pointsAgainst",
+"displayName": "Goals Against",
+"shortDisplayName": "A",
+"description": "Goals Against",
+"abbreviation": "A",
+"type": "pointsagainst",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "pointsFor",
+"displayName": "Goals For",
+"shortDisplayName": "F",
+"description": "Goals For",
+"abbreviation": "F",
+"type": "pointsfor",
+"value": 2.0,
+"displayValue": "2"
+},
+{
+"name": "ties",
+"displayName": "Draws",
+"shortDisplayName": "D",
+"description": "Draws",
+"abbreviation": "D",
+"type": "ties",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "wins",
+"displayName": "Wins",
+"shortDisplayName": "W",
+"description": "Wins",
+"abbreviation": "W",
+"type": "wins",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "advanced",
+"displayName": "Advanced",
+"shortDisplayName": "ADV",
+"description": "Advanced",
+"abbreviation": "ADV",
+"type": "advanced",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "deductions",
+"displayName": "Point Deductions",
+"shortDisplayName": "Deductions",
+"description": "Point Deductions",
+"abbreviation": "PD",
+"type": "deductions",
+"value": 0.0,
+"displayValue": ""
+},
+{
+"name": "ppg",
+"displayName": "Points Per Game",
+"shortDisplayName": "PPG",
+"description": "Points Per Game",
+"abbreviation": "PPG",
+"type": "ppg",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "rank",
+"displayName": "Rank",
+"shortDisplayName": "Rank",
+"description": "Rank",
+"abbreviation": "R",
+"type": "rank",
+"value": 2.0,
+"displayValue": "2"
+},
+{
+"name": "rankChange",
+"displayName": "Rank Change",
+"shortDisplayName": "Rank Change",
+"description": "Rank Change",
+"abbreviation": "RC",
+"type": "rankchange",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"id": "0",
+"name": "overall",
+"abbreviation": "Total",
+"displayName": "Overall",
+"shortDisplayName": "OVER",
+"description": "Overall Record",
+"type": "total",
+"summary": "1-1-1",
+"displayValue": "1-1-1"
+}
+]
+}
+]
+}
+},
+{
+"uid": "s:600~l:606~g:2",
+"id": "2",
+"name": "Group B",
+"abbreviation": "Group B",
+"standings": {
+"id": "0",
+"name": "overall",
+"displayName": "Standings",
+"links": [
+{
+"language": "en-US",
+"rel": [
+"standings",
+"desktop"
+],
+"href": "https://www.espn.com/soccer/table/_/league/fifa.world",
+"text": "Full Table",
+"shortText": "Standings",
+"isExternal": false,
+"isPremium": false
+}
+],
+"season": 2026,
+"seasonType": 1,
+"seasonDisplayName": "2026 FIFA World Cup",
+"entries": [
+{
+"team": {
+"id": "206",
+"displayName": "Canada",
+"shortDisplayName": "Canada",
+"abbreviation": "CAN",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/countries/500/can.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2023-10-25T16:19Z"
+}
+]
+},
+"note": {
+"color": "#81D6AC",
+"description": "Advance to Round of 32",
+"rank": 2
+},
+"stats": [
+{
+"name": "gamesPlayed",
+"displayName": "Games Played",
+"shortDisplayName": "GP",
+"description": "Number of Games Played",
+"abbreviation": "GP",
+"type": "gamesplayed",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "losses",
+"displayName": "Losses",
+"shortDisplayName": "L",
+"description": "Losses",
+"abbreviation": "L",
+"type": "losses",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "pointDifferential",
+"displayName": "Goal Difference",
+"shortDisplayName": "GD",
+"description": "Goal Difference",
+"abbreviation": "GD",
+"type": "pointdifferential",
+"value": 5.0,
+"displayValue": "+5"
+},
+{
+"name": "points",
+"displayName": "Points",
+"shortDisplayName": "P",
+"description": "Points",
+"abbreviation": "P",
+"type": "points",
+"value": 4.0,
+"displayValue": "4"
+},
+{
+"name": "pointsAgainst",
+"displayName": "Goals Against",
+"shortDisplayName": "A",
+"description": "Goals Against",
+"abbreviation": "A",
+"type": "pointsagainst",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "pointsFor",
+"displayName": "Goals For",
+"shortDisplayName": "F",
+"description": "Goals For",
+"abbreviation": "F",
+"type": "pointsfor",
+"value": 8.0,
+"displayValue": "8"
+},
+{
+"name": "ties",
+"displayName": "Draws",
+"shortDisplayName": "D",
+"description": "Draws",
+"abbreviation": "D",
+"type": "ties",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "wins",
+"displayName": "Wins",
+"shortDisplayName": "W",
+"description": "Wins",
+"abbreviation": "W",
+"type": "wins",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "advanced",
+"displayName": "Advanced",
+"shortDisplayName": "ADV",
+"description": "Advanced",
+"abbreviation": "ADV",
+"type": "advanced",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "deductions",
+"displayName": "Point Deductions",
+"shortDisplayName": "Deductions",
+"description": "Point Deductions",
+"abbreviation": "PD",
+"type": "deductions",
+"value": 0.0,
+"displayValue": ""
+},
+{
+"name": "ppg",
+"displayName": "Points Per Game",
+"shortDisplayName": "PPG",
+"description": "Points Per Game",
+"abbreviation": "PPG",
+"type": "ppg",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "rank",
+"displayName": "Rank",
+"shortDisplayName": "Rank",
+"description": "Rank",
+"abbreviation": "R",
+"type": "rank",
+"value": 2.0,
+"displayValue": "2"
+},
+{
+"name": "rankChange",
+"displayName": "Rank Change",
+"shortDisplayName": "Rank Change",
+"description": "Rank Change",
+"abbreviation": "RC",
+"type": "rankchange",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"id": "0",
+"name": "overall",
+"abbreviation": "Total",
+"displayName": "Overall",
+"shortDisplayName": "OVER",
+"description": "Overall Record",
+"type": "total",
+"summary": "1-1-1",
+"displayValue": "1-1-1"
+}
+]
+},
+{
+"team": {
+"id": "452",
+"displayName": "Bosnia-Herzegovina",
+"shortDisplayName": "Bosnia-Herz",
+"abbreviation": "BIH",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/countries/500/bih.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2018-06-05T12:06Z"
+}
+]
+},
+"note": {
+"color": "#B5E7CE",
+"description": "Best 8 advance",
+"rank": 3
+},
+"stats": [
+{
+"name": "gamesPlayed",
+"displayName": "Games Played",
+"shortDisplayName": "GP",
+"description": "Number of Games Played",
+"abbreviation": "GP",
+"type": "gamesplayed",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "losses",
+"displayName": "Losses",
+"shortDisplayName": "L",
+"description": "Losses",
+"abbreviation": "L",
+"type": "losses",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "pointDifferential",
+"displayName": "Goal Difference",
+"shortDisplayName": "GD",
+"description": "Goal Difference",
+"abbreviation": "GD",
+"type": "pointdifferential",
+"value": -1.0,
+"displayValue": "-1"
+},
+{
+"name": "points",
+"displayName": "Points",
+"shortDisplayName": "P",
+"description": "Points",
+"abbreviation": "P",
+"type": "points",
+"value": 4.0,
+"displayValue": "4"
+},
+{
+"name": "pointsAgainst",
+"displayName": "Goals Against",
+"shortDisplayName": "A",
+"description": "Goals Against",
+"abbreviation": "A",
+"type": "pointsagainst",
+"value": 6.0,
+"displayValue": "6"
+},
+{
+"name": "pointsFor",
+"displayName": "Goals For",
+"shortDisplayName": "F",
+"description": "Goals For",
+"abbreviation": "F",
+"type": "pointsfor",
+"value": 5.0,
+"displayValue": "5"
+},
+{
+"name": "ties",
+"displayName": "Draws",
+"shortDisplayName": "D",
+"description": "Draws",
+"abbreviation": "D",
+"type": "ties",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "wins",
+"displayName": "Wins",
+"shortDisplayName": "W",
+"description": "Wins",
+"abbreviation": "W",
+"type": "wins",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "advanced",
+"displayName": "Advanced",
+"shortDisplayName": "ADV",
+"description": "Advanced",
+"abbreviation": "ADV",
+"type": "advanced",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "deductions",
+"displayName": "Point Deductions",
+"shortDisplayName": "Deductions",
+"description": "Point Deductions",
+"abbreviation": "PD",
+"type": "deductions",
+"value": 0.0,
+"displayValue": ""
+},
+{
+"name": "ppg",
+"displayName": "Points Per Game",
+"shortDisplayName": "PPG",
+"description": "Points Per Game",
+"abbreviation": "PPG",
+"type": "ppg",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "rank",
+"displayName": "Rank",
+"shortDisplayName": "Rank",
+"description": "Rank",
+"abbreviation": "R",
+"type": "rank",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "rankChange",
+"displayName": "Rank Change",
+"shortDisplayName": "Rank Change",
+"description": "Rank Change",
+"abbreviation": "RC",
+"type": "rankchange",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"id": "0",
+"name": "overall",
+"abbreviation": "Total",
+"displayName": "Overall",
+"shortDisplayName": "OVER",
+"description": "Overall Record",
+"type": "total",
+"summary": "1-1-1",
+"displayValue": "1-1-1"
+}
+]
+},
+{
+"team": {
+"id": "475",
+"displayName": "Switzerland",
+"shortDisplayName": "Switzerland",
+"abbreviation": "SUI",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/countries/500/sui.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2023-10-25T16:21Z"
+}
+]
+},
+"note": {
+"color": "#81D6AC",
+"description": "Advance to Round of 32",
+"rank": 1
+},
+"stats": [
+{
+"name": "gamesPlayed",
+"displayName": "Games Played",
+"shortDisplayName": "GP",
+"description": "Number of Games Played",
+"abbreviation": "GP",
+"type": "gamesplayed",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "losses",
+"displayName": "Losses",
+"shortDisplayName": "L",
+"description": "Losses",
+"abbreviation": "L",
+"type": "losses",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "pointDifferential",
+"displayName": "Goal Difference",
+"shortDisplayName": "GD",
+"description": "Goal Difference",
+"abbreviation": "GD",
+"type": "pointdifferential",
+"value": 4.0,
+"displayValue": "+4"
+},
+{
+"name": "points",
+"displayName": "Points",
+"shortDisplayName": "P",
+"description": "Points",
+"abbreviation": "P",
+"type": "points",
+"value": 7.0,
+"displayValue": "7"
+},
+{
+"name": "pointsAgainst",
+"displayName": "Goals Against",
+"shortDisplayName": "A",
+"description": "Goals Against",
+"abbreviation": "A",
+"type": "pointsagainst",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "pointsFor",
+"displayName": "Goals For",
+"shortDisplayName": "F",
+"description": "Goals For",
+"abbreviation": "F",
+"type": "pointsfor",
+"value": 7.0,
+"displayValue": "7"
+},
+{
+"name": "ties",
+"displayName": "Draws",
+"shortDisplayName": "D",
+"description": "Draws",
+"abbreviation": "D",
+"type": "ties",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "wins",
+"displayName": "Wins",
+"shortDisplayName": "W",
+"description": "Wins",
+"abbreviation": "W",
+"type": "wins",
+"value": 2.0,
+"displayValue": "2"
+},
+{
+"name": "advanced",
+"displayName": "Advanced",
+"shortDisplayName": "ADV",
+"description": "Advanced",
+"abbreviation": "ADV",
+"type": "advanced",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "deductions",
+"displayName": "Point Deductions",
+"shortDisplayName": "Deductions",
+"description": "Point Deductions",
+"abbreviation": "PD",
+"type": "deductions",
+"value": 0.0,
+"displayValue": ""
+},
+{
+"name": "ppg",
+"displayName": "Points Per Game",
+"shortDisplayName": "PPG",
+"description": "Points Per Game",
+"abbreviation": "PPG",
+"type": "ppg",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "rank",
+"displayName": "Rank",
+"shortDisplayName": "Rank",
+"description": "Rank",
+"abbreviation": "R",
+"type": "rank",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "rankChange",
+"displayName": "Rank Change",
+"shortDisplayName": "Rank Change",
+"description": "Rank Change",
+"abbreviation": "RC",
+"type": "rankchange",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"id": "0",
+"name": "overall",
+"abbreviation": "Total",
+"displayName": "Overall",
+"shortDisplayName": "OVER",
+"description": "Overall Record",
+"type": "total",
+"summary": "2-1-0",
+"displayValue": "2-1-0"
+}
+]
+},
+{
+"team": {
+"id": "4398",
+"displayName": "Qatar",
+"shortDisplayName": "Qatar",
+"abbreviation": "QAT",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/countries/500/qat.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2018-06-05T12:07Z"
+}
+]
+},
+"note": {
+"color": "#FF7F84",
+"description": "Eliminated",
+"rank": 4
+},
+"stats": [
+{
+"name": "gamesPlayed",
+"displayName": "Games Played",
+"shortDisplayName": "GP",
+"description": "Number of Games Played",
+"abbreviation": "GP",
+"type": "gamesplayed",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "losses",
+"displayName": "Losses",
+"shortDisplayName": "L",
+"description": "Losses",
+"abbreviation": "L",
+"type": "losses",
+"value": 2.0,
+"displayValue": "2"
+},
+{
+"name": "pointDifferential",
+"displayName": "Goal Difference",
+"shortDisplayName": "GD",
+"description": "Goal Difference",
+"abbreviation": "GD",
+"type": "pointdifferential",
+"value": -8.0,
+"displayValue": "-8"
+},
+{
+"name": "points",
+"displayName": "Points",
+"shortDisplayName": "P",
+"description": "Points",
+"abbreviation": "P",
+"type": "points",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "pointsAgainst",
+"displayName": "Goals Against",
+"shortDisplayName": "A",
+"description": "Goals Against",
+"abbreviation": "A",
+"type": "pointsagainst",
+"value": 10.0,
+"displayValue": "10"
+},
+{
+"name": "pointsFor",
+"displayName": "Goals For",
+"shortDisplayName": "F",
+"description": "Goals For",
+"abbreviation": "F",
+"type": "pointsfor",
+"value": 2.0,
+"displayValue": "2"
+},
+{
+"name": "ties",
+"displayName": "Draws",
+"shortDisplayName": "D",
+"description": "Draws",
+"abbreviation": "D",
+"type": "ties",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "wins",
+"displayName": "Wins",
+"shortDisplayName": "W",
+"description": "Wins",
+"abbreviation": "W",
+"type": "wins",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "advanced",
+"displayName": "Advanced",
+"shortDisplayName": "ADV",
+"description": "Advanced",
+"abbreviation": "ADV",
+"type": "advanced",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "deductions",
+"displayName": "Point Deductions",
+"shortDisplayName": "Deductions",
+"description": "Point Deductions",
+"abbreviation": "PD",
+"type": "deductions",
+"value": 0.0,
+"displayValue": ""
+},
+{
+"name": "ppg",
+"displayName": "Points Per Game",
+"shortDisplayName": "PPG",
+"description": "Points Per Game",
+"abbreviation": "PPG",
+"type": "ppg",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "rank",
+"displayName": "Rank",
+"shortDisplayName": "Rank",
+"description": "Rank",
+"abbreviation": "R",
+"type": "rank",
+"value": 4.0,
+"displayValue": "4"
+},
+{
+"name": "rankChange",
+"displayName": "Rank Change",
+"shortDisplayName": "Rank Change",
+"description": "Rank Change",
+"abbreviation": "RC",
+"type": "rankchange",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"id": "0",
+"name": "overall",
+"abbreviation": "Total",
+"displayName": "Overall",
+"shortDisplayName": "OVER",
+"description": "Overall Record",
+"type": "total",
+"summary": "0-1-2",
+"displayValue": "0-1-2"
+}
+]
+}
+]
+}
+},
+{
+"uid": "s:600~l:606~g:3",
+"id": "3",
+"name": "Group C",
+"abbreviation": "Group C",
+"standings": {
+"id": "0",
+"name": "overall",
+"displayName": "Standings",
+"links": [
+{
+"language": "en-US",
+"rel": [
+"standings",
+"desktop"
+],
+"href": "https://www.espn.com/soccer/table/_/league/fifa.world",
+"text": "Full Table",
+"shortText": "Standings",
+"isExternal": false,
+"isPremium": false
+}
+],
+"season": 2026,
+"seasonType": 1,
+"seasonDisplayName": "2026 FIFA World Cup",
+"entries": [
+{
+"team": {
+"id": "205",
+"displayName": "Brazil",
+"shortDisplayName": "Brazil",
+"abbreviation": "BRA",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/countries/500/bra.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2023-10-25T16:19Z"
+}
+]
+},
+"note": {
+"color": "#81D6AC",
+"description": "Advance to Round of 32",
+"rank": 1
+},
+"stats": [
+{
+"name": "gamesPlayed",
+"displayName": "Games Played",
+"shortDisplayName": "GP",
+"description": "Number of Games Played",
+"abbreviation": "GP",
+"type": "gamesplayed",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "losses",
+"displayName": "Losses",
+"shortDisplayName": "L",
+"description": "Losses",
+"abbreviation": "L",
+"type": "losses",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "pointDifferential",
+"displayName": "Goal Difference",
+"shortDisplayName": "GD",
+"description": "Goal Difference",
+"abbreviation": "GD",
+"type": "pointdifferential",
+"value": 6.0,
+"displayValue": "+6"
+},
+{
+"name": "points",
+"displayName": "Points",
+"shortDisplayName": "P",
+"description": "Points",
+"abbreviation": "P",
+"type": "points",
+"value": 7.0,
+"displayValue": "7"
+},
+{
+"name": "pointsAgainst",
+"displayName": "Goals Against",
+"shortDisplayName": "A",
+"description": "Goals Against",
+"abbreviation": "A",
+"type": "pointsagainst",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "pointsFor",
+"displayName": "Goals For",
+"shortDisplayName": "F",
+"description": "Goals For",
+"abbreviation": "F",
+"type": "pointsfor",
+"value": 7.0,
+"displayValue": "7"
+},
+{
+"name": "ties",
+"displayName": "Draws",
+"shortDisplayName": "D",
+"description": "Draws",
+"abbreviation": "D",
+"type": "ties",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "wins",
+"displayName": "Wins",
+"shortDisplayName": "W",
+"description": "Wins",
+"abbreviation": "W",
+"type": "wins",
+"value": 2.0,
+"displayValue": "2"
+},
+{
+"name": "advanced",
+"displayName": "Advanced",
+"shortDisplayName": "ADV",
+"description": "Advanced",
+"abbreviation": "ADV",
+"type": "advanced",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "deductions",
+"displayName": "Point Deductions",
+"shortDisplayName": "Deductions",
+"description": "Point Deductions",
+"abbreviation": "PD",
+"type": "deductions",
+"value": 0.0,
+"displayValue": ""
+},
+{
+"name": "ppg",
+"displayName": "Points Per Game",
+"shortDisplayName": "PPG",
+"description": "Points Per Game",
+"abbreviation": "PPG",
+"type": "ppg",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "rank",
+"displayName": "Rank",
+"shortDisplayName": "Rank",
+"description": "Rank",
+"abbreviation": "R",
+"type": "rank",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "rankChange",
+"displayName": "Rank Change",
+"shortDisplayName": "Rank Change",
+"description": "Rank Change",
+"abbreviation": "RC",
+"type": "rankchange",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"id": "0",
+"name": "overall",
+"abbreviation": "Total",
+"displayName": "Overall",
+"shortDisplayName": "OVER",
+"description": "Overall Record",
+"type": "total",
+"summary": "2-1-0",
+"displayValue": "2-1-0"
+}
+]
+},
+{
+"team": {
+"id": "580",
+"displayName": "Scotland",
+"shortDisplayName": "Scotland",
+"abbreviation": "SCO",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/countries/500/sco.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2018-06-05T12:07Z"
+}
+]
+},
+"note": {
+"color": "#B5E7CE",
+"description": "Best 8 advance",
+"rank": 3
+},
+"stats": [
+{
+"name": "gamesPlayed",
+"displayName": "Games Played",
+"shortDisplayName": "GP",
+"description": "Number of Games Played",
+"abbreviation": "GP",
+"type": "gamesplayed",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "losses",
+"displayName": "Losses",
+"shortDisplayName": "L",
+"description": "Losses",
+"abbreviation": "L",
+"type": "losses",
+"value": 2.0,
+"displayValue": "2"
+},
+{
+"name": "pointDifferential",
+"displayName": "Goal Difference",
+"shortDisplayName": "GD",
+"description": "Goal Difference",
+"abbreviation": "GD",
+"type": "pointdifferential",
+"value": -3.0,
+"displayValue": "-3"
+},
+{
+"name": "points",
+"displayName": "Points",
+"shortDisplayName": "P",
+"description": "Points",
+"abbreviation": "P",
+"type": "points",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "pointsAgainst",
+"displayName": "Goals Against",
+"shortDisplayName": "A",
+"description": "Goals Against",
+"abbreviation": "A",
+"type": "pointsagainst",
+"value": 4.0,
+"displayValue": "4"
+},
+{
+"name": "pointsFor",
+"displayName": "Goals For",
+"shortDisplayName": "F",
+"description": "Goals For",
+"abbreviation": "F",
+"type": "pointsfor",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "ties",
+"displayName": "Draws",
+"shortDisplayName": "D",
+"description": "Draws",
+"abbreviation": "D",
+"type": "ties",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "wins",
+"displayName": "Wins",
+"shortDisplayName": "W",
+"description": "Wins",
+"abbreviation": "W",
+"type": "wins",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "advanced",
+"displayName": "Advanced",
+"shortDisplayName": "ADV",
+"description": "Advanced",
+"abbreviation": "ADV",
+"type": "advanced",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "deductions",
+"displayName": "Point Deductions",
+"shortDisplayName": "Deductions",
+"description": "Point Deductions",
+"abbreviation": "PD",
+"type": "deductions",
+"value": 0.0,
+"displayValue": ""
+},
+{
+"name": "ppg",
+"displayName": "Points Per Game",
+"shortDisplayName": "PPG",
+"description": "Points Per Game",
+"abbreviation": "PPG",
+"type": "ppg",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "rank",
+"displayName": "Rank",
+"shortDisplayName": "Rank",
+"description": "Rank",
+"abbreviation": "R",
+"type": "rank",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "rankChange",
+"displayName": "Rank Change",
+"shortDisplayName": "Rank Change",
+"description": "Rank Change",
+"abbreviation": "RC",
+"type": "rankchange",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"id": "0",
+"name": "overall",
+"abbreviation": "Total",
+"displayName": "Overall",
+"shortDisplayName": "OVER",
+"description": "Overall Record",
+"type": "total",
+"summary": "1-0-2",
+"displayValue": "1-0-2"
+}
+]
+},
+{
+"team": {
+"id": "2654",
+"displayName": "Haiti",
+"shortDisplayName": "Haiti",
+"abbreviation": "HAI",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/countries/500/hai.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2018-06-05T12:06Z"
+}
+]
+},
+"note": {
+"color": "#FF7F84",
+"description": "Eliminated",
+"rank": 4
+},
+"stats": [
+{
+"name": "gamesPlayed",
+"displayName": "Games Played",
+"shortDisplayName": "GP",
+"description": "Number of Games Played",
+"abbreviation": "GP",
+"type": "gamesplayed",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "losses",
+"displayName": "Losses",
+"shortDisplayName": "L",
+"description": "Losses",
+"abbreviation": "L",
+"type": "losses",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "pointDifferential",
+"displayName": "Goal Difference",
+"shortDisplayName": "GD",
+"description": "Goal Difference",
+"abbreviation": "GD",
+"type": "pointdifferential",
+"value": -6.0,
+"displayValue": "-6"
+},
+{
+"name": "points",
+"displayName": "Points",
+"shortDisplayName": "P",
+"description": "Points",
+"abbreviation": "P",
+"type": "points",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "pointsAgainst",
+"displayName": "Goals Against",
+"shortDisplayName": "A",
+"description": "Goals Against",
+"abbreviation": "A",
+"type": "pointsagainst",
+"value": 8.0,
+"displayValue": "8"
+},
+{
+"name": "pointsFor",
+"displayName": "Goals For",
+"shortDisplayName": "F",
+"description": "Goals For",
+"abbreviation": "F",
+"type": "pointsfor",
+"value": 2.0,
+"displayValue": "2"
+},
+{
+"name": "ties",
+"displayName": "Draws",
+"shortDisplayName": "D",
+"description": "Draws",
+"abbreviation": "D",
+"type": "ties",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "wins",
+"displayName": "Wins",
+"shortDisplayName": "W",
+"description": "Wins",
+"abbreviation": "W",
+"type": "wins",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "advanced",
+"displayName": "Advanced",
+"shortDisplayName": "ADV",
+"description": "Advanced",
+"abbreviation": "ADV",
+"type": "advanced",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "deductions",
+"displayName": "Point Deductions",
+"shortDisplayName": "Deductions",
+"description": "Point Deductions",
+"abbreviation": "PD",
+"type": "deductions",
+"value": 0.0,
+"displayValue": ""
+},
+{
+"name": "ppg",
+"displayName": "Points Per Game",
+"shortDisplayName": "PPG",
+"description": "Points Per Game",
+"abbreviation": "PPG",
+"type": "ppg",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "rank",
+"displayName": "Rank",
+"shortDisplayName": "Rank",
+"description": "Rank",
+"abbreviation": "R",
+"type": "rank",
+"value": 4.0,
+"displayValue": "4"
+},
+{
+"name": "rankChange",
+"displayName": "Rank Change",
+"shortDisplayName": "Rank Change",
+"description": "Rank Change",
+"abbreviation": "RC",
+"type": "rankchange",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"id": "0",
+"name": "overall",
+"abbreviation": "Total",
+"displayName": "Overall",
+"shortDisplayName": "OVER",
+"description": "Overall Record",
+"type": "total",
+"summary": "0-0-3",
+"displayValue": "0-0-3"
+}
+]
+},
+{
+"team": {
+"id": "2869",
+"displayName": "Morocco",
+"shortDisplayName": "Morocco",
+"abbreviation": "MAR",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/countries/500/mar.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2018-06-05T12:06Z"
+}
+]
+},
+"note": {
+"color": "#81D6AC",
+"description": "Advance to Round of 32",
+"rank": 2
+},
+"stats": [
+{
+"name": "gamesPlayed",
+"displayName": "Games Played",
+"shortDisplayName": "GP",
+"description": "Number of Games Played",
+"abbreviation": "GP",
+"type": "gamesplayed",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "losses",
+"displayName": "Losses",
+"shortDisplayName": "L",
+"description": "Losses",
+"abbreviation": "L",
+"type": "losses",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "pointDifferential",
+"displayName": "Goal Difference",
+"shortDisplayName": "GD",
+"description": "Goal Difference",
+"abbreviation": "GD",
+"type": "pointdifferential",
+"value": 3.0,
+"displayValue": "+3"
+},
+{
+"name": "points",
+"displayName": "Points",
+"shortDisplayName": "P",
+"description": "Points",
+"abbreviation": "P",
+"type": "points",
+"value": 7.0,
+"displayValue": "7"
+},
+{
+"name": "pointsAgainst",
+"displayName": "Goals Against",
+"shortDisplayName": "A",
+"description": "Goals Against",
+"abbreviation": "A",
+"type": "pointsagainst",
+"value": 3.0,
+"displayValue": "3"
+},
+{
+"name": "pointsFor",
+"displayName": "Goals For",
+"shortDisplayName": "F",
+"description": "Goals For",
+"abbreviation": "F",
+"type": "pointsfor",
+"value": 6.0,
+"displayValue": "6"
+},
+{
+"name": "ties",
+"displayName": "Draws",
+"shortDisplayName": "D",
+"description": "Draws",
+"abbreviation": "D",
+"type": "ties",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "wins",
+"displayName": "Wins",
+"shortDisplayName": "W",
+"description": "Wins",
+"abbreviation": "W",
+"type": "wins",
+"value": 2.0,
+"displayValue": "2"
+},
+{
+"name": "advanced",
+"displayName": "Advanced",
+"shortDisplayName": "ADV",
+"description": "Advanced",
+"abbreviation": "ADV",
+"type": "advanced",
+"value": 1.0,
+"displayValue": "1"
+},
+{
+"name": "deductions",
+"displayName": "Point Deductions",
+"shortDisplayName": "Deductions",
+"description": "Point Deductions",
+"abbreviation": "PD",
+"type": "deductions",
+"value": 0.0,
+"displayValue": ""
+},
+{
+"name": "ppg",
+"displayName": "Points Per Game",
+"shortDisplayName": "PPG",
+"description": "Points Per Game",
+"abbreviation": "PPG",
+"type": "ppg",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"name": "rank",
+"displayName": "Rank",
+"shortDisplayName": "Rank",
+"description": "Rank",
+"abbreviation": "R",
+"type": "rank",
+"value": 2.0,
+"displayValue": "2"
+},
+{
+"name": "rankChange",
+"displayName": "Rank Change",
+"shortDisplayName": "Rank Change",
+"description": "Rank Change",
+"abbreviation": "RC",
+"type": "rankchange",
+"value": 0.0,
+"displayValue": "0"
+},
+{
+"id": "0",
+"name": "overall",
+"abbreviation": "Total",
+"displayName": "Overall",
+"shortDisplayName": "OVER",
+"description": "Overall Record",
+"type": "total",
+"summary": "2-1-0",
+"displayValue": "2-1-0"
+}
+]
+}
+]
+}
+}
+],
+"season": {
+"year": 2026,
+"startDate": "2026-06-11T04:00Z",
+"endDate": "2026-12-31T04:59Z",
+"displayName": "2026 FIFA World Cup"
+}
+}
