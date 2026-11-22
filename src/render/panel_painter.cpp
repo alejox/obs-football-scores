@@ -454,6 +454,66 @@ bool attacking(PlayKind kind)
 
 // The latest play: a ball, a wedge towards the goal under attack and a two-line tag
 // ("Barcelona" / "Remate al arco · 67'"), like a broadcast tracker.
+void draw_ball(QPainter &p, const QPointF &at, qreal r)
+{
+	p.save();
+	p.setPen(QPen(kInk, 1.4));
+	p.setBrush(Qt::white);
+	p.drawEllipse(at, r, r);
+	p.setPen(Qt::NoPen);
+	p.setBrush(kInk);
+	QPolygonF pent;
+	for (int i = 0; i < 5; ++i) {
+		const qreal a = -M_PI / 2 + i * 2 * M_PI / 5;
+		pent << at + QPointF(std::cos(a), std::sin(a)) * r * 0.45;
+	}
+	p.drawPolygon(pent);
+	p.restore();
+}
+
+// The ball's route over the last plays: a dotted line that fades towards the older
+// ones, the newest stretch drawn as far as the ball has travelled. Returns true while
+// the ball is still on its way (it is drawn here, in flight).
+bool draw_ball_route(QPainter &p, const Pitch &pitch, const PanelView &v)
+{
+	const size_t n = v.ball_route.size();
+	if (n < 2)
+		return false;
+	// Ease in and out, so the ball leaves and arrives gently.
+	const double raw = std::clamp(v.ball_progress, 0.0, 1.0);
+	const double t = raw * raw * (3 - 2 * raw);
+	const PitchPoint from = v.ball_route[n - 2], to = v.ball_route[n - 1];
+	const PitchPoint now{from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t};
+	p.save();
+	for (size_t i = 0; i + 1 < n; ++i) {
+		const bool last = i + 2 == n;
+		const int a = static_cast<int>(60 + 150.0 * (i + 1) / (n - 1));
+		QPen pen(alpha(Qt::white, a), last ? 3.2 : 2.2, last ? Qt::SolidLine : Qt::DotLine, Qt::RoundCap);
+		p.setPen(pen);
+		p.drawLine(pitch.map(v.ball_route[i]), pitch.map(last ? now : v.ball_route[i + 1]));
+		if (!last) {
+			p.setPen(Qt::NoPen);
+			p.setBrush(alpha(Qt::white, a));
+			const qreal r = 3.5 * pitch.scale(v.ball_route[i + 1]);
+			p.drawEllipse(pitch.map(v.ball_route[i + 1]), r, r);
+		}
+	}
+	p.restore();
+	if (raw >= 1.0)
+		return false;
+	// In flight: a soft shadow on the grass and the ball lifted a little over it.
+	const QPointF ground = pitch.map(now);
+	const qreal s = pitch.scale(now);
+	const qreal lift = std::sin(M_PI * t) * 26 * s;
+	p.save();
+	p.setPen(Qt::NoPen);
+	p.setBrush(QColor(0, 0, 0, 90));
+	p.drawEllipse(ground, 9 * s, 4.5 * s);
+	p.restore();
+	draw_ball(p, ground - QPointF(0, lift), 11 * s);
+	return true;
+}
+
 void draw_latest(QPainter &p, const Pitch &pitch, const PitchMark &m, const PanelView &v, const QColor &team)
 {
 	const QPointF at = pitch.map(m.at);
@@ -479,22 +539,8 @@ void draw_latest(QPainter &p, const Pitch &pitch, const PitchMark &m, const Pane
 	p.drawEllipse(at, grow, grow * (pitch.perspective ? 0.6 : 1.0));
 	p.restore();
 	// Ball.
-	if (m.kind != PlayKind::Goal) {
-		const qreal r = 11 * s;
-		p.save();
-		p.setPen(QPen(kInk, 1.4));
-		p.setBrush(Qt::white);
-		p.drawEllipse(at, r, r);
-		p.setPen(Qt::NoPen);
-		p.setBrush(kInk);
-		QPolygonF pent;
-		for (int i = 0; i < 5; ++i) {
-			const qreal a = -M_PI / 2 + i * 2 * M_PI / 5;
-			pent << at + QPointF(std::cos(a), std::sin(a)) * r * 0.45;
-		}
-		p.drawPolygon(pent);
-		p.restore();
-	}
+	if (m.kind != PlayKind::Goal)
+		draw_ball(p, at, 11 * s);
 	if (v.caption.isEmpty())
 		return;
 
@@ -626,7 +672,11 @@ void paint_live_pitch(QPainter &p, const PanelView &v)
 		if (m->recency == 0)
 			latest = m;
 	}
-	if (latest) {
+	// The route first; the tag and the ring wait until the ball arrives.
+	const bool in_flight = draw_ball_route(p, pitch, v);
+	if (latest && in_flight) {
+		// nothing more: the ball is on its way
+	} else if (latest) {
 		draw_latest(p, pitch, *latest, v, team_tone(latest->home ? v.home.color : v.away.color));
 	} else if (!v.no_plays.isEmpty()) {
 		const QRectF r(area.center().x() - 260, area.center().y() - 28, 520, 56);

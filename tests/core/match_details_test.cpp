@@ -262,3 +262,21 @@ TEST_CASE(summary_extras_form_meetings_venue_and_commentary)
 	CHECK_EQ(details->commentary.front().text, std::string("Lineups are announced and players are warming up."));
 	CHECK(details->commentary.front().minute.empty());
 }
+
+TEST_CASE(ball_route_joins_the_last_positioned_plays_oldest_first)
+{
+	std::vector<Play> plays(4);
+	plays[0].sequence = 1; plays[0].has_position = true; plays[0].x = 0.1; plays[0].y = 0.2; plays[0].side = TeamSide::Home;
+	plays[1].sequence = 2; // no position: skipped
+	plays[2].sequence = 3; plays[2].has_position = true; plays[2].x = 0.5; plays[2].y = 0.5; plays[2].side = TeamSide::Home;
+	plays[3].sequence = 4; plays[3].has_position = true; plays[3].x = 0.9; plays[3].y = 0.4; plays[3].side = TeamSide::Home;
+	const BallRoute all = ball_route(plays);
+	CHECK_EQ(all.points.size(), size_t{3});
+	CHECK_EQ(all.latest_sequence, 4);
+	CHECK(all.points.front().x == play_point(plays[0]).x);
+	CHECK(all.points.back().x == play_point(plays[3]).x);
+	const BallRoute two = ball_route(plays, 2);
+	CHECK_EQ(two.points.size(), size_t{2});
+	CHECK(two.points.front().x == play_point(plays[2]).x);
+	CHECK_EQ(ball_route({}).latest_sequence, -1);
+}

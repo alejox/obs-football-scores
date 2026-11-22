@@ -218,6 +218,19 @@ double pressure(const std::vector<Play> &plays, double now_seconds)
 	return std::clamp((home - away) / (home + away + 2.0), -1.0, 1.0);
 }
 
+BallRoute ball_route(const std::vector<Play> &plays, size_t count)
+{
+	BallRoute route;
+	for (auto it = plays.rbegin(); it != plays.rend() && route.points.size() < count; ++it) {
+		if (!it->has_position)
+			continue;
+		if (route.points.empty())
+			route.latest_sequence = it->sequence;
+		route.points.insert(route.points.begin(), play_point(*it));
+	}
+	return route;
+}
+
 bool is_shot(PlayKind kind)
 {
 	return kind == PlayKind::Goal || kind == PlayKind::ShotOnTarget || kind == PlayKind::ShotOffTarget ||

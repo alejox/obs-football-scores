@@ -145,6 +145,9 @@ void fill_live_pitch(PanelView &view, const MatchDetails &details, const PanelLa
 	}
 	view.momentum = momentum_series(details.plays);
 	view.no_plays = labels.no_plays;
+	const BallRoute route = ball_route(details.plays);
+	view.ball_route = route.points;
+	view.ball_sequence = route.latest_sequence;
 
 	view.strip.clear();
 	const TeamStats &h = details.home_stats, &a = details.away_stats;

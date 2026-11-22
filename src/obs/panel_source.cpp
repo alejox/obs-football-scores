@@ -35,6 +35,9 @@ using render::PanelContent;
 constexpr const char *kLegacySourceId = "football_panel_source";
 constexpr const char *kContentKey = "content";
 constexpr const char *kViewKey = "view";
+constexpr const char *kBallKey = "ball";
+// How long the ball takes from one play to the next.
+constexpr double kBallSeconds = 2.4;
 constexpr const char *kRowsKey = "rows";
 constexpr const char *kLegacyRowsKey = "table_rows";
 constexpr const char *kBoardKey = "board";
@@ -122,6 +125,9 @@ struct PanelSource {
 	uint64_t seen_images = std::numeric_limits<uint64_t>::max();
 	std::unordered_map<std::string, QImage> images;
 	double time = 0, since_paint = 0;
+	bool ball = true;        // draw the ball's route between plays
+	int ball_sequence = -1;  // the latest play the ball went to
+	double ball_started = -1e9;
 	bool dirty = true;
 
 	std::atomic<uint32_t> width{960};
@@ -358,6 +364,16 @@ render::PanelView build_view(PanelSource &self)
 	switch (self.content) {
 	case PanelContent::LivePitch:
 		render::fill_live_pitch(view, d, l);
+		if (!self.ball) {
+			view.ball_route.clear();
+		} else {
+			// A new play: the ball sets off towards it. Not on the first load.
+			if (view.ball_sequence != self.ball_sequence) {
+				self.ball_started = self.ball_sequence < 0 ? -1e9 : self.time;
+				self.ball_sequence = view.ball_sequence;
+			}
+			view.ball_progress = std::clamp((self.time - self.ball_started) / kBallSeconds, 0.0, 1.0);
+		}
 		if (match->state == MatchState::Scheduled)
 			view.momentum.clear();
 		break;
@@ -427,6 +443,7 @@ void panel_update(void *data, obs_data_t *settings)
 			sync_on_update(settings, self->link, {self->league, self->match_id}, true);
 		const std::string &league = chosen.league;
 		const std::string &match_id = chosen.match;
+		self->ball = obs_data_get_bool(settings, kBallKey);
 		self->view = std::string(obs_data_get_string(settings, kViewKey)) == "perspective"
 				     ? render::PitchView::Perspective
 				     : render::PitchView::TopDown;
@@ -446,6 +463,7 @@ void panel_update(void *data, obs_data_t *settings)
 				self->feed = std::make_unique<MatchFeed>(FeedConfig{league, match_id}, http_get(), now_seconds);
 			self->snapshot = FeedSnapshot{};
 			self->seen_revision = std::numeric_limits<uint64_t>::max();
+			self->ball_sequence = -1; // another match: no flight from the old one
 		}
 		self->dirty = true;
 	}
@@ -596,6 +614,7 @@ void panel_defaults(void *type_data, obs_data_t *settings)
 	obs_data_set_default_bool(settings, kLinkedKey, true);
 	obs_data_set_default_string(settings, kMatchKey, "");
 	obs_data_set_default_string(settings, kViewKey, "topdown");
+	obs_data_set_default_bool(settings, kBallKey, true);
 	obs_data_set_default_string(settings, kBoardKey, "goals");
 	obs_data_set_default_int(settings, kRowsKey, t.default_rows);
 	obs_data_set_default_int(settings, kWidthKey, t.default_width);
@@ -606,6 +625,7 @@ bool content_changed(obs_properties_t *props, obs_property_t *, obs_data_t *sett
 {
 	const PanelContent content = content_from_id(obs_data_get_string(settings, kContentKey));
 	obs_property_set_visible(obs_properties_get(props, kViewKey), has_view(content));
+	obs_property_set_visible(obs_properties_get(props, kBallKey), content == PanelContent::LivePitch);
 	obs_property_set_visible(obs_properties_get(props, kRowsKey), type_of(content).default_rows > 0);
 	obs_property_set_visible(obs_properties_get(props, kBoardKey), content == PanelContent::Scorers);
 	return true;
@@ -650,6 +670,10 @@ obs_properties_t *panel_properties(void *data, void *type_data)
 							       OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
 		obs_property_list_add_string(view, obs_module_text("Panel.View.TopDown"), "topdown");
 		obs_property_list_add_string(view, obs_module_text("Panel.View.Perspective"), "perspective");
+	}
+	if (!fixed || fixed->content == PanelContent::LivePitch) {
+		obs_property_t *ball = obs_properties_add_bool(props, kBallKey, obs_module_text("Panel.Ball"));
+		obs_property_set_long_description(ball, obs_module_text("Panel.Ball.Help"));
 	}
 	if (!fixed || fixed->content == PanelContent::Scorers) {
 		obs_property_t *board = obs_properties_add_list(props, kBoardKey, obs_module_text("Panel.Scorers.Board"),

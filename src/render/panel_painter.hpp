@@ -112,6 +112,11 @@ struct PanelView {
 	bool live = false;
 	double blink = 1.0; // live dot
 	double pulse = 0.0; // 0..1, the latest play's ring
+	// Ball route over the last plays, oldest first (empty: not drawn), and how far the
+	// ball has travelled from the previous play to the latest one (1: it has arrived).
+	std::vector<PitchPoint> ball_route;
+	int ball_sequence = -1;
+	double ball_progress = 1.0;
 
 	// Live pitch.
 	std::vector<PitchMark> marks;

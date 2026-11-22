@@ -45,6 +45,14 @@ std::vector<TrackedPlay> tracked_plays(const std::vector<Play> &plays, size_t re
 
 bool is_shot(PlayKind kind);
 
+// The ball's route for the tracker: where the last `count` positioned plays happened,
+// oldest first. It joins plays, it is not the ball's real path between them.
+struct BallRoute {
+	std::vector<PitchPoint> points;
+	int latest_sequence = -1; // of the newest play; changes when a new one arrives
+};
+BallRoute ball_route(const std::vector<Play> &plays, size_t count = 5);
+
 // Momentum per minute of play, from -1 (away on top) to 1 (home on top): each chance
 // counts for its own minute and, fading, for the few around it, so the line rises and
 // falls like the flow of the match. One value per minute from 0 to `minutes` (or to the
