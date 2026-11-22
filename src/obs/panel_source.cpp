@@ -36,6 +36,7 @@ constexpr const char *kLegacySourceId = "football_panel_source";
 constexpr const char *kContentKey = "content";
 constexpr const char *kViewKey = "view";
 constexpr const char *kBallKey = "ball";
+constexpr const char *kBallTestKey = "ball_test";
 // How long the ball takes from one play to the next.
 constexpr double kBallSeconds = 2.4;
 constexpr const char *kRowsKey = "rows";
@@ -128,6 +129,7 @@ struct PanelSource {
 	bool ball = true;        // draw the ball's route between plays
 	int ball_sequence = -1;  // the latest play the ball went to
 	double ball_started = -1e9;
+	double ball_test_started = -1e9; // "test the ball": replays the route from this moment
 	bool dirty = true;
 
 	std::atomic<uint32_t> width{960};
@@ -269,6 +271,31 @@ QString waiting_message(const PanelSource &self)
 	}
 }
 
+// The route the test uses when the match has no plays yet: out from the back, across
+// midfield and into the box.
+const PitchPoint kDemoRoute[] = {{0.12, 0.55}, {0.30, 0.22}, {0.52, 0.48}, {0.70, 0.78}, {0.86, 0.40}, {0.955, 0.50}};
+
+bool ball_test_running(const PanelSource &self, size_t stops)
+{
+	return stops >= 2 && self.time - self.ball_test_started < kBallSeconds * double(stops - 1);
+}
+
+// "Test the ball": the ball goes over the route stop by stop, whatever the match state.
+// Caller holds update_mutex.
+void apply_ball_test(const PanelSource &self, render::PanelView &view)
+{
+	std::vector<PitchPoint> route = view.ball_route;
+	if (route.size() < 2)
+		route.assign(std::begin(kDemoRoute), std::end(kDemoRoute));
+	if (!ball_test_running(self, route.size()))
+		return;
+	const double at = (self.time - self.ball_test_started) / kBallSeconds;
+	const size_t leg = static_cast<size_t>(at);
+	route.resize(leg + 2);
+	view.ball_route = std::move(route);
+	view.ball_progress = at - double(leg);
+}
+
 // Caller holds update_mutex.
 render::PanelView build_view(PanelSource &self)
 {
@@ -357,6 +384,8 @@ render::PanelView build_view(PanelSource &self)
 		if (self.content != PanelContent::LivePitch) {
 			view.has_data = false;
 			view.message = text("Football.Message.Loading");
+		} else {
+			apply_ball_test(self, view);
 		}
 		return view;
 	}
@@ -374,6 +403,7 @@ render::PanelView build_view(PanelSource &self)
 			}
 			view.ball_progress = std::clamp((self.time - self.ball_started) / kBallSeconds, 0.0, 1.0);
 		}
+		apply_ball_test(self, view);
 		if (match->state == MatchState::Scheduled)
 			view.momentum.clear();
 		break;
@@ -520,7 +550,11 @@ void panel_tick(void *data, float seconds)
 	}
 
 	// The live pitch and the blinking dots animate while the match is on.
-	const bool animated = self->snapshot.match && self->snapshot.match->in_progress() && uses_match(self->content);
+	// The ball test runs over at most the demo route's stops; keep painting while it may.
+	const bool testing = self->content == PanelContent::LivePitch &&
+			     ball_test_running(*self, std::size(kDemoRoute));
+	const bool animated = testing || (self->snapshot.match && self->snapshot.match->in_progress() &&
+					  uses_match(self->content));
 	if (animated && self->since_paint >= kAnimationStep)
 		self->dirty = true;
 
@@ -626,9 +660,21 @@ bool content_changed(obs_properties_t *props, obs_property_t *, obs_data_t *sett
 	const PanelContent content = content_from_id(obs_data_get_string(settings, kContentKey));
 	obs_property_set_visible(obs_properties_get(props, kViewKey), has_view(content));
 	obs_property_set_visible(obs_properties_get(props, kBallKey), content == PanelContent::LivePitch);
+	if (obs_property_t *test = obs_properties_get(props, kBallTestKey))
+		obs_property_set_visible(test, content == PanelContent::LivePitch);
 	obs_property_set_visible(obs_properties_get(props, kRowsKey), type_of(content).default_rows > 0);
 	obs_property_set_visible(obs_properties_get(props, kBoardKey), content == PanelContent::Scorers);
 	return true;
+}
+
+bool ball_test_clicked(obs_properties_t *, obs_property_t *, void *data)
+{
+	if (auto *self = static_cast<PanelSource *>(data)) {
+		std::lock_guard lock(self->update_mutex);
+		self->ball_test_started = self->time;
+		self->dirty = true;
+	}
+	return false;
 }
 
 bool support_clicked(obs_properties_t *, obs_property_t *, void *)
@@ -674,6 +720,9 @@ obs_properties_t *panel_properties(void *data, void *type_data)
 	if (!fixed || fixed->content == PanelContent::LivePitch) {
 		obs_property_t *ball = obs_properties_add_bool(props, kBallKey, obs_module_text("Panel.Ball"));
 		obs_property_set_long_description(ball, obs_module_text("Panel.Ball.Help"));
+		if (self)
+			obs_properties_add_button2(props, kBallTestKey, obs_module_text("Panel.Ball.Test"), ball_test_clicked,
+						   self);
 	}
 	if (!fixed || fixed->content == PanelContent::Scorers) {
 		obs_property_t *board = obs_properties_add_list(props, kBoardKey, obs_module_text("Panel.Scorers.Board"),
