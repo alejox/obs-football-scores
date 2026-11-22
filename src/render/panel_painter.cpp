@@ -18,8 +18,6 @@ constexpr qreal kW = 1000;
 const QColor kInk(12, 14, 20);
 const QColor kPanel(18, 20, 28, 235);
 const QColor kLiveRed(225, 29, 46);
-const QColor kGrassA(46, 125, 62);
-const QColor kGrassB(40, 112, 56);
 
 QFont font(qreal px, int weight, qreal spacing = 0)
 {
