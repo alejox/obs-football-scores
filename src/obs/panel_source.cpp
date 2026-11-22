@@ -109,6 +109,7 @@ struct PanelSource {
 	render::PitchView view = render::PitchView::TopDown;
 	std::string league;
 	std::string match_id;
+	LinkState link;
 	size_t rows = 10;
 	bool assists = false;
 	std::unique_ptr<MatchFeed> feed;
@@ -416,14 +417,16 @@ void repaint_locked(PanelSource &self)
 void panel_update(void *data, obs_data_t *settings)
 {
 	auto *self = static_cast<PanelSource *>(data);
-	const std::string league = obs_data_get_string(settings, kLeagueKey);
-	const std::string match_id = obs_data_get_string(settings, kMatchKey);
 	std::unique_ptr<MatchFeed> old_feed;
 	{
 		std::lock_guard lock(self->update_mutex);
 		self->content = self->fixed ? self->fixed->content
 					    : content_from_id(obs_data_get_string(settings, kContentKey));
 		const PanelType &type = type_of(self->content);
+		const Selection chosen =
+			sync_on_update(settings, self->link, {self->league, self->match_id}, true);
+		const std::string &league = chosen.league;
+		const std::string &match_id = chosen.match;
 		self->view = std::string(obs_data_get_string(settings, kViewKey)) == "perspective"
 				     ? render::PitchView::Perspective
 				     : render::PitchView::TopDown;
@@ -455,6 +458,7 @@ void panel_tick(void *data, float seconds)
 	std::lock_guard lock(self->update_mutex);
 	self->time += seconds;
 	self->since_paint += seconds;
+	sync_on_tick(self->source, self->link, {self->league, self->match_id}, true);
 
 	if (self->feed) {
 		FeedSnapshot snapshot = self->feed->snapshot();
@@ -589,6 +593,7 @@ void panel_defaults(void *type_data, obs_data_t *settings)
 	const PanelType &t = type ? *type : kTypes[0];
 	obs_data_set_default_string(settings, kContentKey, "pitch");
 	obs_data_set_default_string(settings, kLeagueKey, kDefaultLeague);
+	obs_data_set_default_bool(settings, kLinkedKey, true);
 	obs_data_set_default_string(settings, kMatchKey, "");
 	obs_data_set_default_string(settings, kViewKey, "topdown");
 	obs_data_set_default_string(settings, kBoardKey, "goals");

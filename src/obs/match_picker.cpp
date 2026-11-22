@@ -150,8 +150,42 @@ bool league_changed(obs_properties_t *props, obs_property_t *, obs_data_t *setti
 }
 } // namespace
 
+namespace {
+SharedSelection &shared_selection()
+{
+	static SharedSelection shared;
+	return shared;
+}
+} // namespace
+
+Selection sync_on_update(obs_data_t *settings, LinkState &state, const Selection &previous, bool has_match)
+{
+	const Selection own{obs_data_get_string(settings, kLeagueKey), obs_data_get_string(settings, kMatchKey)};
+	const Selection next = link_on_update(shared_selection(), state, obs_data_get_bool(settings, kLinkedKey), own,
+					      previous, has_match);
+	if (next.league != own.league)
+		obs_data_set_string(settings, kLeagueKey, next.league.c_str());
+	if (next.match != own.match)
+		obs_data_set_string(settings, kMatchKey, next.match.c_str());
+	return next;
+}
+
+void sync_on_tick(obs_source_t *source, LinkState &state, const Selection &current, bool has_match)
+{
+	const std::optional<Selection> next = link_on_tick(shared_selection(), state, current, has_match);
+	if (!next)
+		return;
+	obs_data_t *change = obs_data_create();
+	obs_data_set_string(change, kLeagueKey, next->league.c_str());
+	obs_data_set_string(change, kMatchKey, next->match.c_str());
+	obs_source_update(source, change); // deferred to the next tick for video sources
+	obs_data_release(change);
+}
+
 void add_league_and_match(obs_properties_t *props, const std::string &league, const std::string &selected)
 {
+	obs_property_t *linked = obs_properties_add_bool(props, kLinkedKey, obs_module_text("Football.Linked"));
+	obs_property_set_long_description(linked, obs_module_text("Football.Linked.Help"));
 	obs_property_t *leagues = obs_properties_add_list(props, kLeagueKey, obs_module_text("Football.League"),
 							  OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
 	obs_property_list_add_string(leagues, obs_module_text("Football.League.Choose"), "");

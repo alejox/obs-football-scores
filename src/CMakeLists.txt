@@ -29,6 +29,7 @@ add_library(
   core/league_catalog.cpp
   core/match_details.cpp
   core/match_selection.cpp
+  core/shared_selection.cpp
   core/narration.cpp
   core/pitch.cpp
   core/standings.cpp
