@@ -8,14 +8,14 @@ its items before installing (the Spanish ones when OBS is in Spanish, the Englis
 ### Español
 
 - **Nuevo:** diez fuentes nuevas, cada una por separado en «Fuentes → +»: Cancha en vivo, Alineaciones en la cancha, Estadísticas del partido, Tabla de posiciones, Relato en vivo, Momentum, Línea de tiempo, Previa del partido, Goleadores de la liga y Resultados de la jornada.
-- **Cancha en vivo:** cada remate, gol, córner, falta y fuera de juego dibujado donde ocurrió, la última jugada con su etiqueta y un cono hacia el arco, y la gráfica de momentum. Vista en planta o en perspectiva de estadio.
+- **Cancha en vivo:** cada remate, gol, córner, falta y fuera de juego dibujado donde ocurrió, la última jugada con su etiqueta y un cono hacia el arco, y las estadísticas clave debajo. Vista en planta o en perspectiva de estadio. El resultado va con la fuente «Marcador» y sus diseños de siempre, y el momentum es una fuente aparte.
 - **Relato en vivo** en español: «¡Atajada! Remate de… atajado abajo a la derecha por…».
 - Los partidos en descanso, detenidos o en prórroga cuentan como en vivo en todas las listas.
 
 ### English
 
 - **New:** ten new sources, each one separate under "Sources → +": Live pitch, Lineups on the pitch, Match stats, League table, Live commentary, Momentum, Match timeline, Match preview, League top scorers and Today's results.
-- **Live pitch:** every shot, goal, corner, foul and offside drawn where it happened, the latest play tagged with a wedge towards the goal, and the momentum chart. Top-down or stadium perspective view.
+- **Live pitch:** every shot, goal, corner, foul and offside drawn where it happened, the latest play tagged with a wedge towards the goal, and the key stats below it. Top-down or stadium perspective view. The score comes from the "Scoreboard" source with its usual designs, and the momentum is a source of its own.
 - **Live commentary** in Spanish when OBS is in Spanish.
 - Matches at half time, stopped or in extra time count as live in every list.
 

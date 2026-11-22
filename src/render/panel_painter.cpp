@@ -557,10 +557,11 @@ void draw_latest(QPainter &p, const Pitch &pitch, const PitchMark &m, const Pane
 }
 
 // Momentum: one bar per minute, up for home and down for away, a soft line over them.
-void draw_momentum(QPainter &p, const QRectF &r, const PanelView &v, bool labels)
+// `scale` leaves room under the bars for the minute marks.
+void draw_momentum(QPainter &p, const QRectF &r, const PanelView &v, bool labels, qreal scale = 0)
 {
 	p.fillPath(rounded(r, 12), kPanel);
-	const QRectF plot = r.adjusted(labels ? 54 : 14, 8, labels ? -54 : -14, -8);
+	const QRectF plot = r.adjusted(labels ? 54 : 14, 8, labels ? -54 : -14, -8 - scale);
 	const qreal mid = plot.center().y();
 	const size_t n = std::max<size_t>(v.momentum.size(), 91);
 	const qreal step = plot.width() / n;
@@ -583,8 +584,8 @@ void draw_momentum(QPainter &p, const QRectF &r, const PanelView &v, bool labels
 		p.fillRect(QRectF(x - 1, plot.top(), 2, plot.height()), QColor(255, 255, 255, 170));
 	}
 	if (labels) {
-		contained(p, v.home.logo, QRectF(r.left() + 10, r.top() + 8, 34, r.height() / 2 - 10));
-		contained(p, v.away.logo, QRectF(r.left() + 10, r.center().y() + 2, 34, r.height() / 2 - 10));
+		contained(p, v.home.logo, QRectF(r.left() + 10, plot.top(), 34, plot.height() / 2 - 2));
+		contained(p, v.away.logo, QRectF(r.left() + 10, plot.center().y() + 2, 34, plot.height() / 2 - 2));
 		p.setFont(font(13, QFont::Bold, 1));
 		text(p, QRectF(r.right() - 50, r.top(), 46, r.height() / 2), QStringLiteral("0'"), Qt::AlignCenter,
 		     QColor(255, 255, 255, 0), false);
@@ -593,12 +594,9 @@ void draw_momentum(QPainter &p, const QRectF &r, const PanelView &v, bool labels
 
 void paint_live_pitch(QPainter &p, const PanelView &v)
 {
-	header(p, QRectF(0, 0, kW, 84), v);
-	// Momentum under the header, the title in its middle.
-	draw_momentum(p, QRectF(0, 92, kW, 64), v, true);
-
+	// Only the pitch and its stat strip: the score and the momentum are sources of their own.
 	const bool persp = v.pitch_view == PitchView::Perspective;
-	const QRectF area(0, 164, kW, persp ? 600 : 600);
+	const QRectF area(0, 0, kW, 600);
 	const Pitch pitch = draw_pitch(p, area, v.pitch_view, v.table_title);
 	if (!persp) {
 		contained(p, v.home.logo, QRectF(pitch.field.left() + 40, pitch.field.center().y() - 90, 180, 180), 0.09);
@@ -636,7 +634,7 @@ void paint_live_pitch(QPainter &p, const PanelView &v)
 		p.setFont(font(20, QFont::DemiBold));
 		text(p, r, v.no_plays, Qt::AlignCenter, Qt::white);
 	}
-	stat_strip(p, QRectF(0, 776, kW, 70), v.strip);
+	stat_strip(p, QRectF(0, 612, kW, 70), v.strip);
 }
 
 void paint_lineups(QPainter &p, const PanelView &v)
@@ -866,15 +864,15 @@ void paint_feed(QPainter &p, const PanelView &v)
 
 void paint_momentum(QPainter &p, const PanelView &v)
 {
-	header(p, QRectF(0, 0, kW, 84), v);
-	const QRectF r(0, 92, kW, 168);
-	draw_momentum(p, r, v, true);
+	// Just the chart: crests on the left, a minute scale along the bottom.
+	const QRectF r(0, 0, kW, 140);
+	draw_momentum(p, r, v, true, 20);
 	p.setFont(font(12, QFont::Bold));
-	const QRectF plot = r.adjusted(54, 8, -54, -8);
+	const QRectF plot = r.adjusted(54, 8, -54, -28);
 	for (const int minute : {0, 15, 30, 45, 60, 75, 90}) {
 		const size_t n = std::max<size_t>(v.momentum.size(), 91);
 		const qreal x = plot.left() + plot.width() * minute / n;
-		text(p, QRectF(x - 20, r.bottom() - 18, 40, 16), QString::number(minute) + QStringLiteral("'"),
+		text(p, QRectF(x - 20, r.bottom() - 22, 40, 16), QString::number(minute) + QStringLiteral("'"),
 		     Qt::AlignCenter, QColor(255, 255, 255, 110), false);
 	}
 }
@@ -1043,7 +1041,7 @@ QSize panel_natural_size(PanelContent content, size_t rows)
 	rows = std::max<size_t>(rows, 1);
 	switch (content) {
 	case PanelContent::LivePitch:
-		return {1000, 846};
+		return {1000, 682};
 	case PanelContent::Lineups:
 		return {1000, 716};
 	case PanelContent::Stats:
@@ -1053,7 +1051,7 @@ QSize panel_natural_size(PanelContent content, size_t rows)
 	case PanelContent::Feed:
 		return {560, static_cast<int>(74 + 78 * rows + 8)};
 	case PanelContent::Momentum:
-		return {1000, 260};
+		return {1000, 140};
 	case PanelContent::Timeline:
 		return {620, static_cast<int>(84 + 58 * rows + 14)};
 	case PanelContent::Preview:
