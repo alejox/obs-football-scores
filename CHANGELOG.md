@@ -3,19 +3,21 @@
 Each `## <version>` section becomes the description of that release, and the plugin's updater shows
 its items before installing (the Spanish ones when OBS is in Spanish, the English ones otherwise).
 
-## 0.3.0
+## 0.3.1
 
 ### Español
 
-- **Nuevo:** fuente «Panel de fútbol» con la **cancha en vivo**: cada remate, gol, córner, falta y fuera de juego dibujado donde ocurrió, la última jugada resaltada y una barra de presión de los últimos minutos.
-- **Nuevo:** alineaciones dibujadas en la cancha con su formación, estadísticas del partido (posesión, remates, córners, pases…) y tabla de posiciones con los equipos del partido resaltados.
-- Se actualiza cada 15 segundos durante el partido.
+- **Nuevo:** diez fuentes nuevas, cada una por separado en «Fuentes → +»: Cancha en vivo, Alineaciones en la cancha, Estadísticas del partido, Tabla de posiciones, Relato en vivo, Momentum, Línea de tiempo, Previa del partido, Goleadores de la liga y Resultados de la jornada.
+- **Cancha en vivo:** cada remate, gol, córner, falta y fuera de juego dibujado donde ocurrió, la última jugada con su etiqueta y un cono hacia el arco, y la gráfica de momentum. Vista en planta o en perspectiva de estadio.
+- **Relato en vivo** en español: «¡Atajada! Remate de… atajado abajo a la derecha por…».
+- Los partidos en descanso, detenidos o en prórroga cuentan como en vivo en todas las listas.
 
 ### English
 
-- **New:** "Football Panel" source with the **live pitch**: every shot, goal, corner, foul and offside drawn where it happened, the latest play highlighted and a pressure bar for the last minutes.
-- **New:** lineups drawn on the pitch in their formation, match stats (possession, shots, corners, passes…) and the league table with the match teams highlighted.
-- Updates every 15 seconds during the match.
+- **New:** ten new sources, each one separate under "Sources → +": Live pitch, Lineups on the pitch, Match stats, League table, Live commentary, Momentum, Match timeline, Match preview, League top scorers and Today's results.
+- **Live pitch:** every shot, goal, corner, foul and offside drawn where it happened, the latest play tagged with a wedge towards the goal, and the momentum chart. Top-down or stadium perspective view.
+- **Live commentary** in Spanish when OBS is in Spanish.
+- Matches at half time, stopped or in extra time count as live in every list.
 
 ## 0.2.2
 

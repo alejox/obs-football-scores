@@ -13,7 +13,10 @@
 
 namespace fscore::render {
 
-enum class PanelContent { LivePitch, Lineups, Stats, Table };
+enum class PanelContent { LivePitch, Lineups, Stats, Table, Feed, Momentum, Timeline, Preview, Scorers, Round };
+
+// How the pitch is drawn: from above, or tilted like a TV camera in the stands.
+enum class PitchView { TopDown, Perspective };
 
 struct PanelTeam {
 	QString name;
@@ -57,6 +60,47 @@ struct TableRow {
 	bool highlighted = false;
 };
 
+// One line of the live commentary.
+struct FeedLine {
+	QString minute;
+	QString text;
+	PlayKind kind = PlayKind::Other;
+	int side = 0; // 1 home, -1 away, 0 neither
+};
+
+// A goal, card or substitution on the match timeline.
+struct TimelineEvent {
+	QString minute;
+	double at = 0; // minutes, for its place on the line
+	PlayKind kind = PlayKind::Other;
+	bool home = true;
+	QString player;
+	QString detail; // "Sale Pedri" for a substitution, "2 - 1" for a goal
+};
+
+struct FormCell {
+	QChar result; // W / D / L, already localized (G / E / P)
+	int outcome = 0; // 1 win, 0 draw, -1 loss
+	QString score;
+	QString opponent;
+	QImage opponent_logo;
+};
+
+struct LeaderRow {
+	QString rank, name, team, value, matches;
+	QImage logo;
+	bool highlighted = false;
+};
+
+struct RoundRow {
+	QString home, away;
+	QImage home_logo, away_logo;
+	QString center; // "2 - 1" or "21:00"
+	QString status; // "67'", "FINAL", "HOY"
+	bool live = false;
+	bool highlighted = false;
+};
+
 // Everything one frame shows, texts already localized.
 struct PanelView {
 	PanelContent content = PanelContent::LivePitch;
@@ -89,9 +133,44 @@ struct PanelView {
 	QString table_title;
 	std::vector<TableRow> table;
 	QString table_header[6]; // PJ, G, E, P, DG, PTS
+
+	// For list panels, the rows the source is sized for (0: as many as there are), so the
+	// frame keeps its size while the list fills up.
+	size_t rows = 0;
+
+	PitchView pitch_view = PitchView::TopDown;
+	QString latest_team; // team name in the latest play's tag
+
+	// Live commentary.
+	QString feed_title;
+	std::vector<FeedLine> feed;
+
+	// Momentum.
+	QString momentum_title;
+	std::vector<double> momentum; // per minute, -1 away .. 1 home
+	double now_minute = -1;       // the match clock, -1 when unknown
+
+	// Timeline.
+	std::vector<TimelineEvent> timeline;
+	double timeline_end = 90; // minutes the line spans
+	QString half_time_label;
+
+	// Preview.
+	QString form_title, meetings_title, venue_line;
+	std::vector<FormCell> home_form, away_form;
+	QString meetings_summary;
+	std::vector<QString> meetings;
+
+	// Scorers.
+	QString scorers_title, scorers_value_header, scorers_matches_header;
+	std::vector<LeaderRow> scorers;
+
+	// Round.
+	QString round_title;
+	std::vector<RoundRow> round;
 };
 
-QSize panel_natural_size(PanelContent content, size_t table_rows = 10);
+QSize panel_natural_size(PanelContent content, size_t rows = 10);
 
 // Paints one frame at `size` (the design is drawn at its natural size and scaled).
 // Same threading rules as ScoreboardPainter.

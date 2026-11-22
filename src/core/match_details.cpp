@@ -183,6 +183,18 @@ std::optional<MatchDetails> parse_summary(const std::string &body)
 	if (commentary.is_array()) {
 		for (const json &entry : commentary) {
 			const json &raw = child(entry, "play");
+			CommentaryLine line;
+			const json &line_sequence = child(entry, "sequence");
+			line.sequence = line_sequence.is_number_integer() ? line_sequence.get<int>()
+									 : static_cast<int>(details.commentary.size());
+			line.minute = str(child(entry, "time"), "displayValue");
+			line.text = str(entry, "text");
+			if (raw.is_object()) {
+				line.kind = play_kind(str(child(raw, "type"), "type"));
+				line.side = side_of_name(str(child(raw, "team"), "displayName"));
+			}
+			if (!line.text.empty())
+				details.commentary.push_back(line);
 			if (!raw.is_object())
 				continue;
 			Play play;
@@ -215,6 +227,69 @@ std::optional<MatchDetails> parse_summary(const std::string &body)
 			details.plays.push_back(std::move(play));
 		}
 	}
+	// Recent form.
+	const json &form = child(root, "lastFiveGames");
+	if (form.is_array()) {
+		for (const json &team : form) {
+			const auto side = side_of_id(str(child(team, "team"), "id"));
+			if (!side)
+				continue;
+			std::vector<FormGame> &games = *side == TeamSide::Home ? details.home_form : details.away_form;
+			const json &events = child(team, "events");
+			if (!events.is_array())
+				continue;
+			for (const json &event : events) {
+				FormGame game;
+				const std::string result = str(event, "gameResult");
+				game.result = result.empty() ? '?' : result.front();
+				game.score = str(event, "score");
+				game.home = str(event, "atVs") != "@";
+				const json &opponent = child(event, "opponent");
+				game.opponent = str(opponent, "abbreviation");
+				game.opponent_logo = espn::https_url(str(event, "opponentLogo"));
+				if (game.opponent_logo.empty())
+					game.opponent_logo = espn::https_url(str(opponent, "logo"));
+				games.push_back(std::move(game));
+			}
+		}
+	}
+
+	// Head to head.
+	const json &series = child(root, "seasonseries");
+	if (series.is_array()) {
+		for (const json &entry : series) {
+			if (str(entry, "type") != "head-to-head")
+				continue;
+			details.head_to_head = str(entry, "summary");
+			const json &events = child(entry, "events");
+			if (!events.is_array())
+				break;
+			for (const json &event : events) {
+				MeetingGame meeting;
+				meeting.date = str(event, "date").substr(0, 10);
+				const json &competitors = child(event, "competitors");
+				if (!competitors.is_array())
+					continue;
+				for (const json &competitor : competitors) {
+					const bool home = str(competitor, "homeAway") == "home";
+					(home ? meeting.home_abbreviation : meeting.away_abbreviation) =
+						str(child(competitor, "team"), "abbreviation");
+					(home ? meeting.home_score : meeting.away_score) = str(competitor, "score");
+				}
+				details.meetings.push_back(std::move(meeting));
+			}
+			break;
+		}
+	}
+
+	// Venue.
+	const json &info = child(root, "gameInfo");
+	const json &venue = child(info, "venue");
+	details.venue = str(venue, "fullName");
+	details.city = str(child(venue, "address"), "city");
+	const json &attendance = child(info, "attendance");
+	if (attendance.is_number())
+		details.attendance = static_cast<int>(attendance.get<double>());
 	return details;
 }
 

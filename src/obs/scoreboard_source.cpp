@@ -186,6 +186,11 @@ void fill_center_and_status(const Match &match, render::ScoreView &view, const Q
 		view.status = text("Football.Status.HalfTime");
 		view.live = true;
 		break;
+	case MatchState::Interrupted:
+		view.center = score_text(match);
+		view.status = text("Football.Status.Interrupted");
+		view.live = true;
+		break;
 	case MatchState::Finished:
 		view.center = score_text(match);
 		view.status = text("Football.Status.FullTime");

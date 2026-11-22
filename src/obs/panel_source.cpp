@@ -28,26 +28,71 @@
 namespace fscore::obs {
 namespace {
 
-constexpr const char *kSourceId = "football_panel_source";
+using render::PanelContent;
+
+// The 0.3.0 test build had one source with a content selector; it still loads,
+// hidden from the Add menu.
+constexpr const char *kLegacySourceId = "football_panel_source";
 constexpr const char *kContentKey = "content";
-constexpr const char *kRowsKey = "table_rows";
+constexpr const char *kViewKey = "view";
+constexpr const char *kRowsKey = "rows";
+constexpr const char *kLegacyRowsKey = "table_rows";
+constexpr const char *kBoardKey = "board";
 constexpr const char *kWidthKey = "width";
 constexpr const char *kDefaultLeague = "esp.1";
-constexpr long long kDefaultWidth = 960;
-constexpr long long kDefaultRows = 10;
 // The latest play's ring pulses this often; the frame is repainted ~15 times a second.
 constexpr double kPulseSeconds = 1.6;
 constexpr double kAnimationStep = 1.0 / 15.0;
 
-render::PanelContent content_from_id(const std::string &id)
+// One OBS source type per panel.
+struct PanelType {
+	PanelContent content;
+	const char *source_id;
+	const char *name_key;
+	const char *content_id; // for the legacy selector
+	long long default_width;
+	long long default_rows; // 0: no rows setting
+};
+
+const PanelType kTypes[] = {
+	{PanelContent::LivePitch, "football_pitch_source", "Panel.Source.Pitch", "pitch", 960, 0},
+	{PanelContent::Lineups, "football_lineups_source", "Panel.Source.Lineups", "lineups", 960, 0},
+	{PanelContent::Stats, "football_stats_source", "Panel.Source.Stats", "stats", 800, 0},
+	{PanelContent::Table, "football_table_source", "Panel.Source.Table", "table", 600, 10},
+	{PanelContent::Feed, "football_feed_source", "Panel.Source.Feed", "feed", 520, 6},
+	{PanelContent::Momentum, "football_momentum_source", "Panel.Source.Momentum", "momentum", 960, 0},
+	{PanelContent::Timeline, "football_timeline_source", "Panel.Source.Timeline", "timeline", 560, 8},
+	{PanelContent::Preview, "football_preview_source", "Panel.Source.Preview", "preview", 960, 0},
+	{PanelContent::Scorers, "football_scorers_source", "Panel.Source.Scorers", "scorers", 560, 10},
+	{PanelContent::Round, "football_round_source", "Panel.Source.Round", "round", 560, 8},
+};
+
+const PanelType &type_of(PanelContent content)
 {
-	if (id == "lineups")
-		return render::PanelContent::Lineups;
-	if (id == "stats")
-		return render::PanelContent::Stats;
-	if (id == "table")
-		return render::PanelContent::Table;
-	return render::PanelContent::LivePitch;
+	for (const PanelType &type : kTypes) {
+		if (type.content == content)
+			return type;
+	}
+	return kTypes[0];
+}
+
+PanelContent content_from_id(const std::string &id)
+{
+	for (const PanelType &type : kTypes) {
+		if (id == type.content_id)
+			return type.content;
+	}
+	return PanelContent::LivePitch;
+}
+
+bool uses_match(PanelContent c)
+{
+	return c != PanelContent::Table && c != PanelContent::Scorers && c != PanelContent::Round;
+}
+
+bool has_view(PanelContent c)
+{
+	return c == PanelContent::LivePitch || c == PanelContent::Lineups;
 }
 
 QString text(const char *key)
@@ -57,12 +102,15 @@ QString text(const char *key)
 
 struct PanelSource {
 	obs_source_t *source = nullptr;
+	const PanelType *fixed = nullptr; // null for the legacy selector source
 
 	std::mutex update_mutex; // update (UI), tick (video)
-	render::PanelContent content = render::PanelContent::LivePitch;
+	PanelContent content = PanelContent::LivePitch;
+	render::PitchView view = render::PitchView::TopDown;
 	std::string league;
 	std::string match_id;
-	size_t rows = kDefaultRows;
+	size_t rows = 10;
+	bool assists = false;
 	std::unique_ptr<MatchFeed> feed;
 	std::unique_ptr<DetailsFeed> details;
 
@@ -75,7 +123,7 @@ struct PanelSource {
 	double time = 0, since_paint = 0;
 	bool dirty = true;
 
-	std::atomic<uint32_t> width{static_cast<uint32_t>(kDefaultWidth)};
+	std::atomic<uint32_t> width{960};
 	std::atomic<uint32_t> height{810};
 
 	std::mutex image_mutex;
@@ -86,7 +134,7 @@ struct PanelSource {
 	uint32_t texture_width = 0, texture_height = 0;
 };
 
-uint32_t height_for(render::PanelContent content, uint32_t width, size_t rows)
+uint32_t height_for(PanelContent content, uint32_t width, size_t rows)
 {
 	const QSize natural = render::panel_natural_size(content, rows);
 	return static_cast<uint32_t>(std::clamp<long long>(
@@ -139,6 +187,27 @@ render::PanelLabels labels()
 				  "Panel.Table.Lost", "Panel.Table.GoalDiff", "Panel.Table.Points"};
 	for (int i = 0; i < 6; ++i)
 		l.table_header[i] = text(headers[i]);
+	l.momentum = text("Panel.Momentum");
+	l.yellow_card = text("Panel.Play.YellowCard");
+	l.red_card = text("Panel.Play.RedCard");
+	l.substitution = text("Panel.Play.Substitution");
+	l.sub_off = text("Panel.Play.SubOff");
+	l.form = text("Panel.Preview.Form");
+	l.meetings = text("Panel.Preview.Meetings");
+	l.meetings_leads = text("Panel.Preview.Leads");
+	l.meetings_tied = text("Panel.Preview.Tied");
+	l.venue_attendance = text("Panel.Preview.Venue");
+	const QString results = text("Panel.Preview.Results"); // "GEP" / "WDL"
+	l.win = results.size() > 0 ? results[0] : QChar('W');
+	l.draw = results.size() > 1 ? results[1] : QChar('D');
+	l.loss = results.size() > 2 ? results[2] : QChar('L');
+	l.scorers = text("Panel.Scorers.Goals");
+	l.assists = text("Panel.Scorers.Assists");
+	l.goals_header = text("Panel.Scorers.GoalsHeader");
+	l.assists_header = text("Panel.Scorers.AssistsHeader");
+	l.matches_header = text("Panel.Table.Played");
+	l.round_title = text("Panel.Round.Title");
+	l.spanish = QString::fromUtf8(obs_get_locale()).startsWith(QStringLiteral("es"));
 	return l;
 }
 
@@ -150,6 +219,8 @@ QString status_text(const Match &match)
 		return match.clock.empty() ? text("Football.Status.Live") : QString::fromStdString(match.clock);
 	case MatchState::HalfTime:
 		return text("Football.Status.HalfTime");
+	case MatchState::Interrupted:
+		return text("Football.Status.Interrupted");
 	case MatchState::Finished:
 		return text("Football.Status.FullTime");
 	case MatchState::Postponed:
@@ -161,12 +232,34 @@ QString status_text(const Match &match)
 }
 
 // The catalog league a match belongs to: the chosen one, or its own with "all leagues".
-std::string league_of(const PanelSource &self, const Match &match)
+std::string league_of(const PanelSource &self, const std::optional<Match> &match)
 {
 	if (self.league != kAllLeagues)
 		return self.league;
-	const League *own = find_league_by_espn_id(match.league_id);
+	if (!match)
+		return {};
+	const League *own = find_league_by_espn_id(match->league_id);
 	return own ? own->slug : std::string();
+}
+
+QString league_name(const std::string &slug)
+{
+	const League *league = find_league(slug);
+	return QString::fromStdString(league ? league->name : slug);
+}
+
+QString waiting_message(const PanelSource &self)
+{
+	switch (self.snapshot.status) {
+	case FeedStatus::NoMatches:
+		return text("Football.Message.NoMatches");
+	case FeedStatus::NotFound:
+		return text("Football.Message.NotFound");
+	case FeedStatus::Error:
+		return text("Football.Message.Error");
+	default:
+		return text("Football.Message.Loading");
+	}
 }
 
 // Caller holds update_mutex.
@@ -174,18 +267,23 @@ render::PanelView build_view(PanelSource &self)
 {
 	render::PanelView view;
 	view.content = self.content;
+	view.pitch_view = self.view;
 	if (self.league.empty()) {
 		view.message = text("Football.Message.ChooseLeague");
 		return view;
 	}
 	const std::optional<Match> &match = self.snapshot.match;
+	const Match *match_ptr = match ? &*match : nullptr;
 	auto lookup = [&self](const std::string &url) { return image_for(self, url); };
 	const render::PanelLabels l = labels();
+	const std::string own_league = league_of(self, match);
 
-	if (self.content == render::PanelContent::Table) {
+	// League panels: no match needed.
+	switch (self.content) {
+	case PanelContent::Table: {
 		if (!self.data.standings || self.data.standings->empty()) {
-			view.message = text(self.snapshot.status == FeedStatus::Error ? "Football.Message.Error"
-										  : "Football.Message.Loading");
+			view.message = own_league.empty() && self.league == kAllLeagues ? waiting_message(self)
+											 : text("Football.Message.Loading");
 			return view;
 		}
 		const StandingsGroup *group = group_for_teams(*self.data.standings, match ? match->home.id : "",
@@ -195,28 +293,49 @@ render::PanelView build_view(PanelSource &self)
 			return view;
 		}
 		view.has_data = true;
-		render::fill_table(view, *group, match ? &*match : nullptr, self.rows, l, lookup);
+		render::fill_table(view, *group, match_ptr, self.rows, l, lookup);
+		view.rows = self.rows;
 		return view;
+	}
+	case PanelContent::Scorers:
+		if (!self.data.leaders) {
+			view.message = text("Football.Message.Loading");
+			return view;
+		}
+		if ((self.assists ? self.data.leaders->assists : self.data.leaders->goals).empty()) {
+			view.message = text("Panel.NoScorers");
+			return view;
+		}
+		view.has_data = true;
+		render::fill_scorers(view, *self.data.leaders, self.assists, match_ptr, self.rows, league_name(own_league), l,
+				     lookup);
+		return view;
+	case PanelContent::Round:
+		if (!self.data.round) {
+			view.message = text("Football.Message.Loading");
+			return view;
+		}
+		if (self.data.round->matches.empty()) {
+			view.message = text("Panel.NoRound");
+			return view;
+		}
+		view.has_data = true;
+		render::fill_round(
+			view, *self.data.round, match_ptr, self.rows, league_name(own_league),
+			[](const Match &m) { return status_text(m); },
+			[](const Match &m) {
+				return m.started() ? score_text(m) : kickoff_time(m.start_utc, obs_locale());
+			},
+			l, lookup);
+		return view;
+	default:
+		break;
 	}
 
 	if (!match) {
-		switch (self.snapshot.status) {
-		case FeedStatus::NoMatches:
-			view.message = text("Football.Message.NoMatches");
-			break;
-		case FeedStatus::NotFound:
-			view.message = text("Football.Message.NotFound");
-			break;
-		case FeedStatus::Error:
-			view.message = text("Football.Message.Error");
-			break;
-		default:
-			view.message = text("Football.Message.Loading");
-			break;
-		}
+		view.message = waiting_message(self);
 		return view;
 	}
-
 	view.has_data = true;
 	render::fill_teams(view, *match, lookup);
 	view.status = status_text(*match);
@@ -225,32 +344,58 @@ render::PanelView build_view(PanelSource &self)
 	view.pulse = std::fmod(self.time, kPulseSeconds) / kPulseSeconds;
 	view.pressure_label = l.pressure;
 	view.no_plays = l.no_plays;
-	if (self.data.details) {
-		const MatchDetails &d = *self.data.details;
-		switch (self.content) {
-		case render::PanelContent::LivePitch:
-			render::fill_live_pitch(view, d, l);
-			break;
-		case render::PanelContent::Lineups:
-			render::fill_lineups(view, d);
-			if (view.players.empty()) {
-				view.has_data = false;
-				view.message = text("Panel.NoLineups");
-			}
-			break;
-		case render::PanelContent::Stats:
-			render::fill_stats(view, d, l);
-			if (view.stats.empty()) {
-				view.has_data = false;
-				view.message = text("Panel.NoStats");
-			}
-			break;
-		case render::PanelContent::Table:
-			break;
+	// Advertising boards of the perspective stadium.
+	view.table_title = league_name(own_league).toUpper() + QStringLiteral("   ·   AC FOOTBALL SCORES");
+	if (!self.data.details) {
+		if (self.content != PanelContent::LivePitch) {
+			view.has_data = false;
+			view.message = text("Football.Message.Loading");
 		}
-	} else if (self.content != render::PanelContent::LivePitch) {
-		view.has_data = false;
-		view.message = text("Football.Message.Loading");
+		return view;
+	}
+	const MatchDetails &d = *self.data.details;
+	switch (self.content) {
+	case PanelContent::LivePitch:
+		render::fill_live_pitch(view, d, l);
+		if (match->state == MatchState::Scheduled)
+			view.momentum.clear();
+		break;
+	case PanelContent::Lineups:
+		render::fill_lineups(view, d);
+		if (view.players.empty()) {
+			view.has_data = false;
+			view.message = text("Panel.NoLineups");
+		}
+		break;
+	case PanelContent::Stats:
+		render::fill_stats(view, d, l);
+		if (view.stats.empty()) {
+			view.has_data = false;
+			view.message = text("Panel.NoStats");
+		}
+		break;
+	case PanelContent::Feed:
+		render::fill_feed(view, d, self.rows, l);
+		if (view.feed.empty()) {
+			view.has_data = false;
+			view.message = text("Panel.NoFeed");
+		}
+		break;
+	case PanelContent::Momentum:
+		render::fill_momentum(view, d, *match, l);
+		break;
+	case PanelContent::Timeline:
+		render::fill_timeline(view, d, self.rows, l);
+		if (view.timeline.empty()) {
+			view.has_data = false;
+			view.message = text("Panel.NoTimeline");
+		}
+		break;
+	case PanelContent::Preview:
+		render::fill_preview(view, d, l, lookup);
+		break;
+	default:
+		break;
 	}
 	return view;
 }
@@ -268,11 +413,6 @@ void repaint_locked(PanelSource &self)
 // ---------------------------------------------------------------------------
 // Source callbacks
 
-const char *panel_name(void *)
-{
-	return obs_module_text("Panel.Source");
-}
-
 void panel_update(void *data, obs_data_t *settings)
 {
 	auto *self = static_cast<PanelSource *>(data);
@@ -281,11 +421,20 @@ void panel_update(void *data, obs_data_t *settings)
 	std::unique_ptr<MatchFeed> old_feed;
 	{
 		std::lock_guard lock(self->update_mutex);
-		self->content = content_from_id(obs_data_get_string(settings, kContentKey));
-		self->rows = static_cast<size_t>(std::clamp<long long>(obs_data_get_int(settings, kRowsKey), 4, 40));
+		self->content = self->fixed ? self->fixed->content
+					    : content_from_id(obs_data_get_string(settings, kContentKey));
+		const PanelType &type = type_of(self->content);
+		self->view = std::string(obs_data_get_string(settings, kViewKey)) == "perspective"
+				     ? render::PitchView::Perspective
+				     : render::PitchView::TopDown;
+		long long rows = obs_data_get_int(settings, kRowsKey);
+		if (!self->fixed && obs_data_has_user_value(settings, kLegacyRowsKey))
+			rows = obs_data_get_int(settings, kLegacyRowsKey);
+		self->rows = static_cast<size_t>(std::clamp<long long>(rows > 0 ? rows : std::max(type.default_rows, 1LL), 1, 40));
+		self->assists = std::string(obs_data_get_string(settings, kBoardKey)) == "assists";
 		const long long width = obs_data_get_int(settings, kWidthKey);
-		self->width = static_cast<uint32_t>(std::clamp(width > 0 ? width : kDefaultWidth, 160LL, 4096LL));
-		self->height = height_for(self->content, self->width, self->rows);
+		self->width = static_cast<uint32_t>(std::clamp(width > 0 ? width : type.default_width, 160LL, 4096LL));
+		self->height = height_for(self->content, self->width, type.default_rows ? self->rows : 0);
 		if (!self->feed || league != self->league || match_id != self->match_id) {
 			self->league = league;
 			self->match_id = match_id;
@@ -316,20 +465,22 @@ void panel_tick(void *data, float seconds)
 		}
 	}
 
-	// Follow the shown match (and its league's table) with the details feed.
+	// What the details feed follows depends on the panel.
 	DetailsTarget target;
-	if (self->snapshot.match) {
+	const std::string own = league_of(*self, self->snapshot.match);
+	if (uses_match(self->content) && self->snapshot.match) {
 		const Match &match = *self->snapshot.match;
-		const std::string own = league_of(*self, match);
 		target.summary_league = own.empty() ? self->league : own;
 		target.event_id = match.id;
 		target.live = match.in_progress() ||
 			      (match.state == MatchState::Scheduled && match.start_utc - now_seconds() < 600);
-		if (self->content == render::PanelContent::Table)
-			target.standings_league = own;
-	} else if (self->content == render::PanelContent::Table && self->league != kAllLeagues) {
-		target.standings_league = self->league; // a table needs no match
 	}
+	if (self->content == PanelContent::Table)
+		target.standings_league = own;
+	if (self->content == PanelContent::Scorers)
+		target.leaders_league = own;
+	if (self->content == PanelContent::Round)
+		target.round_league = own;
 	self->details->set_target(target);
 	DetailsFeed::Snapshot fresh = self->details->snapshot();
 	if (fresh.revision != self->seen_data) {
@@ -346,9 +497,8 @@ void panel_tick(void *data, float seconds)
 		}
 	}
 
-	// The live pitch and the blinking dot animate while the match is on.
-	const bool animated = self->snapshot.match && self->snapshot.match->in_progress() &&
-			      self->content != render::PanelContent::Table;
+	// The live pitch and the blinking dots animate while the match is on.
+	const bool animated = self->snapshot.match && self->snapshot.match->in_progress() && uses_match(self->content);
 	if (animated && self->since_paint >= kAnimationStep)
 		self->dirty = true;
 
@@ -409,6 +559,7 @@ void *panel_create(obs_data_t *settings, obs_source_t *source)
 {
 	auto *self = new PanelSource();
 	self->source = source;
+	self->fixed = static_cast<const PanelType *>(obs_source_get_type_data(source));
 	self->details = std::make_unique<DetailsFeed>(http_get(), now_seconds);
 	panel_update(self, settings);
 	return self;
@@ -432,19 +583,26 @@ void panel_destroy(void *data)
 	delete self;
 }
 
-void panel_defaults(obs_data_t *settings)
+void panel_defaults(void *type_data, obs_data_t *settings)
 {
+	const PanelType *type = static_cast<const PanelType *>(type_data);
+	const PanelType &t = type ? *type : kTypes[0];
 	obs_data_set_default_string(settings, kContentKey, "pitch");
 	obs_data_set_default_string(settings, kLeagueKey, kDefaultLeague);
 	obs_data_set_default_string(settings, kMatchKey, "");
-	obs_data_set_default_int(settings, kRowsKey, kDefaultRows);
-	obs_data_set_default_int(settings, kWidthKey, kDefaultWidth);
+	obs_data_set_default_string(settings, kViewKey, "topdown");
+	obs_data_set_default_string(settings, kBoardKey, "goals");
+	obs_data_set_default_int(settings, kRowsKey, t.default_rows);
+	obs_data_set_default_int(settings, kWidthKey, t.default_width);
 }
 
+// The legacy selector shows the settings of the chosen panel only.
 bool content_changed(obs_properties_t *props, obs_property_t *, obs_data_t *settings)
 {
-	const bool table = content_from_id(obs_data_get_string(settings, kContentKey)) == render::PanelContent::Table;
-	obs_property_set_visible(obs_properties_get(props, kRowsKey), table);
+	const PanelContent content = content_from_id(obs_data_get_string(settings, kContentKey));
+	obs_property_set_visible(obs_properties_get(props, kViewKey), has_view(content));
+	obs_property_set_visible(obs_properties_get(props, kRowsKey), type_of(content).default_rows > 0);
+	obs_property_set_visible(obs_properties_get(props, kBoardKey), content == PanelContent::Scorers);
 	return true;
 }
 
@@ -454,9 +612,10 @@ bool support_clicked(obs_properties_t *, obs_property_t *, void *)
 	return false;
 }
 
-obs_properties_t *panel_properties(void *data)
+obs_properties_t *panel_properties(void *data, void *type_data)
 {
 	auto *self = static_cast<PanelSource *>(data);
+	const PanelType *fixed = static_cast<const PanelType *>(type_data);
 	std::string league = kDefaultLeague;
 	std::string selected;
 	if (self) {
@@ -466,44 +625,77 @@ obs_properties_t *panel_properties(void *data)
 		obs_data_release(settings);
 	}
 	obs_properties_t *props = obs_properties_create();
-	obs_property_t *content = obs_properties_add_list(props, kContentKey, obs_module_text("Panel.Content"),
-							  OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
-	obs_property_list_add_string(content, obs_module_text("Panel.Content.Pitch"), "pitch");
-	obs_property_list_add_string(content, obs_module_text("Panel.Content.Lineups"), "lineups");
-	obs_property_list_add_string(content, obs_module_text("Panel.Content.Stats"), "stats");
-	obs_property_list_add_string(content, obs_module_text("Panel.Content.Table"), "table");
-	obs_property_set_modified_callback(content, content_changed);
+	if (!fixed) {
+		obs_property_t *content = obs_properties_add_list(props, kContentKey, obs_module_text("Panel.Content"),
+								  OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+		for (const PanelType &type : kTypes)
+			obs_property_list_add_string(content, obs_module_text(type.name_key), type.content_id);
+		obs_property_set_modified_callback(content, content_changed);
+	}
 
 	add_league_and_match(props, league, selected);
+	if (fixed && !uses_match(fixed->content)) {
+		// League panels: the match only picks which teams to highlight.
+		obs_property_set_long_description(obs_properties_get(props, kMatchKey),
+						  obs_module_text("Panel.MatchHighlight"));
+	}
 
-	obs_properties_add_int(props, kRowsKey, obs_module_text("Panel.TableRows"), 4, 40, 1);
+	if (!fixed || has_view(fixed->content)) {
+		obs_property_t *view = obs_properties_add_list(props, kViewKey, obs_module_text("Panel.View"),
+							       OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+		obs_property_list_add_string(view, obs_module_text("Panel.View.TopDown"), "topdown");
+		obs_property_list_add_string(view, obs_module_text("Panel.View.Perspective"), "perspective");
+	}
+	if (!fixed || fixed->content == PanelContent::Scorers) {
+		obs_property_t *board = obs_properties_add_list(props, kBoardKey, obs_module_text("Panel.Scorers.Board"),
+								OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+		obs_property_list_add_string(board, obs_module_text("Panel.Scorers.Goals"), "goals");
+		obs_property_list_add_string(board, obs_module_text("Panel.Scorers.Assists"), "assists");
+	}
+	if (!fixed || fixed->default_rows > 0)
+		obs_properties_add_int(props, kRowsKey, obs_module_text("Panel.Rows"), 3, 30, 1);
 	obs_properties_add_int(props, kWidthKey, obs_module_text("Football.Width"), 160, 4096, 10);
-	obs_properties_add_text(props, "panel_help", obs_module_text("Panel.Help"), OBS_TEXT_INFO);
+	if (!fixed || fixed->content == PanelContent::LivePitch)
+		obs_properties_add_text(props, "panel_help", obs_module_text("Panel.Help"), OBS_TEXT_INFO);
 	const std::string support = std::string("☕ ") + obs_module_text("Support.Link");
 	obs_properties_add_button2(props, "support", support.c_str(), support_clicked, nullptr);
 	return props;
+}
+
+const char *panel_name(void *type_data)
+{
+	const PanelType *type = static_cast<const PanelType *>(type_data);
+	return obs_module_text(type ? type->name_key : "Panel.Source");
+}
+
+void register_one(const char *id, const PanelType *type, uint32_t caps)
+{
+	obs_source_info info = {};
+	info.id = id;
+	info.type = OBS_SOURCE_TYPE_INPUT;
+	info.output_flags = OBS_SOURCE_VIDEO | OBS_SOURCE_SRGB | caps;
+	info.icon_type = OBS_ICON_TYPE_TEXT;
+	info.type_data = const_cast<PanelType *>(type);
+	info.get_name = panel_name;
+	info.create = panel_create;
+	info.destroy = panel_destroy;
+	info.update = panel_update;
+	info.get_defaults2 = panel_defaults;
+	info.get_properties2 = panel_properties;
+	info.get_width = panel_width;
+	info.get_height = panel_height;
+	info.video_tick = panel_tick;
+	info.video_render = panel_render;
+	obs_register_source(&info);
 }
 
 } // namespace
 
 void register_panel_source()
 {
-	obs_source_info info = {};
-	info.id = kSourceId;
-	info.type = OBS_SOURCE_TYPE_INPUT;
-	info.output_flags = OBS_SOURCE_VIDEO | OBS_SOURCE_SRGB;
-	info.icon_type = OBS_ICON_TYPE_TEXT;
-	info.get_name = panel_name;
-	info.create = panel_create;
-	info.destroy = panel_destroy;
-	info.update = panel_update;
-	info.get_defaults = panel_defaults;
-	info.get_properties = panel_properties;
-	info.get_width = panel_width;
-	info.get_height = panel_height;
-	info.video_tick = panel_tick;
-	info.video_render = panel_render;
-	obs_register_source(&info);
+	for (const PanelType &type : kTypes)
+		register_one(type.source_id, &type, 0);
+	register_one(kLegacySourceId, nullptr, OBS_SOURCE_CAP_DISABLED);
 }
 
 } // namespace fscore::obs

@@ -4,6 +4,8 @@
 
 #include "core/cancel_token.hpp"
 #include "core/http_types.hpp"
+#include "core/leaders.hpp"
+#include "core/match.hpp"
 #include "core/match_details.hpp"
 #include "core/standings.hpp"
 
@@ -23,11 +25,14 @@ struct DetailsTarget {
 	std::string event_id;       // empty: no summary
 	std::string standings_league; // empty: no table
 	bool live = false;          // the match is in play: refresh the summary often
+	std::string leaders_league; // empty: no top scorers
+	std::string round_league;   // empty: no results of the day
 
 	bool operator==(const DetailsTarget &o) const
 	{
 		return summary_league == o.summary_league && event_id == o.event_id &&
-		       standings_league == o.standings_league && live == o.live;
+		       standings_league == o.standings_league && live == o.live && leaders_league == o.leaders_league &&
+		       round_league == o.round_league;
 	}
 };
 
@@ -48,6 +53,8 @@ public:
 	struct Snapshot {
 		std::shared_ptr<const MatchDetails> details;              // null until read
 		std::shared_ptr<const std::vector<StandingsGroup>> standings; // null until read
+		std::shared_ptr<const LeaderBoards> leaders;               // null until read
+		std::shared_ptr<const Scoreboard> round;                   // today's matches of the league
 		uint64_t revision = 0;
 	};
 	Snapshot snapshot() const;
@@ -59,6 +66,9 @@ public:
 	static constexpr int kIdleSeconds = 120;
 	static constexpr int kStandingsSeconds = 600;
 	static constexpr int kRetrySeconds = 30;
+	static constexpr int kLeadersSeconds = 1800;
+	static constexpr int kRoundLiveSeconds = 30;
+	static constexpr int kRoundIdleSeconds = 300;
 
 private:
 	void run();
@@ -73,6 +83,8 @@ private:
 	int64_t standings_due_ = 0;
 	std::string summary_for_;   // event the stored summary belongs to
 	std::string standings_for_; // league the stored table belongs to
+	int64_t leaders_due_ = 0, round_due_ = 0;
+	std::string leaders_for_, round_for_;
 
 	std::condition_variable wake_;
 	bool stop_ = false;

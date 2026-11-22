@@ -88,6 +88,7 @@ int poll_interval_seconds(const Match &match, int64_t now)
 	switch (match.state) {
 	case MatchState::Live:
 	case MatchState::HalfTime:
+	case MatchState::Interrupted:
 		return 15;
 	case MatchState::Scheduled: {
 		const int64_t until = match.start_utc - now;

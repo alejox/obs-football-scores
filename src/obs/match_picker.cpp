@@ -59,6 +59,9 @@ std::string match_label(const Match &match, const QLocale &locale)
 		label += text("Football.Status.Live") + QStringLiteral(" ") + QString::fromStdString(match.clock) +
 			 QStringLiteral(" ") + score_text(match);
 		break;
+	case MatchState::Interrupted:
+		label += text("Football.Status.Interrupted") + QStringLiteral(" ") + score_text(match);
+		break;
 	case MatchState::HalfTime:
 		label += text("Football.Status.HalfTime") + QStringLiteral(" ") + score_text(match);
 		break;

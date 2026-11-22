@@ -1,5 +1,7 @@
 #include "feed/details_feed.hpp"
 
+#include "core/espn.hpp"
+
 #include <algorithm>
 #include <chrono>
 #include <utility>
@@ -46,6 +48,20 @@ void DetailsFeed::set_target(const DetailsTarget &target)
 			++snapshot_.revision;
 		}
 	}
+	if (target.leaders_league != leaders_for_) {
+		leaders_due_ = 0;
+		if (snapshot_.leaders) {
+			snapshot_.leaders.reset();
+			++snapshot_.revision;
+		}
+	}
+	if (target.round_league != round_for_) {
+		round_due_ = 0;
+		if (snapshot_.round) {
+			snapshot_.round.reset();
+			++snapshot_.revision;
+		}
+	}
 	if (target.live && summary_due_ > clock_() + kLiveSeconds)
 		summary_due_ = 0;
 	wake_requested_ = true;
@@ -61,12 +77,14 @@ DetailsFeed::Snapshot DetailsFeed::snapshot() const
 int DetailsFeed::poll_once()
 {
 	DetailsTarget target;
-	int64_t summary_due, standings_due;
+	int64_t summary_due, standings_due, leaders_due, round_due;
 	{
 		std::lock_guard lock(mutex_);
 		target = target_;
 		summary_due = summary_due_;
 		standings_due = standings_due_;
+		leaders_due = leaders_due_;
+		round_due = round_due_;
 	}
 	const int64_t now = clock_();
 
@@ -97,8 +115,44 @@ int DetailsFeed::poll_once()
 		}
 	}
 
+	if (!target.leaders_league.empty() && now >= leaders_due) {
+		const HttpResult result = http_(leaders_url(target.leaders_league), &cancel_);
+		auto boards = result.ok() ? parse_leaders(result.body) : std::nullopt;
+		std::lock_guard lock(mutex_);
+		if (target_.leaders_league == target.leaders_league) {
+			if (boards) {
+				snapshot_.leaders = std::make_shared<const LeaderBoards>(std::move(*boards));
+				leaders_for_ = target.leaders_league;
+				++snapshot_.revision;
+			}
+			leaders_due_ = now + (boards ? kLeadersSeconds : kRetrySeconds);
+		}
+	}
+	if (!target.round_league.empty() && now >= round_due) {
+		// ESPN's day is the US Eastern one.
+		const std::string day = espn::candidate_days(now).front();
+		const HttpResult result = http_(espn::day_url(target.round_league, day), &cancel_);
+		auto board = result.ok() ? espn::parse_scoreboard(result.body) : std::nullopt;
+		std::lock_guard lock(mutex_);
+		if (target_.round_league == target.round_league) {
+			bool live = false;
+			if (board) {
+				for (const Match &match : board->matches)
+					live = live || match.in_progress();
+				snapshot_.round = std::make_shared<const Scoreboard>(std::move(*board));
+				round_for_ = target.round_league;
+				++snapshot_.revision;
+			}
+			round_due_ = now + (!board ? kRetrySeconds : live ? kRoundLiveSeconds : kRoundIdleSeconds);
+		}
+	}
+
 	std::lock_guard lock(mutex_);
 	int64_t next = now + kStandingsSeconds;
+	if (!target_.leaders_league.empty())
+		next = std::min(next, leaders_due_);
+	if (!target_.round_league.empty())
+		next = std::min(next, round_due_);
 	if (!target_.event_id.empty())
 		next = std::min(next, summary_due_);
 	if (!target_.standings_league.empty())

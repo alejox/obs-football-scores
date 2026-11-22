@@ -217,3 +217,48 @@ TEST_CASE(the_tracker_keeps_every_shot_and_the_latest_plays)
 						     [](const Play &p) { return p.has_position; }));
 	CHECK(tracked_plays({}, 6).empty());
 }
+
+TEST_CASE(momentum_rises_with_each_side_chances)
+{
+	auto make = [](PlayKind kind, TeamSide side, double minute) {
+		Play p;
+		p.kind = kind;
+		p.side = side;
+		p.clock_seconds = minute * 60;
+		return p;
+	};
+	const auto flat = momentum_series({}, 90);
+	REQUIRE(flat.size() == 91u);
+	for (double v : flat)
+		CHECK_NEAR(v, 0.0, 1e-12);
+	const auto series = momentum_series({make(PlayKind::Goal, TeamSide::Home, 10), make(PlayKind::ShotOnTarget, TeamSide::Away, 60)}, 90);
+	CHECK(series[10] > 0.5);
+	CHECK(series[60] < -0.3);
+	CHECK_NEAR(series[35], 0.0, 1e-9);
+	// Added time stretches the series.
+	CHECK_EQ(momentum_series({make(PlayKind::Corner, TeamSide::Home, 95)}, 90).size(), 96u);
+	// Real match: Atlético scored first (10'), Barcelona around 45' and 66'.
+	const auto details = parse_summary(test_harness::read_fixture("esp1_summary.json"));
+	REQUIRE(details.has_value());
+	const auto real = momentum_series(details->plays);
+	CHECK(real[10] > 0);
+	CHECK(real[66] < 0);
+}
+
+TEST_CASE(summary_extras_form_meetings_venue_and_commentary)
+{
+	const auto details = parse_summary(test_harness::read_fixture("esp1_summary.json"));
+	REQUIRE(details.has_value());
+	CHECK_EQ(details->home_form.size(), 5u);
+	CHECK_EQ(details->away_form.size(), 5u);
+	for (const FormGame &g : details->home_form)
+		CHECK(g.result == 'W' || g.result == 'D' || g.result == 'L');
+	CHECK(!details->home_form[0].opponent.empty());
+	CHECK_EQ(details->head_to_head, std::string("BAR leads series 3-2"));
+	CHECK(!details->meetings.empty());
+	CHECK_EQ(details->venue, std::string("Riyadh Air Metropolitano"));
+	CHECK(details->attendance > 0);
+	REQUIRE(details->commentary.size() > details->plays.size());
+	CHECK_EQ(details->commentary.front().text, std::string("Lineups are announced and players are warming up."));
+	CHECK(details->commentary.front().minute.empty());
+}

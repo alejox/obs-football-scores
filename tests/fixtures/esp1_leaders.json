@@ -1,0 +1,904 @@
+{
+"stats": [
+{
+"name": "goalsLeaders",
+"displayName": "Goals",
+"leaders": [
+{
+"displayValue": "Matches: 11, Goals: 15",
+"value": 15.0,
+"athlete": {
+"displayName": "Raphinha",
+"shortName": "Raphinha",
+"team": {
+"id": "83",
+"abbreviation": "BAR",
+"displayName": "Barcelona",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/83.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/83.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 13, Goals: 13",
+"value": 13.0,
+"athlete": {
+"displayName": "Kylian Mbappé",
+"shortName": "K. Mbappé",
+"team": {
+"id": "86",
+"abbreviation": "RMA",
+"displayName": "Real Madrid",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/86.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/86.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 12, Goals: 10",
+"value": 10.0,
+"athlete": {
+"displayName": "Lamine Yamal",
+"shortName": "L. Yamal",
+"team": {
+"id": "83",
+"abbreviation": "BAR",
+"displayName": "Barcelona",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/83.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/83.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 12, Goals: 9",
+"value": 9.0,
+"athlete": {
+"displayName": "Yassir Zabiri",
+"shortName": "Y. Zabiri",
+"team": {
+"id": "87",
+"abbreviation": "RAC",
+"displayName": "Racing Santander",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/87.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/87.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 12, Goals: 8",
+"value": 8.0,
+"athlete": {
+"displayName": "Ante Budimir",
+"shortName": "A. Budimir",
+"team": {
+"id": "97",
+"abbreviation": "OSA",
+"displayName": "Osasuna",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/97.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/97.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 13, Goals: 7",
+"value": 7.0,
+"athlete": {
+"displayName": "Roberto Fernández",
+"shortName": "R. Fernández",
+"team": {
+"id": "88",
+"abbreviation": "ESP",
+"displayName": "Espanyol",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/88.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/88.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 13, Goals: 7",
+"value": 7.0,
+"athlete": {
+"displayName": "Sergio Camello",
+"shortName": "S. Camello",
+"team": {
+"id": "101",
+"abbreviation": "RAY",
+"displayName": "Rayo Vallecano",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/101.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/101.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 11, Goals: 7",
+"value": 7.0,
+"athlete": {
+"displayName": "Fermín López",
+"shortName": "F. López",
+"team": {
+"id": "83",
+"abbreviation": "BAR",
+"displayName": "Barcelona",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/83.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/83.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 12, Goals: 6",
+"value": 6.0,
+"athlete": {
+"displayName": "Lucas Boyé",
+"shortName": "L. Boyé",
+"team": {
+"id": "96",
+"abbreviation": "ALA",
+"displayName": "Alavés",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/96.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2021-08-02T20:09Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/96.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2021-08-02T20:12Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 12, Goals: 6",
+"value": 6.0,
+"athlete": {
+"displayName": "Fer Niño",
+"shortName": "F. Niño",
+"team": {
+"id": "3751",
+"abbreviation": "ELC",
+"displayName": "Elche",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/3751.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/3751.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 13, Goals: 5",
+"value": 5.0,
+"athlete": {
+"displayName": "Jude Bellingham",
+"shortName": "J. Bellingham",
+"team": {
+"id": "86",
+"abbreviation": "RMA",
+"displayName": "Real Madrid",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/86.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/86.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 12, Goals: 5",
+"value": 5.0,
+"athlete": {
+"displayName": "Álex Baena",
+"shortName": "Á. Baena",
+"team": {
+"id": "1068",
+"abbreviation": "ATM",
+"displayName": "Atlético Madrid",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/1068.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2025-09-19T20:43Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/1068.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2025-09-19T20:42Z"
+}
+]
+}
+}
+}
+]
+},
+{
+"name": "assistsLeaders",
+"displayName": "Assists",
+"leaders": [
+{
+"displayValue": "Matches: 12, Assists: 8",
+"value": 8.0,
+"athlete": {
+"displayName": "Lamine Yamal",
+"shortName": "L. Yamal",
+"team": {
+"id": "83",
+"abbreviation": "BAR",
+"displayName": "Barcelona",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/83.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/83.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 13, Assists: 6",
+"value": 6.0,
+"athlete": {
+"displayName": "Javi Hernandez",
+"shortName": "J. Hernandez",
+"team": {
+"id": "88",
+"abbreviation": "ESP",
+"displayName": "Espanyol",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/88.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/88.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 11, Assists: 5",
+"value": 5.0,
+"athlete": {
+"displayName": "Fermín López",
+"shortName": "F. López",
+"team": {
+"id": "83",
+"abbreviation": "BAR",
+"displayName": "Barcelona",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/83.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/83.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 13, Assists: 4",
+"value": 4.0,
+"athlete": {
+"displayName": "Álex Berenguer",
+"shortName": "Á. Berenguer",
+"team": {
+"id": "93",
+"abbreviation": "ATH",
+"displayName": "Athletic Club",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/93.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2022-05-18T17:24Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/93.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 13, Assists: 4",
+"value": 4.0,
+"athlete": {
+"displayName": "Arda Güler",
+"shortName": "A. Güler",
+"team": {
+"id": "86",
+"abbreviation": "RMA",
+"displayName": "Real Madrid",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/86.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/86.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 13, Assists: 4",
+"value": 4.0,
+"athlete": {
+"displayName": "Mariano Díaz",
+"shortName": "M. Díaz",
+"team": {
+"id": "96",
+"abbreviation": "ALA",
+"displayName": "Alavés",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/96.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2021-08-02T20:09Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/96.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2021-08-02T20:12Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 12, Assists: 4",
+"value": 4.0,
+"athlete": {
+"displayName": "Ángel Pérez",
+"shortName": "Á. Pérez",
+"team": {
+"id": "96",
+"abbreviation": "ALA",
+"displayName": "Alavés",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/96.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2021-08-02T20:09Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/96.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2021-08-02T20:12Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 12, Assists: 4",
+"value": 4.0,
+"athlete": {
+"displayName": "Alberto Moleiro",
+"shortName": "A. Moleiro",
+"team": {
+"id": "102",
+"abbreviation": "VIL",
+"displayName": "Villarreal",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/102.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2021-08-02T20:09Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/102.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2021-08-02T20:12Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 11, Assists: 4",
+"value": 4.0,
+"athlete": {
+"displayName": "Anthony Gordon",
+"shortName": "A. Gordon",
+"team": {
+"id": "83",
+"abbreviation": "BAR",
+"displayName": "Barcelona",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/83.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/83.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 13, Assists: 3",
+"value": 3.0,
+"athlete": {
+"displayName": "Kylian Mbappé",
+"shortName": "K. Mbappé",
+"team": {
+"id": "86",
+"abbreviation": "RMA",
+"displayName": "Real Madrid",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/86.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/86.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 13, Assists: 3",
+"value": 3.0,
+"athlete": {
+"displayName": "Javier Guerra",
+"shortName": "J. Guerra",
+"team": {
+"id": "94",
+"abbreviation": "VAL",
+"displayName": "Valencia",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/94.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2024-01-04T17:49Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/94.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2024-01-04T17:53Z"
+}
+]
+}
+}
+},
+{
+"displayValue": "Matches: 13, Assists: 3",
+"value": 3.0,
+"athlete": {
+"displayName": "Jude Bellingham",
+"shortName": "J. Bellingham",
+"team": {
+"id": "86",
+"abbreviation": "RMA",
+"displayName": "Real Madrid",
+"logos": [
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500/86.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"default"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+},
+{
+"href": "https://a.espncdn.com/i/teamlogos/soccer/500-dark/86.png",
+"width": 500,
+"height": 500,
+"alt": "",
+"rel": [
+"full",
+"dark"
+],
+"lastUpdated": "2019-05-08T16:07Z"
+}
+]
+}
+}
+}
+]
+}
+]
+}

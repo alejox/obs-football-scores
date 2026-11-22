@@ -239,4 +239,54 @@ std::vector<TrackedPlay> tracked_plays(const std::vector<Play> &plays, size_t re
 	return out;
 }
 
+std::vector<double> momentum_series(const std::vector<Play> &plays, int minutes)
+{
+	int last = minutes;
+	for (const Play &play : plays) {
+		if (play.clock_seconds >= 0)
+			last = std::max(last, static_cast<int>(play.clock_seconds / 60.0));
+	}
+	std::vector<double> home(static_cast<size_t>(last) + 1, 0.0), away(home.size(), 0.0);
+	for (const Play &play : plays) {
+		if (!play.side || play.clock_seconds < 0)
+			continue;
+		double weight = 0;
+		switch (play.kind) {
+		case PlayKind::Goal:
+			weight = 5;
+			break;
+		case PlayKind::ShotOnTarget:
+		case PlayKind::Woodwork:
+			weight = 3;
+			break;
+		case PlayKind::ShotOffTarget:
+			weight = 2;
+			break;
+		case PlayKind::ShotBlocked:
+		case PlayKind::Corner:
+			weight = 1.5;
+			break;
+		case PlayKind::Offside:
+			weight = 0.5;
+			break;
+		default:
+			// Any other play in the opponent's last third is a little pressure too.
+			weight = play.has_position && play.x >= 66 && play.kind != PlayKind::Foul ? 0.4 : 0;
+			break;
+		}
+		if (weight == 0)
+			continue;
+		const double minute = play.clock_seconds / 60.0;
+		std::vector<double> &target = *play.side == TeamSide::Home ? home : away;
+		for (int m = std::max(0, static_cast<int>(minute) - 4); m <= std::min(last, static_cast<int>(minute) + 4); ++m) {
+			const double d = (m - minute) / 2.2;
+			target[static_cast<size_t>(m)] += weight * std::exp(-d * d);
+		}
+	}
+	std::vector<double> series(home.size());
+	for (size_t i = 0; i < series.size(); ++i)
+		series[i] = std::clamp((home[i] - away[i]) / 4.0, -1.0, 1.0);
+	return series;
+}
+
 } // namespace fscore

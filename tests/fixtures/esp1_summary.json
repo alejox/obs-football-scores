@@ -7819,5 +7819,528 @@
 },
 "text": "Match ends, Atletico Madrid 1, Barcelona 2."
 }
+],
+"lastFiveGames": [
+{
+"displayOrder": 1,
+"team": {
+"id": "1068",
+"displayName": "Atlético Madrid",
+"abbreviation": "ATM",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/1068.png"
+},
+"events": [
+{
+"id": "401882843",
+"atVs": "@",
+"gameDate": "2026-10-17T12:00Z",
+"score": "1-0",
+"homeTeamId": "88",
+"awayTeamId": "1068",
+"homeTeamScore": "0",
+"awayTeamScore": "1",
+"homeAggregateScore": "0",
+"awayAggregateScore": "0",
+"homeShootoutScore": "0",
+"awayShootoutScore": "0",
+"gameResult": "W",
+"competitionName": "2026-27 LALIGA",
+"leagueName": "Spanish LALIGA",
+"leagueAbbreviation": "LALIGA",
+"opponent": {
+"id": "88",
+"displayName": "Espanyol",
+"abbreviation": "ESP",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/88.png"
+},
+"opponentLogo": "https://a.espncdn.com/i/teamlogos/soccer/500/88.png"
+},
+{
+"id": "401915392",
+"atVs": "@",
+"gameDate": "2026-10-20T19:00Z",
+"score": "1-1",
+"homeTeamId": "134",
+"awayTeamId": "1068",
+"homeTeamScore": "1",
+"awayTeamScore": "1",
+"homeAggregateScore": "0",
+"awayAggregateScore": "0",
+"homeShootoutScore": "0",
+"awayShootoutScore": "0",
+"gameResult": "D",
+"competitionName": "2026-27 UEFA Champions League",
+"roundName": "League Phase",
+"opponent": {
+"id": "134",
+"displayName": "VfB Stuttgart",
+"abbreviation": "VFB",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/134.png"
+},
+"opponentLogo": "https://a.espncdn.com/i/teamlogos/soccer/500/134.png",
+"leagueName": "UEFA Champions League",
+"leagueAbbreviation": "UEFA Champions League"
+},
+{
+"id": "401882834",
+"atVs": "vs",
+"gameDate": "2026-10-24T19:00Z",
+"score": "1-0",
+"homeTeamId": "1068",
+"awayTeamId": "90",
+"homeTeamScore": "1",
+"awayTeamScore": "0",
+"homeAggregateScore": "0",
+"awayAggregateScore": "0",
+"homeShootoutScore": "0",
+"awayShootoutScore": "0",
+"gameResult": "W",
+"competitionName": "2026-27 LALIGA",
+"leagueName": "Spanish LALIGA",
+"leagueAbbreviation": "LALIGA",
+"opponent": {
+"id": "90",
+"displayName": "Deportivo",
+"abbreviation": "DEP",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/90.png"
+},
+"opponentLogo": "https://a.espncdn.com/i/teamlogos/soccer/500/90.png"
+},
+{
+"id": "401882820",
+"atVs": "@",
+"gameDate": "2026-10-31T13:00Z",
+"score": "2-0",
+"homeTeamId": "1538",
+"awayTeamId": "1068",
+"homeTeamScore": "0",
+"awayTeamScore": "2",
+"homeAggregateScore": "0",
+"awayAggregateScore": "0",
+"homeShootoutScore": "0",
+"awayShootoutScore": "0",
+"gameResult": "W",
+"competitionName": "2026-27 LALIGA",
+"opponent": {
+"id": "1538",
+"displayName": "Levante",
+"abbreviation": "LEV",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/1538.png"
+},
+"opponentLogo": "https://a.espncdn.com/i/teamlogos/soccer/500/1538.png",
+"leagueName": "Spanish LALIGA",
+"leagueAbbreviation": "LALIGA"
+},
+{
+"id": "401915386",
+"atVs": "vs",
+"gameDate": "2026-11-03T20:00Z",
+"score": "2-0",
+"homeTeamId": "1068",
+"awayTeamId": "132",
+"homeTeamScore": "0",
+"awayTeamScore": "2",
+"homeAggregateScore": "0",
+"awayAggregateScore": "0",
+"homeShootoutScore": "0",
+"awayShootoutScore": "0",
+"gameResult": "L",
+"competitionName": "2026-27 UEFA Champions League",
+"roundName": "League Phase",
+"leagueName": "UEFA Champions League",
+"leagueAbbreviation": "UEFA Champions League",
+"opponent": {
+"id": "132",
+"displayName": "Bayern Munich",
+"abbreviation": "MUN",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/132.png"
+},
+"opponentLogo": "https://a.espncdn.com/i/teamlogos/soccer/500/132.png"
+}
 ]
+},
+{
+"displayOrder": 2,
+"team": {
+"id": "83",
+"displayName": "Barcelona",
+"abbreviation": "BAR",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/83.png"
+},
+"events": [
+{
+"id": "401882846",
+"atVs": "@",
+"gameDate": "2026-10-17T16:30Z",
+"score": "5-2",
+"homeTeamId": "244",
+"awayTeamId": "83",
+"homeTeamScore": "2",
+"awayTeamScore": "5",
+"homeAggregateScore": "0",
+"awayAggregateScore": "0",
+"homeShootoutScore": "0",
+"awayShootoutScore": "0",
+"gameResult": "W",
+"competitionName": "2026-27 LALIGA",
+"leagueName": "Spanish LALIGA",
+"leagueAbbreviation": "LALIGA",
+"opponent": {
+"id": "244",
+"displayName": "Real Betis",
+"abbreviation": "BET",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/244.png"
+},
+"opponentLogo": "https://a.espncdn.com/i/teamlogos/soccer/500/244.png"
+},
+{
+"id": "401915399",
+"atVs": "@",
+"gameDate": "2026-10-20T19:00Z",
+"score": "4-2",
+"homeTeamId": "160",
+"awayTeamId": "83",
+"homeTeamScore": "4",
+"awayTeamScore": "2",
+"homeAggregateScore": "0",
+"awayAggregateScore": "0",
+"homeShootoutScore": "0",
+"awayShootoutScore": "0",
+"gameResult": "L",
+"competitionName": "2026-27 UEFA Champions League",
+"roundName": "League Phase",
+"leagueName": "UEFA Champions League",
+"leagueAbbreviation": "UEFA Champions League",
+"opponent": {
+"id": "160",
+"displayName": "Paris Saint-Germain",
+"abbreviation": "PSG",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/160.png"
+},
+"opponentLogo": "https://a.espncdn.com/i/teamlogos/soccer/500/160.png"
+},
+{
+"id": "401882832",
+"atVs": "vs",
+"gameDate": "2026-10-25T20:00Z",
+"score": "2-1",
+"homeTeamId": "83",
+"awayTeamId": "86",
+"homeTeamScore": "1",
+"awayTeamScore": "2",
+"homeAggregateScore": "0",
+"awayAggregateScore": "0",
+"homeShootoutScore": "0",
+"awayShootoutScore": "0",
+"gameResult": "L",
+"competitionName": "2026-27 LALIGA",
+"leagueName": "Spanish LALIGA",
+"leagueAbbreviation": "LALIGA",
+"opponent": {
+"id": "86",
+"displayName": "Real Madrid",
+"abbreviation": "RMA",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/86.png"
+},
+"opponentLogo": "https://a.espncdn.com/i/teamlogos/soccer/500/86.png"
+},
+{
+"id": "401882822",
+"atVs": "vs",
+"gameDate": "2026-10-31T20:00Z",
+"score": "6-1",
+"homeTeamId": "83",
+"awayTeamId": "96",
+"homeTeamScore": "6",
+"awayTeamScore": "1",
+"homeAggregateScore": "0",
+"awayAggregateScore": "0",
+"homeShootoutScore": "0",
+"awayShootoutScore": "0",
+"gameResult": "W",
+"competitionName": "2026-27 LALIGA",
+"leagueName": "Spanish LALIGA",
+"leagueAbbreviation": "LALIGA",
+"opponent": {
+"id": "96",
+"displayName": "Alavés",
+"abbreviation": "ALA",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/96.png"
+},
+"opponentLogo": "https://a.espncdn.com/i/teamlogos/soccer/500/96.png"
+},
+{
+"id": "401915387",
+"atVs": "vs",
+"gameDate": "2026-11-03T20:00Z",
+"score": "3-0",
+"homeTeamId": "83",
+"awayTeamId": "362",
+"homeTeamScore": "3",
+"awayTeamScore": "0",
+"homeAggregateScore": "0",
+"awayAggregateScore": "0",
+"homeShootoutScore": "0",
+"awayShootoutScore": "0",
+"gameResult": "W",
+"competitionName": "2026-27 UEFA Champions League",
+"roundName": "League Phase",
+"leagueName": "UEFA Champions League",
+"leagueAbbreviation": "UEFA Champions League",
+"opponent": {
+"id": "362",
+"displayName": "Aston Villa",
+"abbreviation": "AVL",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/362.png"
+},
+"opponentLogo": "https://a.espncdn.com/i/teamlogos/soccer/500/362.png"
+}
+]
+}
+],
+"seasonseries": [
+{
+"type": "head-to-head",
+"title": "Atlético Madrid vs. Barcelona",
+"summary": "BAR leads series 3-2",
+"completed": false,
+"totalCompetitions": 5,
+"seriesLabel": "Head-to-Head",
+"seriesScore": "2-3",
+"shortSummary": "Last 5 Matchups",
+"events": [
+{
+"id": "401862892",
+"uid": "s:600~l:775~e:401862892~c:401862892",
+"date": "2026-04-14T19:00:00Z",
+"timeValid": true,
+"status": "post",
+"statusType": {
+"id": "28",
+"name": "STATUS_FULL_TIME",
+"state": "post",
+"completed": true,
+"description": "Full Time",
+"detail": "FT",
+"shortDetail": "FT"
+},
+"neutralSite": false,
+"competitors": [
+{
+"homeAway": "home",
+"winner": false,
+"team": {
+"id": "1068",
+"displayName": "Atlético Madrid",
+"abbreviation": "ATM",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/1068.png"
+},
+"score": "1"
+},
+{
+"homeAway": "away",
+"winner": true,
+"team": {
+"id": "83",
+"displayName": "Barcelona",
+"abbreviation": "BAR",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/83.png"
+},
+"score": "2"
+}
+],
+"aggregate": "2nd Leg - Atlético Madrid advance 3-2 on aggregate",
+"competitionName": "2025-26 UEFA Champions League",
+"roundName": "Quarterfinals"
+},
+{
+"id": "401862887",
+"uid": "s:600~l:775~e:401862887~c:401862887",
+"date": "2026-04-08T19:00:00Z",
+"timeValid": true,
+"status": "post",
+"statusType": {
+"id": "28",
+"name": "STATUS_FULL_TIME",
+"state": "post",
+"completed": true,
+"description": "Full Time",
+"detail": "FT",
+"shortDetail": "FT"
+},
+"neutralSite": false,
+"competitors": [
+{
+"homeAway": "home",
+"winner": false,
+"team": {
+"id": "83",
+"displayName": "Barcelona",
+"abbreviation": "BAR",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/83.png"
+},
+"score": "0"
+},
+{
+"homeAway": "away",
+"winner": true,
+"team": {
+"id": "1068",
+"displayName": "Atlético Madrid",
+"abbreviation": "ATM",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/1068.png"
+},
+"score": "2"
+}
+],
+"aggregate": "1st Leg",
+"competitionName": "2025-26 UEFA Champions League",
+"roundName": "Quarterfinals"
+},
+{
+"id": "748434",
+"uid": "s:600~l:740~e:748434~c:748434",
+"date": "2026-04-04T19:00:00Z",
+"timeValid": true,
+"status": "post",
+"statusType": {
+"id": "28",
+"name": "STATUS_FULL_TIME",
+"state": "post",
+"completed": true,
+"description": "Full Time",
+"detail": "FT",
+"shortDetail": "FT"
+},
+"neutralSite": false,
+"competitors": [
+{
+"homeAway": "home",
+"winner": false,
+"team": {
+"id": "1068",
+"displayName": "Atlético Madrid",
+"abbreviation": "ATM",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/1068.png"
+},
+"score": "1"
+},
+{
+"homeAway": "away",
+"winner": true,
+"team": {
+"id": "83",
+"displayName": "Barcelona",
+"abbreviation": "BAR",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/83.png"
+},
+"score": "2"
+}
+],
+"competitionName": "2025-26 LALIGA"
+},
+{
+"id": "401859850",
+"uid": "s:600~l:3951~e:401859850~c:401859850",
+"date": "2026-03-03T20:00:00Z",
+"timeValid": true,
+"status": "post",
+"statusType": {
+"id": "28",
+"name": "STATUS_FULL_TIME",
+"state": "post",
+"completed": true,
+"description": "Full Time",
+"detail": "FT",
+"shortDetail": "FT"
+},
+"neutralSite": false,
+"competitors": [
+{
+"homeAway": "home",
+"winner": true,
+"team": {
+"id": "83",
+"displayName": "Barcelona",
+"abbreviation": "BAR",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/83.png"
+},
+"score": "3"
+},
+{
+"homeAway": "away",
+"winner": false,
+"team": {
+"id": "1068",
+"displayName": "Atlético Madrid",
+"abbreviation": "ATM",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/1068.png"
+},
+"score": "0"
+}
+],
+"aggregate": "2nd Leg - Atlético Madrid advance 4-3 on aggregate",
+"competitionName": "2025-26 Spanish Copa del Rey",
+"roundName": "Semifinals"
+},
+{
+"id": "401859849",
+"uid": "s:600~l:3951~e:401859849~c:401859849",
+"date": "2026-02-12T20:00:00Z",
+"timeValid": true,
+"status": "post",
+"statusType": {
+"id": "28",
+"name": "STATUS_FULL_TIME",
+"state": "post",
+"completed": true,
+"description": "Full Time",
+"detail": "FT",
+"shortDetail": "FT"
+},
+"neutralSite": false,
+"competitors": [
+{
+"homeAway": "home",
+"winner": true,
+"team": {
+"id": "1068",
+"displayName": "Atlético Madrid",
+"abbreviation": "ATM",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/1068.png"
+},
+"score": "4"
+},
+{
+"homeAway": "away",
+"winner": false,
+"team": {
+"id": "83",
+"displayName": "Barcelona",
+"abbreviation": "BAR",
+"logo": "https://a.espncdn.com/i/teamlogos/soccer/500/83.png"
+},
+"score": "0"
+}
+],
+"aggregate": "1st Leg",
+"competitionName": "2025-26 Spanish Copa del Rey",
+"roundName": "Semifinals"
+}
+]
+}
+],
+"gameInfo": {
+"venue": {
+"id": "10633",
+"fullName": "Riyadh Air Metropolitano",
+"shortName": "Riyadh Air Metropolitano",
+"address": {
+"city": "Madrid",
+"country": "Spain"
+},
+"images": []
+},
+"attendance": 69788
+}
 }

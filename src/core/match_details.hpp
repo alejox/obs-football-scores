@@ -60,6 +60,31 @@ struct Play {
 	double end_x = 0, end_y = 0;
 };
 
+// One line of the live commentary, plays or not ("Lineups are announced...").
+struct CommentaryLine {
+	int sequence = 0;
+	std::string minute; // empty before kick-off
+	std::string text;   // English, as the feed writes it
+	PlayKind kind = PlayKind::Other;
+	std::optional<TeamSide> side;
+};
+
+// One of a team's last games.
+struct FormGame {
+	char result = '?';     // 'W', 'D' or 'L'
+	std::string score;     // "2-1", from that team's side as ESPN writes it
+	std::string opponent;  // "EVE"
+	std::string opponent_logo;
+	bool home = true;      // played at home ("vs") or away ("@")
+};
+
+// A past meeting of the two teams.
+struct MeetingGame {
+	std::string date; // "2016-02-16"
+	std::string home_abbreviation, away_abbreviation;
+	std::string home_score, away_score;
+};
+
 // ESPN boxscore stat names -> value, per team ("possessionPct" -> 63).
 using TeamStats = std::map<std::string, double>;
 
@@ -69,6 +94,12 @@ struct MatchDetails {
 	TeamStats home_stats, away_stats;
 	Lineup home_lineup, away_lineup;
 	std::vector<Play> plays; // in match order
+	std::vector<CommentaryLine> commentary; // every line, in match order
+	std::vector<FormGame> home_form, away_form; // oldest first
+	std::string head_to_head;                    // "HUL leads series 2-1-2"
+	std::vector<MeetingGame> meetings;           // newest first
+	std::string venue, city;
+	int attendance = 0;
 };
 
 // Parses /apis/site/v2/sports/soccer/<league>/summary?event=<id>. nullopt for a body

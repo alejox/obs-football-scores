@@ -25,9 +25,11 @@ add_library(
   core/espn.cpp
   core/goal_animation.cpp
   core/goal_watch.cpp
+  core/leaders.cpp
   core/league_catalog.cpp
   core/match_details.cpp
   core/match_selection.cpp
+  core/narration.cpp
   core/pitch.cpp
   core/standings.cpp
   core/sha256.cpp

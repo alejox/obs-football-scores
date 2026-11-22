@@ -1,5 +1,7 @@
 #include "feed/details_feed.hpp"
 
+#include "core/espn.hpp"
+
 #include "fake_http.hpp"
 #include "fixtures.hpp"
 #include "test_harness.hpp"
@@ -90,4 +92,23 @@ TEST_CASE(the_worker_thread_starts_and_stops)
 	for (int i = 0; i < 300 && !feed.snapshot().details; ++i)
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	CHECK(feed.snapshot().details != nullptr);
+}
+
+TEST_CASE(reads_the_scorers_and_the_round)
+{
+	FakeHttp http;
+	http.set(leaders_url("esp.1"), test_harness::read_fixture("esp1_leaders.json"));
+	http.set(espn::day_url("esp.1", espn::candidate_days(1794142800).front()), test_harness::read_fixture("esp1_day.json"));
+	int64_t now = 1794142800;
+	DetailsFeed feed(http.get(), [&now] { return now; }, false);
+	DetailsTarget target;
+	target.leaders_league = "esp.1";
+	target.round_league = "esp.1";
+	feed.set_target(target);
+	CHECK_EQ(feed.poll_once(), DetailsFeed::kRoundIdleSeconds); // no live match in the fixture
+	const auto snap = feed.snapshot();
+	REQUIRE(snap.leaders != nullptr);
+	CHECK_EQ(snap.leaders->goals.front().name, std::string("Raphinha"));
+	REQUIRE(snap.round != nullptr);
+	CHECK_EQ(snap.round->matches.size(), 5u);
 }

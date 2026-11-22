@@ -98,6 +98,7 @@ Team parse_team(const json &competitor)
 	out.abbreviation = str(team, "abbreviation");
 	out.logo_url = team_logo(team);
 	out.color = parse_color(str(team, "color"));
+	out.alternate_color = parse_color(str(team, "alternateColor"));
 	return out;
 }
 
@@ -105,14 +106,31 @@ MatchState parse_state(const json &status_type)
 {
 	const std::string state = str(status_type, "state");
 	const std::string name = str(status_type, "name");
-	if (name == "STATUS_HALFTIME" || name == "STATUS_END_OF_REGULATION" || name == "STATUS_END_OF_EXTRATIME" ||
-	    name == "STATUS_HALFTIME_ET")
+	const bool break_status = name == "STATUS_HALFTIME" || name == "STATUS_HALFTIME_ET" ||
+				  name == "STATUS_END_OF_REGULATION" || name == "STATUS_END_OF_EXTRATIME" ||
+				  name == "STATUS_END_OF_EXTRA_TIME";
+	const bool stopped_status = name == "STATUS_SUSPENDED" || name == "STATUS_DELAYED" ||
+				    name == "STATUS_ABANDONED" || name == "STATUS_RAIN_DELAY";
+	// "in" is ESPN's own word for a match on air: whatever the status name says, it
+	// counts as live (a break, a stoppage, extra time, penalties...).
+	if (state == "in") {
+		if (break_status)
+			return MatchState::HalfTime;
+		if (stopped_status)
+			return MatchState::Interrupted;
+		return MatchState::Live;
+	}
+	// A break status without a state (older answers) is still a break.
+	if (break_status && state.empty())
 		return MatchState::HalfTime;
+	if (state == "pre") {
+		if (name == "STATUS_POSTPONED" || name == "STATUS_CANCELED" || name == "STATUS_FORFEIT")
+			return MatchState::Postponed;
+		return MatchState::Scheduled; // a delayed kick-off is still upcoming
+	}
 	if (name == "STATUS_POSTPONED" || name == "STATUS_CANCELED" || name == "STATUS_SUSPENDED" ||
 	    name == "STATUS_ABANDONED" || name == "STATUS_DELAYED" || name == "STATUS_FORFEIT")
 		return MatchState::Postponed;
-	if (state == "in")
-		return MatchState::Live;
 	if (state == "post")
 		return MatchState::Finished;
 	return MatchState::Scheduled;

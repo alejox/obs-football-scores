@@ -6,6 +6,7 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QRadialGradient>
+#include <QTransform>
 
 #include <algorithm>
 #include <cmath>
@@ -139,159 +140,6 @@ void header(QPainter &p, const QRectF &r, const PanelView &v)
 	text(p, away_name, v.away.name.toUpper(), Qt::AlignVCenter | Qt::AlignRight, Qt::white);
 }
 
-// --- the pitch --------------------------------------------------------------
-
-struct Pitch {
-	QRectF field; // inside the touchlines
-	QPointF map(const PitchPoint &pt) const
-	{
-		return {field.left() + pt.x * field.width(), field.top() + pt.y * field.height()};
-	}
-};
-
-Pitch draw_pitch(QPainter &p, const QRectF &area, bool show_ends = true)
-{
-	p.fillPath(rounded(area, 16), kGrassB);
-	p.save();
-	p.setClipPath(rounded(area, 16));
-	const int stripes = 12;
-	for (int i = 0; i < stripes; i += 2)
-		p.fillRect(QRectF(area.left() + area.width() * i / stripes, area.top(), area.width() / stripes, area.height()),
-			   kGrassA);
-	p.restore();
-
-	const qreal margin = area.height() * 0.06;
-	Pitch pitch;
-	pitch.field = area.adjusted(margin, margin, -margin, -margin);
-	const QRectF &f = pitch.field;
-	const qreal unit = f.width() / 105.0; // metres
-	p.save();
-	p.setPen(QPen(QColor(255, 255, 255, 190), 2.2));
-	p.setBrush(Qt::NoBrush);
-	p.drawRect(f);
-	p.drawLine(QPointF(f.center().x(), f.top()), QPointF(f.center().x(), f.bottom()));
-	p.drawEllipse(f.center(), 9.15 * unit, 9.15 * unit * f.height() / f.height());
-	p.setBrush(QColor(255, 255, 255, 200));
-	p.drawEllipse(f.center(), 3, 3);
-	p.setBrush(Qt::NoBrush);
-	const qreal box_h = 40.3 / 68.0 * f.height(), six_h = 18.3 / 68.0 * f.height();
-	for (const bool left : {true, false}) {
-		const qreal x0 = left ? f.left() : f.right();
-		const qreal dir = left ? 1 : -1;
-		p.drawRect(QRectF(left ? x0 : x0 - 16.5 * unit, f.center().y() - box_h / 2, 16.5 * unit, box_h));
-		p.drawRect(QRectF(left ? x0 : x0 - 5.5 * unit, f.center().y() - six_h / 2, 5.5 * unit, six_h));
-		p.drawPoint(QPointF(x0 + dir * 11 * unit, f.center().y()));
-		// Goal mouth.
-		if (show_ends) {
-			const qreal goal_h = 7.32 / 68.0 * f.height();
-			p.save();
-			p.setPen(QPen(QColor(255, 255, 255, 230), 4));
-			p.drawLine(QPointF(x0 - dir * 2, f.center().y() - goal_h / 2), QPointF(x0 - dir * 2, f.center().y() + goal_h / 2));
-			p.restore();
-		}
-	}
-	p.restore();
-	return pitch;
-}
-
-// A marker for one play, in its team color.
-void draw_mark(QPainter &p, const Pitch &pitch, const PitchMark &m, const QColor &color, qreal size, qreal opacity)
-{
-	const QPointF at = pitch.map(m.at);
-	p.save();
-	p.setOpacity(opacity);
-	const qreal r = size / 2;
-	switch (m.kind) {
-	case PlayKind::Goal: {
-		if (m.has_end) {
-			p.setPen(QPen(alpha(Qt::white, 200), 2.5, Qt::SolidLine, Qt::RoundCap));
-			p.drawLine(at, pitch.map(m.end));
-		}
-		// A football: white ball, dark centre patch.
-		p.setPen(QPen(kInk, 1.6));
-		p.setBrush(Qt::white);
-		p.drawEllipse(at, r * 1.25, r * 1.25);
-		p.setBrush(kInk);
-		p.setPen(Qt::NoPen);
-		QPolygonF pent;
-		for (int i = 0; i < 5; ++i) {
-			const qreal a = -M_PI / 2 + i * 2 * M_PI / 5;
-			pent << at + QPointF(std::cos(a), std::sin(a)) * r * 0.5;
-		}
-		p.drawPolygon(pent);
-		break;
-	}
-	case PlayKind::ShotOnTarget:
-	case PlayKind::Woodwork:
-		if (m.has_end) {
-			p.setPen(QPen(alpha(color.lighter(150), 160), 1.6, Qt::DashLine));
-			p.drawLine(at, pitch.map(m.end));
-		}
-		p.setPen(QPen(Qt::white, 2));
-		p.setBrush(color);
-		p.drawEllipse(at, r, r);
-		break;
-	case PlayKind::ShotOffTarget:
-		p.setPen(QPen(color.lighter(160), 2.6));
-		p.setBrush(alpha(kInk, 120));
-		p.drawEllipse(at, r, r);
-		break;
-	case PlayKind::ShotBlocked: {
-		p.setPen(QPen(color.lighter(160), 3, Qt::SolidLine, Qt::RoundCap));
-		const qreal d = r * 0.8;
-		p.drawLine(at + QPointF(-d, -d), at + QPointF(d, d));
-		p.drawLine(at + QPointF(-d, d), at + QPointF(d, -d));
-		break;
-	}
-	case PlayKind::Corner: {
-		p.setPen(QPen(Qt::white, 2));
-		p.drawLine(at, at + QPointF(0, -r * 2.2));
-		QPolygonF flag;
-		flag << at + QPointF(0, -r * 2.2) << at + QPointF(r * 1.6, -r * 1.7) << at + QPointF(0, -r * 1.2);
-		p.setBrush(color.lighter(130));
-		p.drawPolygon(flag);
-		break;
-	}
-	case PlayKind::Offside:
-		p.setPen(QPen(Qt::white, 2));
-		p.setBrush(QColor(250, 204, 21));
-		p.drawRect(QRectF(at.x() - r * 0.6, at.y() - r * 0.6, r * 1.2, r * 1.2));
-		break;
-	case PlayKind::Foul:
-		p.setPen(Qt::NoPen);
-		p.setBrush(alpha(color.lighter(140), 220));
-		p.drawEllipse(at, r * 0.45, r * 0.45);
-		break;
-	default:
-		p.setPen(Qt::NoPen);
-		p.setBrush(alpha(Qt::white, 180));
-		p.drawEllipse(at, r * 0.4, r * 0.4);
-		break;
-	}
-	p.restore();
-}
-
-void pressure_bar(QPainter &p, const QRectF &r, const PanelView &v)
-{
-	const qreal share = std::clamp(0.5 + v.pressure / 2.0, 0.04, 0.96);
-	p.fillPath(rounded(r, r.height() / 2), alpha(kInk, 200));
-	p.save();
-	p.setClipPath(rounded(r, r.height() / 2));
-	const qreal split = r.left() + r.width() * share;
-	QLinearGradient hg(r.topLeft(), QPointF(split, r.top()));
-	hg.setColorAt(0, team_tone(v.home.color).darker(130));
-	hg.setColorAt(1, team_tone(v.home.color).lighter(120));
-	p.fillRect(QRectF(r.left(), r.top(), split - r.left(), r.height()), hg);
-	QLinearGradient ag(QPointF(split, r.top()), r.topRight());
-	ag.setColorAt(0, team_tone(v.away.color).lighter(120));
-	ag.setColorAt(1, team_tone(v.away.color).darker(130));
-	p.fillRect(QRectF(split, r.top(), r.right() - split, r.height()), ag);
-	p.fillRect(QRectF(split - 1.5, r.top(), 3, r.height()), Qt::white);
-	p.restore();
-	p.setFont(font(r.height() * 0.62, QFont::Black, 2));
-	text(p, r, v.pressure_label, Qt::AlignCenter, Qt::white);
-}
-
 void stat_strip(QPainter &p, const QRectF &r, const std::vector<StatRow> &rows)
 {
 	if (rows.empty())
@@ -312,135 +160,534 @@ void stat_strip(QPainter &p, const QRectF &r, const std::vector<StatRow> &rows)
 	}
 }
 
+// --- the pitch --------------------------------------------------------------
+
+// Where the field sits on screen. From above it is a rectangle; in perspective the
+// flat field is projected onto a trapezoid, the far touchline shorter than the near one.
+struct Pitch {
+	QRectF field;      // the flat field, before projection
+	bool perspective = false;
+	QTransform project; // flat field -> screen (perspective only)
+
+	QPointF map(const PitchPoint &pt) const
+	{
+		const QPointF flat(field.left() + pt.x * field.width(), field.top() + pt.y * field.height());
+		return perspective ? project.map(flat) : flat;
+	}
+	// Markers shrink with distance in perspective.
+	qreal scale(const PitchPoint &pt) const { return perspective ? 0.72 + 0.32 * pt.y : 1.0; }
+};
+
+QPainterPath ellipse_path(const QPointF &c, qreal rx, qreal ry)
+{
+	QPainterPath path;
+	path.addEllipse(c, rx, ry);
+	return path;
+}
+
+// Field markings in flat field coordinates (the caller sets any projection).
+void draw_markings(QPainter &p, const QRectF &f, qreal width)
+{
+	const qreal mx = f.width() / 105.0, my = f.height() / 68.0; // metres
+	p.setPen(QPen(QColor(255, 255, 255, 215), width, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin));
+	p.setBrush(Qt::NoBrush);
+	p.drawRect(f);
+	p.drawLine(QPointF(f.center().x(), f.top()), QPointF(f.center().x(), f.bottom()));
+	p.drawPath(ellipse_path(f.center(), 9.15 * mx, 9.15 * my));
+	p.setBrush(QColor(255, 255, 255, 220));
+	p.drawPath(ellipse_path(f.center(), 0.45 * mx, 0.45 * my));
+	p.setBrush(Qt::NoBrush);
+	for (const bool left : {true, false}) {
+		const qreal x0 = left ? f.left() : f.right();
+		const qreal dir = left ? 1 : -1;
+		const qreal box_h = 40.3 * my, six_h = 18.3 * my;
+		p.drawRect(QRectF(left ? x0 : x0 - 16.5 * mx, f.center().y() - box_h / 2, 16.5 * mx, box_h));
+		p.drawRect(QRectF(left ? x0 : x0 - 5.5 * mx, f.center().y() - six_h / 2, 5.5 * mx, six_h));
+		p.setBrush(QColor(255, 255, 255, 220));
+		p.drawPath(ellipse_path(QPointF(x0 + dir * 11 * mx, f.center().y()), 0.4 * mx, 0.4 * my));
+		p.setBrush(Qt::NoBrush);
+		// The "D" outside the box.
+		const QRectF arc(x0 + dir * 11 * mx - 9.15 * mx, f.center().y() - 9.15 * my, 18.3 * mx, 18.3 * my);
+		p.drawArc(arc, left ? -53 * 16 : 127 * 16, 106 * 16);
+		// Corner arcs.
+		for (const bool top : {true, false}) {
+			const QPointF corner(x0, top ? f.top() : f.bottom());
+			const QRectF r(corner.x() - mx, corner.y() - my, 2 * mx, 2 * my);
+			const int start = left ? (top ? 270 : 0) : (top ? 180 : 90);
+			p.drawArc(r, start * 16, 90 * 16);
+		}
+	}
+}
+
+// Mowing stripes, light from above and a soft vignette, in flat field coordinates.
+void draw_grass(QPainter &p, const QRectF &area)
+{
+	QLinearGradient base(area.topLeft(), area.bottomLeft());
+	base.setColorAt(0, QColor(36, 112, 54));
+	base.setColorAt(1, QColor(30, 96, 46));
+	p.fillRect(area, base);
+	const int stripes = 14;
+	for (int i = 0; i < stripes; i += 2)
+		p.fillRect(QRectF(area.left() + area.width() * i / stripes, area.top(), area.width() / stripes, area.height()),
+			   QColor(255, 255, 255, 14));
+	QRadialGradient light(area.center(), area.width() * 0.62);
+	light.setColorAt(0, QColor(255, 255, 255, 22));
+	light.setColorAt(1, QColor(0, 0, 0, 70));
+	p.fillRect(area, light);
+}
+
+void draw_goal_frames(QPainter &p, const Pitch &pitch)
+{
+	for (const bool left : {true, false}) {
+		const double x = left ? 0.0 : 1.0;
+		const double half = 3.66 / 68.0;
+		const QPointF a = pitch.map({x, 0.5 - half}), b = pitch.map({x, 0.5 + half});
+		const qreal depth = (pitch.perspective ? 10 : 8) * (left ? -1 : 1);
+		const qreal lift = pitch.perspective ? 16 * pitch.scale({x, 0.5}) : 0;
+		QPolygonF net;
+		net << a << QPointF(a.x() + depth, a.y() - lift * 0.4) << QPointF(b.x() + depth, b.y() - lift * 0.4) << b;
+		p.save();
+		p.setPen(Qt::NoPen);
+		p.setBrush(QColor(255, 255, 255, 40));
+		p.drawPolygon(net);
+		p.setPen(QPen(Qt::white, 3.2, Qt::SolidLine, Qt::RoundCap));
+		if (pitch.perspective) {
+			// Posts and crossbar standing up from the goal line.
+			p.drawLine(a, a - QPointF(0, lift));
+			p.drawLine(b, b - QPointF(0, lift));
+			p.drawLine(a - QPointF(0, lift), b - QPointF(0, lift));
+		} else {
+			p.drawLine(a, b);
+		}
+		p.restore();
+	}
+}
+
+// The stands, the advertising boards and the floodlit sky behind a perspective pitch.
+void draw_stadium(QPainter &p, const QRectF &area, const QPolygonF &field_quad, const QString &board_text)
+{
+	QLinearGradient sky(area.topLeft(), area.bottomLeft());
+	sky.setColorAt(0, QColor(10, 12, 20));
+	sky.setColorAt(1, QColor(26, 30, 42));
+	p.fillPath(rounded(area, 16), sky);
+	p.save();
+	p.setClipPath(rounded(area, 16));
+	// Rows of seats: thin bands above the far touchline.
+	const qreal far_y = field_quad[0].y();
+	for (int i = 0; i < 14; ++i) {
+		const qreal y = area.top() + (far_y - 30 - area.top()) * i / 14.0;
+		p.fillRect(QRectF(area.left(), y, area.width(), 3), QColor(255, 255, 255, 10 + i));
+	}
+	// Floodlight glow.
+	for (const qreal x : {area.left() + area.width() * 0.12, area.right() - area.width() * 0.12}) {
+		QRadialGradient glow(QPointF(x, area.top() + 10), area.width() * 0.25);
+		glow.setColorAt(0, QColor(255, 255, 230, 60));
+		glow.setColorAt(1, QColor(255, 255, 230, 0));
+		p.fillRect(area, glow);
+	}
+	// The crowd: small dots in muted colors over the stands, placed the same way on
+	// every frame so they do not flicker.
+	uint32_t seed = 20261122;
+	auto next = [&seed] {
+		seed = seed * 1664525u + 1013904223u;
+		return (seed >> 8) / 16777216.0;
+	};
+	const QColor crowd[] = {QColor(200, 205, 215), QColor(150, 155, 170), QColor(210, 60, 60), QColor(60, 110, 200),
+				QColor(230, 200, 90), QColor(90, 95, 110)};
+	p.setPen(Qt::NoPen);
+	const qreal stand_bottom = far_y - 30;
+	for (int i = 0; i < 1600; ++i) {
+		const qreal t = next();
+		const qreal y = area.top() + 8 + t * (stand_bottom - area.top() - 8);
+		const qreal x = area.left() + next() * area.width();
+		const qreal r = 1.2 + 1.6 * t;
+		QColor c = crowd[static_cast<int>(next() * 6) % 6];
+		c.setAlpha(static_cast<int>(70 + 90 * t));
+		p.setBrush(c);
+		p.drawEllipse(QPointF(x, y), r, r);
+	}
+	// Side stands, darker, running down towards the near corners.
+	for (const bool left : {true, false}) {
+		QPolygonF side;
+		const QPointF far_corner = left ? field_quad[0] : field_quad[1];
+		const QPointF near_corner = left ? field_quad[3] : field_quad[2];
+		const qreal edge = left ? area.left() : area.right();
+		side << QPointF(edge, far_y - 30) << QPointF(far_corner.x() + (left ? -34 : 34), far_y - 8)
+		     << QPointF(near_corner.x() + (left ? -12 : 12), near_corner.y()) << QPointF(edge, near_corner.y());
+		QLinearGradient shade(QPointF(edge, 0), QPointF(far_corner.x(), 0));
+		shade.setColorAt(0, QColor(8, 10, 16, 235));
+		shade.setColorAt(1, QColor(18, 22, 32, 200));
+		p.setBrush(shade);
+		p.drawPolygon(side);
+	}
+	// Advertising boards along the far touchline.
+	const QRectF boards(field_quad[0].x() - 30, far_y - 26, field_quad[1].x() - field_quad[0].x() + 60, 18);
+	p.fillRect(boards, QColor(16, 18, 26));
+	p.setFont(font(11, QFont::Black, 2));
+	const qreal step = QFontMetricsF(p.font()).horizontalAdvance(board_text) + 40;
+	for (qreal x = boards.left() + 10; x < boards.right(); x += step)
+		text(p, QRectF(x, boards.top(), step, boards.height()), board_text, Qt::AlignVCenter | Qt::AlignLeft,
+		     QColor(255, 255, 255, 150), false);
+	p.fillRect(QRectF(boards.left(), boards.bottom(), boards.width(), 2), QColor(255, 255, 255, 40));
+	p.restore();
+}
+
+Pitch draw_pitch(QPainter &p, const QRectF &area, PitchView view, const QString &board_text)
+{
+	Pitch pitch;
+	if (view == PitchView::TopDown) {
+		p.save();
+		p.setClipPath(rounded(area, 16));
+		draw_grass(p, area);
+		p.restore();
+		const qreal margin = area.height() * 0.06;
+		pitch.field = area.adjusted(margin, margin, -margin, -margin);
+		draw_markings(p, pitch.field, 2.2);
+		draw_goal_frames(p, pitch);
+		return pitch;
+	}
+
+	// Perspective: the flat field is mapped onto a trapezoid.
+	pitch.perspective = true;
+	pitch.field = QRectF(0, 0, 1050, 680);
+	const qreal near_inset = area.width() * 0.035, far_inset = area.width() * 0.17;
+	const QPolygonF quad = {QPointF(area.left() + far_inset, area.top() + area.height() * 0.28),
+				QPointF(area.right() - far_inset, area.top() + area.height() * 0.28),
+				QPointF(area.right() - near_inset, area.bottom() - area.height() * 0.05),
+				QPointF(area.left() + near_inset, area.bottom() - area.height() * 0.05)};
+	QTransform::quadToQuad(QPolygonF(pitch.field).mid(0, 4), quad, pitch.project);
+	draw_stadium(p, area, quad, board_text);
+	p.save();
+	p.setClipPath(rounded(area, 16));
+	p.setTransform(pitch.project, true);
+	// Grass beyond the lines, then the field itself.
+	draw_grass(p, pitch.field.adjusted(-60, -40, 60, 50));
+	draw_markings(p, pitch.field, 3.0);
+	p.restore();
+	draw_goal_frames(p, pitch);
+	return pitch;
+}
+
+// A marker for one play, in its team color.
+void draw_mark(QPainter &p, const Pitch &pitch, const PitchMark &m, const QColor &color, qreal size, qreal opacity)
+{
+	const QPointF at = pitch.map(m.at);
+	const qreal r = size / 2 * pitch.scale(m.at);
+	p.save();
+	p.setOpacity(opacity);
+	// Contact shadow, so markers sit on the grass.
+	p.setPen(Qt::NoPen);
+	p.setBrush(QColor(0, 0, 0, 70));
+	p.drawEllipse(at + QPointF(0, r * 0.35), r * 0.95, r * 0.45);
+	switch (m.kind) {
+	case PlayKind::Goal: {
+		if (m.has_end) {
+			p.setPen(QPen(alpha(Qt::white, 210), 2.5, Qt::SolidLine, Qt::RoundCap));
+			p.drawLine(at, pitch.map(m.end));
+		}
+		p.setPen(QPen(kInk, 1.6));
+		p.setBrush(Qt::white);
+		p.drawEllipse(at, r * 1.25, r * 1.25);
+		p.setBrush(kInk);
+		p.setPen(Qt::NoPen);
+		QPolygonF pent;
+		for (int i = 0; i < 5; ++i) {
+			const qreal a = -M_PI / 2 + i * 2 * M_PI / 5;
+			pent << at + QPointF(std::cos(a), std::sin(a)) * r * 0.5;
+		}
+		p.drawPolygon(pent);
+		break;
+	}
+	case PlayKind::ShotOnTarget:
+	case PlayKind::Woodwork:
+		if (m.has_end) {
+			p.setPen(QPen(alpha(color.lighter(160), 170), 1.8, Qt::DashLine));
+			p.drawLine(at, pitch.map(m.end));
+		}
+		p.setPen(QPen(Qt::white, 2));
+		p.setBrush(color);
+		p.drawEllipse(at, r, r);
+		break;
+	case PlayKind::ShotOffTarget:
+		p.setPen(QPen(color.lighter(170), 2.6));
+		p.setBrush(alpha(kInk, 130));
+		p.drawEllipse(at, r, r);
+		break;
+	case PlayKind::ShotBlocked: {
+		p.setPen(QPen(color.lighter(170), 3, Qt::SolidLine, Qt::RoundCap));
+		const qreal d = r * 0.8;
+		p.drawLine(at + QPointF(-d, -d), at + QPointF(d, d));
+		p.drawLine(at + QPointF(-d, d), at + QPointF(d, -d));
+		break;
+	}
+	case PlayKind::Corner: {
+		p.setPen(QPen(Qt::white, 2));
+		p.drawLine(at, at + QPointF(0, -r * 2.2));
+		QPolygonF flag;
+		flag << at + QPointF(0, -r * 2.2) << at + QPointF(r * 1.6, -r * 1.7) << at + QPointF(0, -r * 1.2);
+		p.setBrush(color.lighter(130));
+		p.drawPolygon(flag);
+		break;
+	}
+	case PlayKind::Offside:
+		p.setPen(QPen(Qt::white, 2));
+		p.setBrush(QColor(250, 204, 21));
+		p.drawRect(QRectF(at.x() - r * 0.6, at.y() - r * 0.6, r * 1.2, r * 1.2));
+		break;
+	case PlayKind::Foul:
+		p.setPen(QPen(Qt::white, 1.2));
+		p.setBrush(alpha(color.lighter(140), 230));
+		p.drawEllipse(at, r * 0.5, r * 0.5);
+		break;
+	default:
+		p.setPen(Qt::NoPen);
+		p.setBrush(alpha(Qt::white, 190));
+		p.drawEllipse(at, r * 0.4, r * 0.4);
+		break;
+	}
+	p.restore();
+}
+
+bool attacking(PlayKind kind)
+{
+	return kind == PlayKind::Goal || kind == PlayKind::ShotOnTarget || kind == PlayKind::ShotOffTarget ||
+	       kind == PlayKind::ShotBlocked || kind == PlayKind::Woodwork || kind == PlayKind::Corner;
+}
+
+// The latest play: a ball, a wedge towards the goal under attack and a two-line tag
+// ("Barcelona" / "Remate al arco · 67'"), like a broadcast tracker.
+void draw_latest(QPainter &p, const Pitch &pitch, const PitchMark &m, const PanelView &v, const QColor &team)
+{
+	const QPointF at = pitch.map(m.at);
+	const qreal s = pitch.scale(m.at);
+	if (attacking(m.kind)) {
+		const double goal_x = m.home ? 1.0 : 0.0;
+		QPolygonF wedge;
+		wedge << at << pitch.map({goal_x, 0.5 - 0.09}) << pitch.map({goal_x, 0.5 + 0.09});
+		QLinearGradient fade(at, pitch.map({goal_x, 0.5}));
+		fade.setColorAt(0, QColor(255, 255, 255, 110));
+		fade.setColorAt(1, QColor(255, 255, 255, 10));
+		p.save();
+		p.setPen(Qt::NoPen);
+		p.setBrush(fade);
+		p.drawPolygon(wedge);
+		p.restore();
+	}
+	// Pulsing ring.
+	p.save();
+	const qreal grow = (16 + 30 * v.pulse) * s;
+	p.setPen(QPen(alpha(Qt::white, static_cast<int>(230 * (1 - v.pulse))), 3));
+	p.setBrush(Qt::NoBrush);
+	p.drawEllipse(at, grow, grow * (pitch.perspective ? 0.6 : 1.0));
+	p.restore();
+	// Ball.
+	if (m.kind != PlayKind::Goal) {
+		const qreal r = 11 * s;
+		p.save();
+		p.setPen(QPen(kInk, 1.4));
+		p.setBrush(Qt::white);
+		p.drawEllipse(at, r, r);
+		p.setPen(Qt::NoPen);
+		p.setBrush(kInk);
+		QPolygonF pent;
+		for (int i = 0; i < 5; ++i) {
+			const qreal a = -M_PI / 2 + i * 2 * M_PI / 5;
+			pent << at + QPointF(std::cos(a), std::sin(a)) * r * 0.45;
+		}
+		p.drawPolygon(pent);
+		p.restore();
+	}
+	if (v.caption.isEmpty())
+		return;
+
+	// Tag: team name on its color, then what happened.
+	const QString top = v.latest_team.toUpper();
+	const QString bottom = v.caption;
+	const QFont top_font = font(19, QFont::Black, 0.5), bottom_font = font(16, QFont::Bold);
+	const qreal w = std::min<qreal>(std::max(QFontMetricsF(top_font).horizontalAdvance(top),
+						 QFontMetricsF(bottom_font).horizontalAdvance(bottom)) + 30,
+					380);
+	const qreal h_top = 32, h_bottom = 28;
+	const QRectF candidates[] = {QRectF(at.x() - w - 18, at.y() - h_top - h_bottom / 2, w, h_top + h_bottom),
+				     QRectF(at.x() + 18, at.y() - h_top - h_bottom / 2, w, h_top + h_bottom),
+				     QRectF(at.x() - w / 2, at.y() - 30 - h_top - h_bottom, w, h_top + h_bottom),
+				     QRectF(at.x() - w / 2, at.y() + 30, w, h_top + h_bottom)};
+	const QRectF bounds = pitch.perspective ? QRectF(pitch.map({0, 0}).x() - 80, pitch.map({0, 0}).y() - 40,
+							 pitch.map({1, 1}).x() - pitch.map({0, 0}).x() + 160,
+							 pitch.map({1, 1}).y() - pitch.map({0, 0}).y() + 60)
+						: pitch.field;
+	auto inside = [&bounds](QRectF r) {
+		r.moveLeft(std::clamp(r.left(), bounds.left() + 4, bounds.right() - r.width() - 4));
+		r.moveTop(std::clamp(r.top(), bounds.top() + 4, bounds.bottom() - r.height() - 4));
+		return r;
+	};
+	auto hides = [&](const QRectF &r) {
+		int hidden = r.adjusted(-6, -6, 6, 6).contains(at) ? 100 : 0;
+		for (const PitchMark &other : v.marks) {
+			if (&other == &m || (other.kind != PlayKind::Goal && other.recency >= 6))
+				continue;
+			if (r.adjusted(-12, -12, 12, 12).contains(pitch.map(other.at)))
+				hidden += other.kind == PlayKind::Goal ? 10 : 1;
+		}
+		return hidden;
+	};
+	// The side away from the goal under attack reads first, like the broadcast tag.
+	QRectF tag = inside(m.home ? candidates[0] : candidates[1]);
+	int best = hides(tag);
+	for (const QRectF &candidate : candidates) {
+		const QRectF placed = inside(candidate);
+		const int score = hides(placed);
+		if (score < best) {
+			best = score;
+			tag = placed;
+		}
+	}
+	const QRectF top_rect(tag.left(), tag.top(), tag.width(), h_top);
+	const QRectF bottom_rect(tag.left(), tag.top() + h_top, tag.width(), h_bottom);
+	p.fillPath(rounded(tag.translated(0, 3), 9), QColor(0, 0, 0, 90));
+	QPainterPath top_path;
+	top_path.addRoundedRect(top_rect, 9, 9);
+	QPainterPath bottom_path;
+	bottom_path.addRoundedRect(bottom_rect, 9, 9);
+	p.fillPath(bottom_path, QColor(12, 14, 20, 235));
+	p.fillPath(top_path, team);
+	p.setFont(top_font);
+	text(p, top_rect.adjusted(14, 0, -14, 0), top, Qt::AlignVCenter | Qt::AlignLeft, Qt::white);
+	p.setFont(bottom_font);
+	text(p, bottom_rect.adjusted(14, 0, -14, 0), bottom, Qt::AlignVCenter | Qt::AlignLeft, QColor(255, 255, 255, 230),
+	     false);
+}
+
+// Momentum: one bar per minute, up for home and down for away, a soft line over them.
+void draw_momentum(QPainter &p, const QRectF &r, const PanelView &v, bool labels)
+{
+	p.fillPath(rounded(r, 12), kPanel);
+	const QRectF plot = r.adjusted(labels ? 54 : 14, 8, labels ? -54 : -14, -8);
+	const qreal mid = plot.center().y();
+	const size_t n = std::max<size_t>(v.momentum.size(), 91);
+	const qreal step = plot.width() / n;
+	const QColor home = team_tone(v.home.color).lighter(120), away = team_tone(v.away.color).lighter(120);
+	p.save();
+	p.setPen(QPen(QColor(255, 255, 255, 40), 1, Qt::DashLine));
+	p.drawLine(QPointF(plot.left(), mid), QPointF(plot.right(), mid));
+	p.drawLine(QPointF(plot.left() + step * 45.5, plot.top()), QPointF(plot.left() + step * 45.5, plot.bottom()));
+	p.restore();
+	for (size_t i = 0; i < v.momentum.size(); ++i) {
+		const double value = v.momentum[i];
+		if (std::abs(value) < 0.01)
+			continue;
+		const qreal h = std::abs(value) * plot.height() / 2;
+		const QRectF bar(plot.left() + step * i + step * 0.12, value > 0 ? mid - h : mid, step * 0.76, h);
+		p.fillRect(bar, value > 0 ? home : away);
+	}
+	if (v.now_minute >= 0) {
+		const qreal x = plot.left() + step * std::min<double>(v.now_minute, n - 1) + step / 2;
+		p.fillRect(QRectF(x - 1, plot.top(), 2, plot.height()), QColor(255, 255, 255, 170));
+	}
+	if (labels) {
+		contained(p, v.home.logo, QRectF(r.left() + 10, r.top() + 8, 34, r.height() / 2 - 10));
+		contained(p, v.away.logo, QRectF(r.left() + 10, r.center().y() + 2, 34, r.height() / 2 - 10));
+		p.setFont(font(13, QFont::Bold, 1));
+		text(p, QRectF(r.right() - 50, r.top(), 46, r.height() / 2), QStringLiteral("0'"), Qt::AlignCenter,
+		     QColor(255, 255, 255, 0), false);
+	}
+}
+
 void paint_live_pitch(QPainter &p, const PanelView &v)
 {
 	header(p, QRectF(0, 0, kW, 84), v);
-	pressure_bar(p, QRectF(150, 96, kW - 300, 20), v);
-	const Pitch pitch = draw_pitch(p, QRectF(0, 128, kW, 600));
+	// Momentum under the header, the title in its middle.
+	draw_momentum(p, QRectF(0, 92, kW, 64), v, true);
 
-	// Direction of attack, faded crests behind each goal.
-	contained(p, v.home.logo, QRectF(pitch.field.left() + 40, pitch.field.center().y() - 90, 180, 180), 0.10);
-	contained(p, v.away.logo, QRectF(pitch.field.right() - 220, pitch.field.center().y() - 90, 180, 180), 0.10);
+	const bool persp = v.pitch_view == PitchView::Perspective;
+	const QRectF area(0, 164, kW, persp ? 600 : 600);
+	const Pitch pitch = draw_pitch(p, area, v.pitch_view, v.table_title);
+	if (!persp) {
+		contained(p, v.home.logo, QRectF(pitch.field.left() + 40, pitch.field.center().y() - 90, 180, 180), 0.09);
+		contained(p, v.away.logo, QRectF(pitch.field.right() - 220, pitch.field.center().y() - 90, 180, 180), 0.09);
+	}
 
-	// Old shots first (small, faint), then recent plays, the latest on top.
 	std::vector<const PitchMark *> order;
 	for (const PitchMark &m : v.marks)
 		order.push_back(&m);
-	std::stable_sort(order.begin(), order.end(), [](auto *a, auto *b) { return a->recency > b->recency; });
+	// Far plays first in perspective, then older before newer.
+	std::stable_sort(order.begin(), order.end(), [persp](auto *a, auto *b) {
+		if (a->recency == 0 || b->recency == 0)
+			return b->recency == 0 && a->recency != 0;
+		if (persp && std::abs(a->at.y - b->at.y) > 1e-9)
+			return a->at.y < b->at.y;
+		return a->recency > b->recency;
+	});
 	const PitchMark *latest = nullptr;
 	for (const PitchMark *m : order) {
 		const QColor color = team_tone(m->home ? v.home.color : v.away.color);
 		const bool recent = m->recency < 6;
-		const qreal size = m->recency == 0 ? 26 : recent ? 20 : 14;
-		const qreal opacity = m->recency == 0 ? 1.0 : recent ? 0.95 - m->recency * 0.08 : 0.55;
+		// Goals stay big and solid however old; other plays fade with age.
+		const bool goal = m->kind == PlayKind::Goal;
+		const qreal size = m->recency == 0 || goal ? 24 : recent ? 20 : 14;
+		const qreal opacity = m->recency == 0 || goal ? 1.0 : recent ? 0.95 - m->recency * 0.08 : 0.55;
 		draw_mark(p, pitch, *m, color, size, opacity);
 		if (m->recency == 0)
 			latest = m;
 	}
-
 	if (latest) {
-		const QPointF at = pitch.map(latest->at);
-		// Pulsing ring.
-		p.save();
-		const qreal grow = 14 + 26 * v.pulse;
-		p.setPen(QPen(alpha(Qt::white, static_cast<int>(230 * (1 - v.pulse))), 3));
-		p.setBrush(Qt::NoBrush);
-		p.drawEllipse(at, grow, grow);
-		p.restore();
-		// Caption bubble, kept inside the pitch.
-		if (!v.caption.isEmpty()) {
-			p.setFont(font(19, QFont::Black, 0.5));
-			const qreal w1 = QFontMetricsF(p.font()).horizontalAdvance(v.caption);
-			QFont sub_font = font(16, QFont::DemiBold);
-			const qreal w2 = QFontMetricsF(sub_font).horizontalAdvance(v.caption_sub);
-			const qreal w = std::min<qreal>(std::max(w1, w2) + 32, 420);
-			const qreal h = v.caption_sub.isEmpty() ? 38 : 62;
-			// Above, below, then beside the play: the first spot inside the pitch that
-			// hides no goal and no shot of the last plays.
-			const QRectF candidates[] = {
-				QRectF(at.x() - w / 2, at.y() - 34 - h, w, h), QRectF(at.x() - w / 2, at.y() + 34, w, h),
-				QRectF(at.x() - w - 34, at.y() - h / 2, w, h), QRectF(at.x() + 34, at.y() - h / 2, w, h)};
-			auto inside = [&pitch](QRectF r) {
-				r.moveLeft(std::clamp(r.left(), pitch.field.left() + 4, pitch.field.right() - r.width() - 4));
-				r.moveTop(std::clamp(r.top(), pitch.field.top() + 4, pitch.field.bottom() - r.height() - 4));
-				return r;
-			};
-			auto hides = [&](const QRectF &r) {
-				int hidden = 0;
-				for (const PitchMark &m : v.marks) {
-					if (&m == latest || (m.kind != PlayKind::Goal && m.recency >= 6))
-						continue;
-					hidden += r.adjusted(-14, -14, 14, 14).contains(pitch.map(m.at)) ? (m.kind == PlayKind::Goal ? 10 : 1) : 0;
-				}
-				return hidden + (r.contains(at) ? 100 : 0);
-			};
-			QRectF bubble = inside(candidates[0]);
-			int best = hides(bubble);
-			for (const QRectF &candidate : candidates) {
-				const QRectF placed = inside(candidate);
-				const int score = hides(placed);
-				if (score < best) {
-					best = score;
-					bubble = placed;
-				}
-			}
-			const QColor fill = team_tone(latest->home ? v.home.color : v.away.color).darker(140);
-			p.fillPath(rounded(bubble.translated(0, 3), 10), QColor(0, 0, 0, 90));
-			p.fillPath(rounded(bubble, 10), alpha(fill, 240));
-			p.save();
-			p.setPen(QPen(QColor(255, 255, 255, 120), 1.5));
-			p.setBrush(Qt::NoBrush);
-			p.drawPath(rounded(bubble, 10));
-			p.restore();
-			text(p, QRectF(bubble.left() + 16, bubble.top() + 6, bubble.width() - 32, 28), v.caption,
-			     Qt::AlignVCenter | Qt::AlignLeft, Qt::white);
-			if (!v.caption_sub.isEmpty()) {
-				p.setFont(sub_font);
-				text(p, QRectF(bubble.left() + 16, bubble.top() + 32, bubble.width() - 32, 24), v.caption_sub,
-				     Qt::AlignVCenter | Qt::AlignLeft, QColor(255, 255, 255, 220));
-			}
-		}
+		draw_latest(p, pitch, *latest, v, team_tone(latest->home ? v.home.color : v.away.color));
 	} else if (!v.no_plays.isEmpty()) {
-		const QRectF r(pitch.field.center().x() - 260, pitch.field.center().y() - 28, 520, 56);
-		p.fillPath(rounded(r, 28), QColor(0, 0, 0, 120));
+		const QRectF r(area.center().x() - 260, area.center().y() - 28, 520, 56);
+		p.fillPath(rounded(r, 28), QColor(0, 0, 0, 130));
 		p.setFont(font(20, QFont::DemiBold));
 		text(p, r, v.no_plays, Qt::AlignCenter, Qt::white);
 	}
-
-	stat_strip(p, QRectF(0, 740, kW, 70), v.strip);
+	stat_strip(p, QRectF(0, 776, kW, 70), v.strip);
 }
 
 void paint_lineups(QPainter &p, const PanelView &v)
 {
 	header(p, QRectF(0, 0, kW, 84), v);
-	const Pitch pitch = draw_pitch(p, QRectF(0, 96, kW, 620), false);
-	p.setFont(font(22, QFont::Black, 2));
-	text(p, QRectF(pitch.field.left() + 10, pitch.field.top() + 6, 200, 30), v.home_formation,
-	     Qt::AlignLeft | Qt::AlignVCenter, QColor(255, 255, 255, 220));
-	text(p, QRectF(pitch.field.right() - 210, pitch.field.top() + 6, 200, 30), v.away_formation,
-	     Qt::AlignRight | Qt::AlignVCenter, QColor(255, 255, 255, 220));
-	for (const LineupMark &m : v.players) {
+	const bool persp = v.pitch_view == PitchView::Perspective;
+	const Pitch pitch = draw_pitch(p, QRectF(0, 96, kW, 620), v.pitch_view, v.table_title);
+	if (!persp) {
+		p.setFont(font(22, QFont::Black, 2));
+		text(p, QRectF(pitch.field.left() + 10, pitch.field.top() + 6, 200, 30), v.home_formation,
+		     Qt::AlignLeft | Qt::AlignVCenter, QColor(255, 255, 255, 220));
+		text(p, QRectF(pitch.field.right() - 210, pitch.field.top() + 6, 200, 30), v.away_formation,
+		     Qt::AlignRight | Qt::AlignVCenter, QColor(255, 255, 255, 220));
+	} else {
+		p.setFont(font(22, QFont::Black, 2));
+		text(p, QRectF(24, 106, 200, 30), v.home_formation, Qt::AlignLeft | Qt::AlignVCenter, Qt::white);
+		text(p, QRectF(kW - 224, 106, 200, 30), v.away_formation, Qt::AlignRight | Qt::AlignVCenter, Qt::white);
+	}
+	std::vector<const LineupMark *> order;
+	for (const LineupMark &m : v.players)
+		order.push_back(&m);
+	std::stable_sort(order.begin(), order.end(), [](auto *a, auto *b) { return a->at.y < b->at.y; });
+	for (const LineupMark *mp : order) {
+		const LineupMark &m = *mp;
 		const QPointF at = pitch.map(m.at);
+		const qreal s = pitch.scale(m.at);
 		const QColor color = team_tone(m.home ? v.home.color : v.away.color);
-		const qreal r = 20;
+		const qreal r = 20 * s;
 		p.save();
+		p.setPen(Qt::NoPen);
+		p.setBrush(QColor(0, 0, 0, 80));
+		p.drawEllipse(at + QPointF(0, r * 0.5), r, r * 0.45);
 		p.setPen(QPen(Qt::white, 2.5));
 		p.setBrush(color);
 		p.drawEllipse(at, r, r);
 		p.restore();
-		p.setFont(font(17, QFont::Black));
+		p.setFont(font(17 * s, QFont::Black));
 		text(p, QRectF(at.x() - r, at.y() - r, 2 * r, 2 * r), m.jersey, Qt::AlignCenter, Qt::white, false);
 		if (m.subbed_out) {
 			p.save();
 			p.setPen(Qt::NoPen);
 			p.setBrush(kLiveRed);
-			p.drawEllipse(at + QPointF(r * 0.8, -r * 0.8), 7, 7);
+			p.drawEllipse(at + QPointF(r * 0.8, -r * 0.8), 7 * s, 7 * s);
 			p.restore();
 		}
-		p.setFont(fit(m.name, 132, 15, QFont::Bold));
+		p.setFont(fit(m.name, 132, 15 * std::max<qreal>(s, 0.85), QFont::Bold));
 		const QRectF label(at.x() - 66, at.y() + r + 2, 132, 22);
 		const qreal tw = std::min<qreal>(QFontMetricsF(p.font()).horizontalAdvance(m.name) + 12, 132);
-		p.fillPath(rounded(QRectF(at.x() - tw / 2, label.top(), tw, label.height()), 6), QColor(0, 0, 0, 140));
+		p.fillPath(rounded(QRectF(at.x() - tw / 2, label.top(), tw, label.height()), 6), QColor(0, 0, 0, 150));
 		text(p, label, m.name, Qt::AlignCenter, Qt::white, false);
 	}
 }
@@ -510,21 +757,315 @@ void paint_table(QPainter &p, const PanelView &v)
 	}
 }
 
+// --- new panels -------------------------------------------------------------
+
+// A small icon for a play kind, centred on `c` (goal ball, card, swap arrows...).
+void kind_icon(QPainter &p, PlayKind kind, const QPointF &c, qreal r, const QColor &team)
+{
+	p.save();
+	switch (kind) {
+	case PlayKind::Goal: {
+		p.setPen(QPen(kInk, 1.4));
+		p.setBrush(Qt::white);
+		p.drawEllipse(c, r, r);
+		p.setPen(Qt::NoPen);
+		p.setBrush(kInk);
+		QPolygonF pent;
+		for (int i = 0; i < 5; ++i) {
+			const qreal a = -M_PI / 2 + i * 2 * M_PI / 5;
+			pent << c + QPointF(std::cos(a), std::sin(a)) * r * 0.45;
+		}
+		p.drawPolygon(pent);
+		break;
+	}
+	case PlayKind::YellowCard:
+	case PlayKind::RedCard:
+		p.setPen(Qt::NoPen);
+		p.setBrush(kind == PlayKind::YellowCard ? QColor(250, 204, 21) : QColor(225, 29, 46));
+		p.drawRoundedRect(QRectF(c.x() - r * 0.62, c.y() - r * 0.85, r * 1.24, r * 1.7), 2, 2);
+		break;
+	case PlayKind::Substitution:
+		p.setPen(QPen(QColor(34, 197, 94), 2.6, Qt::SolidLine, Qt::RoundCap));
+		p.drawLine(c + QPointF(-r * 0.45, r * 0.7), c + QPointF(-r * 0.45, -r * 0.7));
+		p.drawLine(c + QPointF(-r * 0.45, -r * 0.7), c + QPointF(-r * 0.85, -r * 0.25));
+		p.setPen(QPen(QColor(239, 68, 68), 2.6, Qt::SolidLine, Qt::RoundCap));
+		p.drawLine(c + QPointF(r * 0.45, -r * 0.7), c + QPointF(r * 0.45, r * 0.7));
+		p.drawLine(c + QPointF(r * 0.45, r * 0.7), c + QPointF(r * 0.85, r * 0.25));
+		break;
+	case PlayKind::ShotOnTarget:
+	case PlayKind::ShotOffTarget:
+	case PlayKind::ShotBlocked:
+	case PlayKind::Woodwork:
+		p.setPen(QPen(Qt::white, 2));
+		p.setBrush(kind == PlayKind::ShotOnTarget ? team : alpha(kInk, 160));
+		p.drawEllipse(c, r * 0.7, r * 0.7);
+		break;
+	case PlayKind::Corner:
+		p.setPen(QPen(Qt::white, 2));
+		p.drawLine(c + QPointF(-r * 0.3, r * 0.8), c + QPointF(-r * 0.3, -r * 0.8));
+		p.setBrush(team.lighter(130));
+		p.drawPolygon(QPolygonF({c + QPointF(-r * 0.3, -r * 0.8), c + QPointF(r * 0.7, -r * 0.45),
+					 c + QPointF(-r * 0.3, -r * 0.1)}));
+		break;
+	case PlayKind::Foul:
+		p.setPen(QPen(Qt::white, 2.4, Qt::SolidLine, Qt::RoundCap));
+		p.drawLine(c + QPointF(-r * 0.55, -r * 0.55), c + QPointF(r * 0.55, r * 0.55));
+		p.drawLine(c + QPointF(-r * 0.55, r * 0.55), c + QPointF(r * 0.55, -r * 0.55));
+		break;
+	case PlayKind::Offside:
+		p.setPen(Qt::NoPen);
+		p.setBrush(QColor(250, 204, 21));
+		p.drawRect(QRectF(c.x() - r * 0.55, c.y() - r * 0.55, r * 1.1, r * 1.1));
+		break;
+	default:
+		p.setPen(Qt::NoPen);
+		p.setBrush(QColor(255, 255, 255, 120));
+		p.drawEllipse(c, r * 0.3, r * 0.3);
+		break;
+	}
+	p.restore();
+}
+
+// Live commentary: the newest line on top, larger; older lines fade.
+void paint_feed(QPainter &p, const PanelView &v)
+{
+	const QSize size = panel_natural_size(PanelContent::Feed, v.rows ? v.rows : v.feed.size());
+	const QRectF body(0, 0, size.width(), size.height());
+	p.fillPath(rounded(body, 16), kPanel);
+	// Title row with both crests and the score.
+	contained(p, v.home.logo, QRectF(18, 12, 34, 34));
+	contained(p, v.away.logo, QRectF(body.right() - 52, 12, 34, 34));
+	p.setFont(font(20, QFont::Black, 1));
+	const QString title = v.home.score.isEmpty() ? v.feed_title
+						     : v.home.abbreviation + QStringLiteral("  ") + v.home.score +
+							       QStringLiteral(" - ") + v.away.score + QStringLiteral("  ") +
+							       v.away.abbreviation;
+	text(p, QRectF(60, 8, body.width() - 120, 42), title, Qt::AlignCenter, Qt::white);
+	live_pill(p, QPointF(body.center().x(), 58), 18, v);
+	const qreal top = 74, row_h = 78;
+	for (size_t i = 0; i < v.feed.size(); ++i) {
+		const FeedLine &line = v.feed[i];
+		const QRectF row(12, top + row_h * i, body.width() - 24, row_h - 6);
+		const QColor team = line.side > 0 ? team_tone(v.home.color) : line.side < 0 ? team_tone(v.away.color)
+											      : QColor(90, 96, 112);
+		p.save();
+		p.setOpacity(i == 0 ? 1.0 : std::max(0.45, 0.92 - 0.09 * i));
+		p.fillPath(rounded(row, 10), i == 0 ? QColor(255, 255, 255, 26) : QColor(255, 255, 255, 10));
+		p.fillRect(QRectF(row.left(), row.top() + 8, 4, row.height() - 16), team);
+		kind_icon(p, line.kind, QPointF(row.left() + 40, row.top() + 24), 10, team);
+		p.setFont(fit(line.minute, 62, 15, QFont::Black));
+		text(p, QRectF(row.left() + 9, row.top() + 40, 62, 22), line.minute, Qt::AlignCenter,
+		     QColor(255, 255, 255, 200), false);
+		QFont body_font = font(i == 0 ? 17 : 15, i == 0 ? QFont::DemiBold : QFont::Medium);
+		p.setFont(body_font);
+		const QRectF text_rect(row.left() + 80, row.top() + 4, row.width() - 90, row.height() - 8);
+		p.setPen(Qt::white);
+		p.drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft | Qt::TextWordWrap,
+			   QFontMetricsF(body_font).elidedText(line.text, Qt::ElideRight, text_rect.width() * 2.6));
+		p.restore();
+	}
+}
+
+void paint_momentum(QPainter &p, const PanelView &v)
+{
+	header(p, QRectF(0, 0, kW, 84), v);
+	const QRectF r(0, 92, kW, 168);
+	draw_momentum(p, r, v, true);
+	p.setFont(font(12, QFont::Bold));
+	const QRectF plot = r.adjusted(54, 8, -54, -8);
+	for (const int minute : {0, 15, 30, 45, 60, 75, 90}) {
+		const size_t n = std::max<size_t>(v.momentum.size(), 91);
+		const qreal x = plot.left() + plot.width() * minute / n;
+		text(p, QRectF(x - 20, r.bottom() - 18, 40, 16), QString::number(minute) + QStringLiteral("'"),
+		     Qt::AlignCenter, QColor(255, 255, 255, 110), false);
+	}
+}
+
+// Vertical timeline: minute in the middle, home events to the left, away to the right.
+void paint_timeline(QPainter &p, const PanelView &v)
+{
+	const QSize size = panel_natural_size(PanelContent::Timeline, v.rows ? v.rows : v.timeline.size());
+	const QRectF body(0, 0, size.width(), size.height());
+	p.fillPath(rounded(body, 16), kPanel);
+	contained(p, v.home.logo, QRectF(18, 12, 40, 40));
+	contained(p, v.away.logo, QRectF(body.right() - 58, 12, 40, 40));
+	p.setFont(font(26, QFont::Black));
+	text(p, QRectF(70, 8, body.width() - 140, 36),
+	     v.home.score.isEmpty() ? QStringLiteral("vs") : v.home.score + QStringLiteral(" - ") + v.away.score,
+	     Qt::AlignCenter, Qt::white);
+	live_pill(p, QPointF(body.center().x(), 56), 18, v);
+	const qreal cx = body.center().x();
+	const qreal top = 84, row_h = 58;
+	p.fillRect(QRectF(cx - 1, top, 2, row_h * std::max<size_t>(v.timeline.size(), 1)), QColor(255, 255, 255, 50));
+	for (size_t i = 0; i < v.timeline.size(); ++i) {
+		const TimelineEvent &e = v.timeline[i];
+		const qreal y = top + row_h * i + row_h / 2;
+		const QColor team = team_tone(e.home ? v.home.color : v.away.color);
+		// Minute bubble on the line.
+		const QRectF bubble(cx - 26, y - 14, 52, 28);
+		p.fillPath(rounded(bubble, 14), QColor(40, 44, 58));
+		p.setFont(font(15, QFont::Black));
+		text(p, bubble, e.minute, Qt::AlignCenter, Qt::white, false);
+		// Icon next to the bubble, then the player and the detail.
+		const qreal dir = e.home ? -1 : 1;
+		kind_icon(p, e.kind, QPointF(cx + dir * 46, y), 11, team);
+		const QRectF name_rect = e.home ? QRectF(16, y - 22, cx - 76 - 16, 24) : QRectF(cx + 64, y - 22, cx - 80, 24);
+		const QRectF detail_rect = name_rect.translated(0, 22);
+		const int align = (e.home ? Qt::AlignRight : Qt::AlignLeft) | Qt::AlignVCenter;
+		p.setFont(fit(e.player, name_rect.width(), 18, QFont::Bold));
+		text(p, name_rect, e.player, align, e.kind == PlayKind::Substitution ? QColor(134, 239, 172) : QColor(Qt::white),
+		     false);
+		p.setFont(font(14, QFont::Medium));
+		text(p, detail_rect, e.detail, align, QColor(255, 255, 255, 170), false);
+	}
+}
+
+void form_row(QPainter &p, const QRectF &r, const QImage &logo, const QString &name, const std::vector<FormCell> &cells,
+	      bool logos_right)
+{
+	contained(p, logo, QRectF(logos_right ? r.right() - 44 : r.left(), r.top() + 4, 44, r.height() - 8));
+	p.setFont(fit(name.toUpper(), 210, 20, QFont::Black, 1));
+	text(p, QRectF(logos_right ? r.right() - 270 : r.left() + 54, r.top(), 210, r.height()), name.toUpper(),
+	     (logos_right ? Qt::AlignRight : Qt::AlignLeft) | Qt::AlignVCenter, Qt::white, false);
+	const qreal cell = 58, gap = 8;
+	const qreal start = logos_right ? r.left() : r.right() - (cell + gap) * cells.size();
+	for (size_t i = 0; i < cells.size(); ++i) {
+		const FormCell &c = cells[i];
+		const QRectF box(start + (cell + gap) * i, r.top() + 4, cell, r.height() - 8);
+		const QColor fill = c.outcome > 0 ? QColor(22, 163, 74) : c.outcome < 0 ? QColor(220, 38, 38) : QColor(100, 108, 124);
+		p.fillPath(rounded(box, 8), fill);
+		p.setFont(font(20, QFont::Black));
+		text(p, QRectF(box.left(), box.top() + 2, box.width(), box.height() * 0.5), QString(c.result), Qt::AlignCenter,
+		     Qt::white, false);
+		p.setFont(font(12, QFont::Bold));
+		text(p, QRectF(box.left(), box.top() + box.height() * 0.5, box.width(), box.height() * 0.45),
+		     c.opponent + QStringLiteral(" ") + c.score, Qt::AlignCenter, QColor(255, 255, 255, 220), false);
+	}
+}
+
+void paint_preview(QPainter &p, const PanelView &v)
+{
+	header(p, QRectF(0, 0, kW, 84), v);
+	const QRectF body(0, 92, kW, 468);
+	p.fillPath(rounded(body, 16), kPanel);
+	p.setFont(font(15, QFont::Black, 2));
+	text(p, QRectF(24, body.top() + 10, 600, 28), v.form_title.toUpper(), Qt::AlignLeft | Qt::AlignVCenter,
+	     QColor(255, 255, 255, 150), false);
+	form_row(p, QRectF(24, body.top() + 44, kW - 48, 64), v.home.logo, v.home.name, v.home_form, false);
+	form_row(p, QRectF(24, body.top() + 120, kW - 48, 64), v.away.logo, v.away.name, v.away_form, false);
+
+	p.fillRect(QRectF(24, body.top() + 200, kW - 48, 1), QColor(255, 255, 255, 30));
+	p.setFont(font(15, QFont::Black, 2));
+	text(p, QRectF(24, body.top() + 212, 600, 28), v.meetings_title.toUpper(), Qt::AlignLeft | Qt::AlignVCenter,
+	     QColor(255, 255, 255, 150), false);
+	p.setFont(font(22, QFont::Black));
+	text(p, QRectF(24, body.top() + 242, kW - 48, 34), v.meetings_summary, Qt::AlignLeft | Qt::AlignVCenter, Qt::white,
+	     false);
+	p.setFont(font(17, QFont::Medium));
+	for (size_t i = 0; i < std::min<size_t>(v.meetings.size(), 5); ++i) {
+		const QRectF row(24 + (i % 2) * (kW - 48) / 2, body.top() + 284 + (i / 2) * 34, (kW - 48) / 2 - 10, 30);
+		text(p, row, v.meetings[i], Qt::AlignLeft | Qt::AlignVCenter, QColor(255, 255, 255, 210), false);
+	}
+	p.fillRect(QRectF(24, body.bottom() - 60, kW - 48, 1), QColor(255, 255, 255, 30));
+	p.setFont(font(18, QFont::DemiBold));
+	text(p, QRectF(24, body.bottom() - 54, kW - 48, 46), v.venue_line, Qt::AlignLeft | Qt::AlignVCenter,
+	     QColor(255, 255, 255, 210), false);
+}
+
+void paint_scorers(QPainter &p, const PanelView &v)
+{
+	const QSize size = panel_natural_size(PanelContent::Scorers, v.rows ? v.rows : v.scorers.size());
+	const QRectF body(0, 0, size.width(), size.height());
+	p.fillPath(rounded(body, 16), kPanel);
+	p.setFont(fit(v.scorers_title.toUpper(), body.width() * 0.62, 22, QFont::Black, 1.5));
+	text(p, QRectF(24, 8, body.width() * 0.62, 48), v.scorers_title.toUpper(), Qt::AlignLeft | Qt::AlignVCenter,
+	     Qt::white);
+	p.setFont(font(15, QFont::Bold, 1));
+	text(p, QRectF(body.width() - 170, 8, 70, 48), v.scorers_matches_header, Qt::AlignCenter, QColor(255, 255, 255, 150),
+	     false);
+	text(p, QRectF(body.width() - 90, 8, 70, 48), v.scorers_value_header, Qt::AlignCenter, QColor(255, 255, 255, 150),
+	     false);
+	const qreal row_h = 50, top = 64;
+	for (size_t i = 0; i < v.scorers.size(); ++i) {
+		const LeaderRow &r = v.scorers[i];
+		const QRectF row(10, top + row_h * i, body.width() - 20, row_h);
+		if (r.highlighted)
+			p.fillPath(rounded(row.adjusted(0, 2, 0, -2), 8), QColor(255, 255, 255, 34));
+		else if (i % 2)
+			p.fillRect(row.adjusted(0, 2, 0, -2), QColor(255, 255, 255, 8));
+		p.setFont(font(18, QFont::Bold));
+		text(p, QRectF(row.left() + 6, row.top(), 34, row.height()), r.rank, Qt::AlignCenter, Qt::white, false);
+		contained(p, r.logo, QRectF(row.left() + 48, row.top() + 8, row.height() - 16, row.height() - 16));
+		p.setFont(fit(r.name, body.width() - 300, 19, QFont::DemiBold));
+		text(p, QRectF(row.left() + 56 + row.height(), row.top(), body.width() - 290 - row.height(), row.height()),
+		     r.name, Qt::AlignVCenter | Qt::AlignLeft, Qt::white, false);
+		p.setFont(font(17, QFont::Medium));
+		text(p, QRectF(body.width() - 170, row.top(), 70, row.height()), r.matches, Qt::AlignCenter,
+		     QColor(255, 255, 255, 190), false);
+		p.setFont(font(22, QFont::Black));
+		text(p, QRectF(body.width() - 90, row.top(), 70, row.height()), r.value, Qt::AlignCenter, Qt::white, false);
+	}
+}
+
+void paint_round(QPainter &p, const PanelView &v)
+{
+	const QSize size = panel_natural_size(PanelContent::Round, v.rows ? v.rows : v.round.size());
+	const QRectF body(0, 0, size.width(), size.height());
+	p.fillPath(rounded(body, 16), kPanel);
+	p.setFont(fit(v.round_title.toUpper(), body.width() - 48, 22, QFont::Black, 1.5));
+	text(p, QRectF(24, 8, body.width() - 48, 48), v.round_title.toUpper(), Qt::AlignLeft | Qt::AlignVCenter, Qt::white);
+	const qreal row_h = 60, top = 64;
+	for (size_t i = 0; i < v.round.size(); ++i) {
+		const RoundRow &r = v.round[i];
+		const QRectF row(10, top + row_h * i, body.width() - 20, row_h - 6);
+		p.fillPath(rounded(row, 10), r.highlighted ? QColor(255, 255, 255, 34) : QColor(255, 255, 255, 10));
+		const qreal cx = row.center().x();
+		const QRectF score(cx - 52, row.top() + 6, 104, row.height() * 0.6);
+		p.fillPath(rounded(score, 8), r.live ? QColor(225, 29, 46, 220) : QColor(40, 44, 58));
+		p.setFont(font(20, QFont::Black));
+		text(p, score, r.center, Qt::AlignCenter, Qt::white, false);
+		p.setFont(font(12, QFont::Bold, 0.5));
+		text(p, QRectF(score.left() - 10, score.bottom(), score.width() + 20, row.bottom() - score.bottom()), r.status,
+		     Qt::AlignCenter, r.live ? QColor(252, 165, 165) : QColor(255, 255, 255, 160), false);
+		contained(p, r.home_logo, QRectF(score.left() - 46, row.top() + 10, 34, row.height() - 20));
+		contained(p, r.away_logo, QRectF(score.right() + 12, row.top() + 10, 34, row.height() - 20));
+		p.setFont(fit(r.home, score.left() - 60 - row.left() - 10, 18, QFont::DemiBold));
+		text(p, QRectF(row.left() + 10, row.top(), score.left() - 60 - row.left() - 10, row.height()), r.home,
+		     Qt::AlignVCenter | Qt::AlignRight, Qt::white, false);
+		p.setFont(fit(r.away, row.right() - 10 - (score.right() + 58), 18, QFont::DemiBold));
+		text(p, QRectF(score.right() + 58, row.top(), row.right() - 10 - (score.right() + 58), row.height()), r.away,
+		     Qt::AlignVCenter | Qt::AlignLeft, Qt::white, false);
+	}
+}
+
 } // namespace
 
-QSize panel_natural_size(PanelContent content, size_t table_rows)
+QSize panel_natural_size(PanelContent content, size_t rows)
 {
+	rows = std::max<size_t>(rows, 1);
 	switch (content) {
 	case PanelContent::LivePitch:
-		return {1000, 810};
+		return {1000, 846};
 	case PanelContent::Lineups:
 		return {1000, 716};
 	case PanelContent::Stats:
 		return {1000, 96 + 64 * 8 + 24};
 	case PanelContent::Table:
-		return {620, static_cast<int>(64 + 46 * std::max<size_t>(table_rows, 1) + 14)};
+		return {620, static_cast<int>(64 + 46 * rows + 14)};
+	case PanelContent::Feed:
+		return {560, static_cast<int>(74 + 78 * rows + 8)};
+	case PanelContent::Momentum:
+		return {1000, 260};
+	case PanelContent::Timeline:
+		return {620, static_cast<int>(84 + 58 * rows + 14)};
+	case PanelContent::Preview:
+		return {1000, 560};
+	case PanelContent::Scorers:
+		return {620, static_cast<int>(64 + 50 * rows + 14)};
+	case PanelContent::Round:
+		return {620, static_cast<int>(64 + 60 * rows + 8)};
 	}
-	return {1000, 810};
+	return {1000, 846};
 }
 
 QImage paint_panel(const PanelView &view, QSize size)
@@ -533,7 +1074,26 @@ QImage paint_panel(const PanelView &view, QSize size)
 	image.fill(Qt::transparent);
 	if (size.isEmpty())
 		return image;
-	const QSize natural = panel_natural_size(view.content, view.table.size());
+	size_t rows = view.table.size();
+	switch (view.content) {
+	case PanelContent::Feed:
+		rows = view.feed.size();
+		break;
+	case PanelContent::Timeline:
+		rows = view.timeline.size();
+		break;
+	case PanelContent::Scorers:
+		rows = view.scorers.size();
+		break;
+	case PanelContent::Round:
+		rows = view.round.size();
+		break;
+	default:
+		break;
+	}
+	if (view.rows > 0)
+		rows = view.rows;
+	const QSize natural = panel_natural_size(view.content, rows);
 	QPainter p(&image);
 	p.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
 	p.scale(qreal(size.width()) / natural.width(), qreal(size.height()) / natural.height());
@@ -557,6 +1117,24 @@ QImage paint_panel(const PanelView &view, QSize size)
 		break;
 	case PanelContent::Table:
 		paint_table(p, view);
+		break;
+	case PanelContent::Feed:
+		paint_feed(p, view);
+		break;
+	case PanelContent::Momentum:
+		paint_momentum(p, view);
+		break;
+	case PanelContent::Timeline:
+		paint_timeline(p, view);
+		break;
+	case PanelContent::Preview:
+		paint_preview(p, view);
+		break;
+	case PanelContent::Scorers:
+		paint_scorers(p, view);
+		break;
+	case PanelContent::Round:
+		paint_round(p, view);
 		break;
 	}
 	return image;

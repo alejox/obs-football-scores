@@ -105,6 +105,37 @@ TEST_CASE(maps_the_status_names)
 	CHECK(state_of("STATUS_SOMETHING_NEW", "in") == MatchState::Live);
 }
 
+TEST_CASE(every_on_air_status_counts_as_live)
+{
+	auto match_of = [](const char *name, const char *state) {
+		return espn::parse_scoreboard(live_board(name, state, "1"))->matches.at(0);
+	};
+	// Breaks.
+	for (const char *name : {"STATUS_HALFTIME", "STATUS_HALFTIME_ET", "STATUS_END_OF_REGULATION",
+				 "STATUS_END_OF_EXTRATIME", "STATUS_END_OF_EXTRA_TIME"}) {
+		const Match m = match_of(name, "in");
+		CHECK(m.state == MatchState::HalfTime);
+		CHECK(m.in_progress());
+		CHECK(m.home.score.has_value()); // the score stays on screen
+	}
+	// Stopped while on air.
+	for (const char *name : {"STATUS_SUSPENDED", "STATUS_DELAYED", "STATUS_ABANDONED", "STATUS_RAIN_DELAY"}) {
+		const Match m = match_of(name, "in");
+		CHECK(m.state == MatchState::Interrupted);
+		CHECK(m.in_progress());
+	}
+	// Extra time and penalties.
+	for (const char *name : {"STATUS_FIRST_HALF_EXTRA_TIME", "STATUS_SECOND_HALF_EXTRA_TIME", "STATUS_SHOOTOUT",
+				 "STATUS_IN_PROGRESS"}) {
+		CHECK(match_of(name, "in").state == MatchState::Live);
+	}
+	// A delayed kick-off is still upcoming; a suspended match that ESPN closed is not live.
+	CHECK(match_of("STATUS_DELAYED", "pre").state == MatchState::Scheduled);
+	CHECK(match_of("STATUS_POSTPONED", "pre").state == MatchState::Postponed);
+	CHECK(match_of("STATUS_SUSPENDED", "post").state == MatchState::Postponed);
+	CHECK(!match_of("STATUS_SUSPENDED", "post").in_progress());
+}
+
 TEST_CASE(no_scores_before_kick_off)
 {
 	const auto board = espn::parse_scoreboard(live_board("STATUS_SCHEDULED", "pre", "0"));

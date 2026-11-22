@@ -45,6 +45,12 @@ std::vector<TrackedPlay> tracked_plays(const std::vector<Play> &plays, size_t re
 
 bool is_shot(PlayKind kind);
 
+// Momentum per minute of play, from -1 (away on top) to 1 (home on top): each chance
+// counts for its own minute and, fading, for the few around it, so the line rises and
+// falls like the flow of the match. One value per minute from 0 to `minutes` (or to the
+// last play, when larger).
+std::vector<double> momentum_series(const std::vector<Play> &plays, int minutes = 90);
+
 // Who is on top right now, from -1 (all away) to 1 (all home): goals, shots, corners
 // and plays in the last third over roughly the last ten minutes of play, the newest
 // weighing the most. `now_seconds` is the match clock (-1: the latest play's clock).

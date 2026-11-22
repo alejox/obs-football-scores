@@ -44,11 +44,20 @@ TEST_CASE(live_only_keeps_just_the_matches_in_play)
 		make_match("live", kNow - kHour, MatchState::Live, 1, 0),
 		make_match("done", kNow - 2 * kHour, MatchState::Finished, 1, 1),
 		make_match("ht", kNow - kHour, MatchState::HalfTime, 0, 0),
+		make_match("stopped", kNow - 30 * 60, MatchState::Interrupted, 2, 2),
 	};
 	const auto listed = listable_matches(all, kNow, true);
-	REQUIRE(listed.size() == 2u);
+	REQUIRE(listed.size() == 3u);
 	CHECK_EQ(listed[0].id, std::string("live"));
 	CHECK_EQ(listed[1].id, std::string("ht"));
+	CHECK_EQ(listed[2].id, std::string("stopped"));
+	// A stopped match is the live one for Automatic too.
+	CHECK_EQ(automatic_match({make_match("next", kNow + kHour, MatchState::Scheduled),
+				  make_match("stopped", kNow - kHour, MatchState::Interrupted, 0, 0)},
+				 kNow)
+			 ->id,
+		 std::string("stopped"));
+	CHECK_EQ(poll_interval_seconds(make_match("s", kNow, MatchState::Interrupted), kNow), 15);
 	CHECK(listable_matches({make_match("done", kNow, MatchState::Finished)}, kNow, true).empty());
 }
 
