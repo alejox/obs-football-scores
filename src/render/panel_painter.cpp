@@ -1086,6 +1086,59 @@ void paint_round(QPainter &p, const PanelView &v)
 
 } // namespace
 
+// Goals of the match: the home scorers on the left, the away ones on the right, a
+// team color tick on each outer edge. Sized to sit under a scoreboard.
+void paint_goals(QPainter &p, const PanelView &v)
+{
+	const QSize size = panel_natural_size(PanelContent::Goals, v.rows);
+	const QRectF body(0, 0, size.width(), size.height());
+	p.fillPath(rounded(body, 14), kPanel);
+	p.save();
+	p.setClipPath(rounded(body, 14));
+	p.fillRect(QRectF(0, 0, 6, body.height()), team_tone(v.home.color));
+	p.fillRect(QRectF(body.width() - 6, 0, 6, body.height()), team_tone(v.away.color));
+	p.restore();
+
+	// Each team's crest and name over its column.
+	const qreal head = 56, half = body.width() / 2;
+	contained(p, v.home.logo, QRectF(22, 8, 40, 40));
+	contained(p, v.away.logo, QRectF(body.width() - 62, 8, 40, 40));
+	const QRectF home_name(74, 0, half - 74 - 16, head), away_name(half + 16, 0, half - 74 - 16, head);
+	p.setFont(fit(v.home.name.toUpper(), home_name.width(), 22, QFont::Black, 0.5));
+	text(p, home_name, v.home.name.toUpper(), Qt::AlignVCenter | Qt::AlignLeft, Qt::white);
+	p.setFont(fit(v.away.name.toUpper(), away_name.width(), 22, QFont::Black, 0.5));
+	text(p, away_name, v.away.name.toUpper(), Qt::AlignVCenter | Qt::AlignRight, Qt::white);
+	p.setPen(QPen(QColor(255, 255, 255, 30), 1));
+	p.drawLine(QPointF(18, head), QPointF(body.width() - 18, head));
+
+	if (v.home_goals.empty() && v.away_goals.empty()) {
+		p.setFont(font(20, QFont::DemiBold));
+		text(p, QRectF(0, head, body.width(), body.height() - head), v.no_goals, Qt::AlignCenter,
+		     QColor(255, 255, 255, 170), false);
+		return;
+	}
+	const size_t rows = std::max<size_t>(v.rows, 1);
+	const qreal line = 44, top = head + 6;
+	p.setPen(QPen(QColor(255, 255, 255, 30), 1));
+	p.drawLine(QPointF(half, top + 4), QPointF(half, body.height() - 10));
+	auto column = [&](const std::vector<QString> &goals, bool home) {
+		// The latest `rows` goals when there are more than fit.
+		const size_t first = goals.size() > rows ? goals.size() - rows : 0;
+		const QColor team = team_tone(home ? v.home.color : v.away.color);
+		for (size_t i = first; i < goals.size(); ++i) {
+			const qreal y = top + line * qreal(i - first);
+			const qreal icon_x = home ? 34 : body.width() - 34;
+			kind_icon(p, PlayKind::Goal, QPointF(icon_x, y + line / 2), 12, team);
+			const QRectF r = home ? QRectF(56, y, half - 56 - 16, line)
+					      : QRectF(half + 16, y, half - 56 - 16, line);
+			p.setFont(fit(goals[i], r.width(), 22, QFont::Bold));
+			text(p, r, goals[i], Qt::AlignVCenter | (home ? Qt::AlignLeft : Qt::AlignRight), Qt::white);
+		}
+	};
+	column(v.home_goals, true);
+	column(v.away_goals, false);
+}
+
 QSize panel_natural_size(PanelContent content, size_t rows)
 {
 	rows = std::max<size_t>(rows, 1);
@@ -1110,6 +1163,8 @@ QSize panel_natural_size(PanelContent content, size_t rows)
 		return {620, static_cast<int>(64 + 50 * rows + 14)};
 	case PanelContent::Round:
 		return {620, static_cast<int>(64 + 60 * rows + 8)};
+	case PanelContent::Goals:
+		return {1000, static_cast<int>(56 + 6 + 44 * rows + 10)};
 	}
 	return {1000, 846};
 }
@@ -1181,6 +1236,9 @@ QImage paint_panel(const PanelView &view, QSize size)
 		break;
 	case PanelContent::Round:
 		paint_round(p, view);
+		break;
+	case PanelContent::Goals:
+		paint_goals(p, view);
 		break;
 	}
 	return image;

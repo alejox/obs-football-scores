@@ -69,6 +69,7 @@ const PanelType kTypes[] = {
 	{PanelContent::Preview, "football_preview_source", "Panel.Source.Preview", "preview", 960, 0},
 	{PanelContent::Scorers, "football_scorers_source", "Panel.Source.Scorers", "scorers", 560, 10},
 	{PanelContent::Round, "football_round_source", "Panel.Source.Round", "round", 560, 8},
+	{PanelContent::Goals, "football_goals_source", "Panel.Source.Goals", "goals", 960, 4},
 };
 
 const PanelType &type_of(PanelContent content)
@@ -380,6 +381,22 @@ render::PanelView build_view(PanelSource &self)
 	view.no_plays = l.no_plays;
 	// Advertising boards of the perspective stadium.
 	view.table_title = league_name(own_league).toUpper() + QStringLiteral("   ·   AC FOOTBALL SCORES");
+	// The goals come with the scoreboard: no match summary needed.
+	if (self.content == PanelContent::Goals) {
+		for (const GoalInfo &goal : match->goals) {
+			QString line = QString::fromStdString(goal.scorer);
+			if (goal.own_goal)
+				line += QStringLiteral(" ") + text("Football.OwnGoal");
+			else if (goal.penalty)
+				line += QStringLiteral(" ") + text("Football.Penalty");
+			if (!goal.minute.empty())
+				line += QStringLiteral("  ") + QString::fromStdString(goal.minute);
+			(goal.team_id == match->away.id ? view.away_goals : view.home_goals).push_back(line.trimmed());
+		}
+		view.no_goals = match->started() ? text("Panel.NoGoals") : text("Panel.NotStarted");
+		view.rows = self.rows;
+		return view;
+	}
 	if (!self.data.details) {
 		if (self.content != PanelContent::LivePitch) {
 			view.has_data = false;
@@ -520,7 +537,8 @@ void panel_tick(void *data, float seconds)
 	// What the details feed follows depends on the panel.
 	DetailsTarget target;
 	const std::string own = league_of(*self, self->snapshot.match);
-	if (uses_match(self->content) && self->snapshot.match) {
+	// The goals panel reads the scoreboard alone, no summary to download.
+	if (uses_match(self->content) && self->content != PanelContent::Goals && self->snapshot.match) {
 		const Match &match = *self->snapshot.match;
 		target.summary_league = own.empty() ? self->league : own;
 		target.event_id = match.id;

@@ -13,7 +13,7 @@
 
 namespace fscore::render {
 
-enum class PanelContent { LivePitch, Lineups, Stats, Table, Feed, Momentum, Timeline, Preview, Scorers, Round };
+enum class PanelContent { LivePitch, Lineups, Stats, Table, Feed, Momentum, Timeline, Preview, Scorers, Round, Goals };
 
 // How the pitch is drawn: from above, or tilted like a TV camera in the stands.
 enum class PitchView { TopDown, Perspective };
@@ -173,6 +173,10 @@ struct PanelView {
 	// Round.
 	QString round_title;
 	std::vector<RoundRow> round;
+
+	// Goals of the match, each team on its own side ("Vinícius Júnior (pen.) 67'").
+	std::vector<QString> home_goals, away_goals;
+	QString no_goals; // shown in the middle while it is 0 - 0
 };
 
 QSize panel_natural_size(PanelContent content, size_t rows = 10);

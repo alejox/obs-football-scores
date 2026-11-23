@@ -3,6 +3,16 @@
 Each `## <version>` section becomes the description of that release, and the plugin's updater shows
 its items before installing (the Spanish ones when OBS is in Spanish, the English ones otherwise).
 
+## 0.3.2
+
+### Español
+
+- **Nuevo:** fuente «Fútbol · Goles del partido»: los goleadores de cada equipo con su minuto, el local a la izquierda y el visitante a la derecha, con escudo y nombre. Marca los penales y los goles en propia puerta. Pensada para ponerla debajo del marcador.
+
+### English
+
+- **New:** "Football · Match goals" source: each team's scorers with the minute, home on the left and away on the right, with crest and name. Penalties and own goals are marked. Made to sit under the scoreboard.
+
 ## 0.3.1
 
 ### Español
