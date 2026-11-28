@@ -18,6 +18,8 @@ constexpr qreal kW = 1000;
 const QColor kInk(12, 14, 20);
 const QColor kPanel(18, 20, 28, 235);
 const QColor kLiveRed(225, 29, 46);
+const QColor kReplayAmber(245, 165, 36);
+const QColor kReplayInk(27, 29, 36);
 
 QFont font(qreal px, int weight, qreal spacing = 0)
 {
@@ -90,20 +92,22 @@ void live_pill(QPainter &p, QPointF center, qreal h, const PanelView &v)
 {
 	p.setFont(font(h * 0.55, QFont::Bold, 0.5));
 	const qreal tw = QFontMetricsF(p.font()).horizontalAdvance(v.status);
-	const qreal dot = v.live ? h * 0.3 : 0;
-	const qreal gap = v.live ? dot * 0.8 : 0;
+	const bool dotted = v.live && !v.replay;
+	const qreal dot = dotted ? h * 0.3 : 0;
+	const qreal gap = dotted ? dot * 0.8 : 0;
 	const qreal w = tw + dot + gap + h * 0.9;
 	const QRectF pill(center.x() - w / 2, center.y() - h / 2, w, h);
-	p.fillPath(rounded(pill, h / 2), v.live ? kLiveRed : QColor(48, 52, 66));
+	p.fillPath(rounded(pill, h / 2), v.replay ? kReplayAmber : v.live ? kLiveRed : QColor(48, 52, 66));
 	const qreal x = pill.center().x() - (tw + dot + gap) / 2;
-	if (v.live) {
+	if (dotted) {
 		p.save();
 		p.setPen(Qt::NoPen);
 		p.setBrush(QColor(255, 255, 255, static_cast<int>(255 * v.blink)));
 		p.drawEllipse(QRectF(x, pill.center().y() - dot / 2, dot, dot));
 		p.restore();
 	}
-	text(p, QRectF(x + dot + gap, pill.top(), tw + 2, h), v.status, Qt::AlignVCenter | Qt::AlignLeft, Qt::white, false);
+	text(p, QRectF(x + dot + gap, pill.top(), tw + 2, h), v.status, Qt::AlignVCenter | Qt::AlignLeft,
+	     v.replay ? kReplayInk : Qt::white, false);
 }
 
 // Crests, names and score across the top of a panel.
@@ -685,6 +689,8 @@ void paint_live_pitch(QPainter &p, const PanelView &v)
 		text(p, r, v.no_plays, Qt::AlignCenter, Qt::white);
 	}
 	stat_strip(p, QRectF(0, 612, kW, 70), v.strip);
+	if (v.replay)
+		live_pill(p, QPointF(kW / 2.0, 30), 34, v);
 }
 
 void paint_lineups(QPainter &p, const PanelView &v)
@@ -924,6 +930,11 @@ void paint_momentum(QPainter &p, const PanelView &v)
 		const qreal x = plot.left() + plot.width() * minute / n;
 		text(p, QRectF(x - 20, r.bottom() - 22, 40, 16), QString::number(minute) + QStringLiteral("'"),
 		     Qt::AlignCenter, QColor(255, 255, 255, 110), false);
+	}
+	if (v.replay) {
+		p.setFont(font(22 * 0.55, QFont::Bold, 0.5));
+		const qreal w = QFontMetricsF(p.font()).horizontalAdvance(v.status) + 22 * 0.9;
+		live_pill(p, QPointF(r.right() - 64 - w / 2, 20), 22, v);
 	}
 }
 

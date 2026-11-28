@@ -21,6 +21,9 @@ inline constexpr const char *kMatchKey = "match";
 // On: this source shares its league and match with every other linked source.
 inline constexpr const char *kLinkedKey = "linked";
 
+// The league and match every linked source shows (the replay dock follows it too).
+SharedSelection &shared_selection();
+
 // Start of a source's update: applies the link and returns the league and match to
 // show (already written back to `settings` when the group's differ). The caller
 // guards `state`; `previous` is what the source was showing.

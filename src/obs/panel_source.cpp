@@ -1,6 +1,7 @@
 #include "obs/panel_source.hpp"
 
 #include "core/league_catalog.hpp"
+#include "core/replay.hpp"
 #include "feed/details_feed.hpp"
 #include "feed/match_feed.hpp"
 #include "obs/match_picker.hpp"
@@ -95,6 +96,13 @@ bool uses_match(PanelContent c)
 	return c != PanelContent::Table && c != PanelContent::Scorers && c != PanelContent::Round;
 }
 
+// The panels that go back in time with the dock's replays.
+bool follows_replay(PanelContent c)
+{
+	return c == PanelContent::LivePitch || c == PanelContent::Feed || c == PanelContent::Timeline ||
+	       c == PanelContent::Momentum;
+}
+
 bool has_view(PanelContent c)
 {
 	return c == PanelContent::LivePitch || c == PanelContent::Lineups;
@@ -131,6 +139,10 @@ struct PanelSource {
 	int ball_sequence = -1;  // the latest play the ball went to
 	double ball_started = -1e9;
 	double ball_test_started = -1e9; // "test the ball": replays the route from this moment
+	ReplayCursor replay;             // the dock's, as last read
+	bool replay_restart = false;     // a button was pressed: the ball sets off again
+	std::shared_ptr<const MatchDetails> replay_details; // the match cut at the replayed play
+	uint64_t replay_details_data = 0, replay_details_revision = 0;
 	bool dirty = true;
 
 	std::atomic<uint32_t> width{960};
@@ -297,6 +309,19 @@ void apply_ball_test(const PanelSource &self, render::PanelView &view)
 	view.ball_progress = at - double(leg);
 }
 
+// The match as it stood at the replayed play. Caller holds update_mutex.
+const MatchDetails &replayed_details(PanelSource &self)
+{
+	if (!self.replay_details || self.replay_details_data != self.data.revision ||
+	    self.replay_details_revision != self.replay.revision) {
+		self.replay_details =
+			std::make_shared<const MatchDetails>(details_until(*self.data.details, self.replay.sequence));
+		self.replay_details_data = self.data.revision;
+		self.replay_details_revision = self.replay.revision;
+	}
+	return *self.replay_details;
+}
+
 // Caller holds update_mutex.
 render::PanelView build_view(PanelSource &self)
 {
@@ -406,11 +431,14 @@ render::PanelView build_view(PanelSource &self)
 		}
 		return view;
 	}
-	const MatchDetails &d = *self.data.details;
+	const bool replay = follows_replay(self.content) && self.replay.replaying(match->id) &&
+			    find_play(self.data.details->plays, self.replay.sequence) != nullptr;
+	const MatchDetails &d = replay ? replayed_details(self) : *self.data.details;
 	switch (self.content) {
 	case PanelContent::LivePitch:
 		render::fill_live_pitch(view, d, l);
-		if (!self.ball) {
+		// A replay always shows the ball, the setting is for the live match.
+		if (!self.ball && !replay) {
 			view.ball_route.clear();
 		} else {
 			// A new play: the ball sets off towards it. Not on the first load.
@@ -418,8 +446,15 @@ render::PanelView build_view(PanelSource &self)
 				self.ball_started = self.ball_sequence < 0 ? -1e9 : self.time;
 				self.ball_sequence = view.ball_sequence;
 			}
-			view.ball_progress = std::clamp((self.time - self.ball_started) / kBallSeconds, 0.0, 1.0);
+			// A dock button: off again, even towards the same play ("repeat").
+			if (self.replay_restart) {
+				self.ball_started = self.time;
+				self.ball_sequence = view.ball_sequence;
+			}
+			const double seconds = kBallSeconds / (replay ? self.replay.speed : 1.0);
+			view.ball_progress = std::clamp((self.time - self.ball_started) / seconds, 0.0, 1.0);
 		}
+		self.replay_restart = false;
 		apply_ball_test(self, view);
 		if (match->state == MatchState::Scheduled)
 			view.momentum.clear();
@@ -460,6 +495,33 @@ render::PanelView build_view(PanelSource &self)
 		break;
 	default:
 		break;
+	}
+	if (replay) {
+		const Play *on = find_play(d.plays, self.replay.sequence);
+		// The score as it stood then, when the plays account for the whole score (an own
+		// goal may be filed under the other team: then the live score stays).
+		auto goals = [](const std::vector<Play> &plays, int &home, int &away) {
+			for (const Play &play : plays) {
+				if (play.kind == PlayKind::Goal && play.side)
+					++(*play.side == TeamSide::Home ? home : away);
+			}
+		};
+		int home_all = 0, away_all = 0, home_then = 0, away_then = 0;
+		goals(self.data.details->plays, home_all, away_all);
+		goals(d.plays, home_then, away_then);
+		if (match->started() && match->home.score.value_or(-1) == home_all &&
+		    match->away.score.value_or(-1) == away_all) {
+			view.home.score = QString::number(home_then);
+			view.away.score = QString::number(away_then);
+		}
+		if (self.content == PanelContent::Momentum)
+			view.now_minute = on && on->clock_seconds >= 0 ? on->clock_seconds / 60.0 : -1;
+		if (self.replay.badge) {
+			view.replay = true;
+			view.status = text("Replay.Badge");
+			if (on && !on->minute.empty())
+				view.status += QStringLiteral(" · ") + QString::fromStdString(on->minute);
+		}
 	}
 	return view;
 }
@@ -559,6 +621,18 @@ void panel_tick(void *data, float seconds)
 		self->dirty = true;
 	}
 
+	// The dock's replays.
+	const ReplayCursor cursor = replay_channel().get();
+	if (cursor.revision != self->replay.revision || cursor.speed != self->replay.speed ||
+	    cursor.badge != self->replay.badge) {
+		if (cursor.revision != self->replay.revision)
+			self->replay_restart = true;
+		self->replay = cursor;
+		self->dirty = true;
+	}
+	const bool replaying = self->snapshot.match && follows_replay(self->content) &&
+			       self->replay.replaying(self->snapshot.match->id);
+
 	if (ImageStore *store = image_store()) {
 		const uint64_t generation = store->generation();
 		if (generation != self->seen_images) {
@@ -571,7 +645,8 @@ void panel_tick(void *data, float seconds)
 	// The ball test runs over at most the demo route's stops; keep painting while it may.
 	const bool testing = self->content == PanelContent::LivePitch &&
 			     ball_test_running(*self, std::size(kDemoRoute));
-	const bool animated = testing || (self->snapshot.match && self->snapshot.match->in_progress() &&
+	const bool animated = testing || (replaying && self->content == PanelContent::LivePitch) ||
+			      (self->snapshot.match && self->snapshot.match->in_progress() &&
 					  uses_match(self->content));
 	if (animated && self->since_paint >= kAnimationStep)
 		self->dirty = true;

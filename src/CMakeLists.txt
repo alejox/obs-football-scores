@@ -32,6 +32,7 @@ add_library(
   core/shared_selection.cpp
   core/narration.cpp
   core/pitch.cpp
+  core/replay.cpp
   core/standings.cpp
   core/sha256.cpp
   core/style_preset.cpp

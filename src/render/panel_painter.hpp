@@ -110,6 +110,9 @@ struct PanelView {
 	PanelTeam home, away;
 	QString status; // "67'", "DESCANSO", "SÁB 22 NOV 21:00"
 	bool live = false;
+	// A play on replay from the dock: `status` reads "REPETICIÓN · 63'" and is drawn
+	// in amber; the live pitch and the momentum show it as a badge of their own.
+	bool replay = false;
 	double blink = 1.0; // live dot
 	double pulse = 0.0; // 0..1, the latest play's ring
 	// Ball route over the last plays, oldest first (empty: not drawn), and how far the

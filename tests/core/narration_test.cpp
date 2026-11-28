@@ -70,3 +70,12 @@ TEST_CASE(names_with_initials_and_unknown_sentences)
 	CHECK(!narrate_es("The referee checks the pitch for snow.").has_value());
 	CHECK(!narrate_es("").has_value());
 }
+
+TEST_CASE(a_penalty_goal)
+{
+	const std::string out = es("Goal! Getafe 0, Atletico Madrid 3. Alejandro Grimaldo (Atletico Madrid) converts the "
+				   "penalty with a left footed shot to the top right corner.");
+	CHECK(out.find("converts") == std::string::npos);
+	CHECK(out.find("punto penal") != std::string::npos);
+	CHECK(out.find("Alejandro Grimaldo") != std::string::npos);
+}

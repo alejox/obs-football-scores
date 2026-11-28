@@ -157,6 +157,9 @@ const std::vector<Rule> &sentence_rules()
 		{re(R"(^([^.]+ \d+, [^.]+ \d+)\.$)"), "$1."},
 		{re(R"(^VAR Decision: (.+)\.$)"), "Decisión del VAR: $1."},
 		{re(R"(^Assisted by (.+)\.$)"), "Asistencia de $1."},
+		// A penalty goal: "Name (Team) converts the penalty with a left footed shot to ...".
+		{re(R"(^(.+?) converts the penalty with a (right footed shot|left footed shot|header)(.*)\.$)"),
+		 "SHOT|$1|$2| from the penalty spot$3"},
 		// Shots: "Attempt saved. Name (Team) right footed shot from ... is saved in ...".
 		{re(R"(^(.+?) (right footed shot|left footed shot|header|with an attempt|shot)(.*)\.$)"), "SHOT|$1|$2|$3"},
 	};

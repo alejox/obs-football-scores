@@ -11,6 +11,7 @@ In the source properties pick **League → Match** (e.g. *LaLiga → Real Madrid
 - **League → Match**: 30 competitions (LaLiga, Premier League, Serie A, Bundesliga, Ligue 1, Champions League, Libertadores, Liga BetPlay, Liga MX, MLS, World Cup, Nations League…).
 - **Live now**: the "🔴 Live now (all leagues)" option lists only the matches being played right now in any competition ESPN covers, with their league.
 - **Clean list**: the match list only shows live and upcoming matches; finished ones drop out.
+- **Replay dock** (**View → Docks → Football · Replays**): go back to any play of the match and the Live pitch replays it with the ball moving, while the Commentary, Timeline and Momentum go back to that minute with the score as it stood. First, previous, replay, next and "LIVE" buttons; a match line with the goals and cards (click a minute); All, Goals, Shots and Cards filters; ball speed; automatic replay of every goal (back to live after 12 s); optional "REPLAY · 63'" mark; hotkeys in **Settings → Hotkeys**; and the Ko-fi support button.
 - **Fixed or automatic match**: choose one match, or "Automatic" for the league's live match (otherwise the last result for a few hours, then the next match).
 - **Live score**: minute, half time and full time; before kick-off, the local time and day. Refreshes every 15 s during the match.
 - **Crests and flags**: each team's crest (the flag for national teams), the league logo and its country flag.

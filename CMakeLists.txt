@@ -42,6 +42,7 @@ target_sources(
     src/obs/goal_sound.cpp
     src/obs/match_picker.cpp
     src/obs/panel_source.cpp
+    src/obs/replay_dock.cpp
     src/obs/scoreboard_source.cpp
     src/obs/services.cpp
     src/render/design_painter.cpp

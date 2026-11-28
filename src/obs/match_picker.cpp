@@ -150,13 +150,11 @@ bool league_changed(obs_properties_t *props, obs_property_t *, obs_data_t *setti
 }
 } // namespace
 
-namespace {
 SharedSelection &shared_selection()
 {
 	static SharedSelection shared;
 	return shared;
 }
-} // namespace
 
 Selection sync_on_update(obs_data_t *settings, LinkState &state, const Selection &previous, bool has_match)
 {

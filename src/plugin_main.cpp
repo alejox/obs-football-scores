@@ -20,6 +20,7 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 
 #include "core/version.hpp"
 #include "obs/panel_source.hpp"
+#include "obs/replay_dock.hpp"
 #include "obs/scoreboard_source.hpp"
 #include "obs/services.hpp"
 #include "ui/update_controller.hpp"
@@ -77,7 +78,10 @@ std::unique_ptr<fscore::ui::UpdateController> make_update_controller()
 
 void on_frontend_event(enum obs_frontend_event event, void *)
 {
-	if (event != OBS_FRONTEND_EVENT_EXIT || !updates)
+	if (event != OBS_FRONTEND_EVENT_EXIT)
+		return;
+	fscore::obs::shutdown_replay_dock();
+	if (!updates)
 		return;
 	// The staged update installs from here rather than from obs_module_unload: Qt and the
 	// main loop still exist, so QProcess can launch the installer, and OBS is certain to be
@@ -99,6 +103,7 @@ bool obs_module_load(void)
 	fscore::obs::start_services();
 	fscore::obs::register_scoreboard_source();
 	fscore::obs::register_panel_source();
+	fscore::obs::create_replay_dock();
 	updates = make_update_controller();
 	updates->start(kUpdateCheckDelayMs);
 	obs_frontend_add_event_callback(on_frontend_event, nullptr);
@@ -109,6 +114,7 @@ bool obs_module_load(void)
 void obs_module_unload(void)
 {
 	obs_frontend_remove_event_callback(on_frontend_event, nullptr);
+	fscore::obs::shutdown_replay_dock();
 	updates.reset();
 	fscore::obs::stop_services();
 	obs_log(LOG_INFO, "unloaded");

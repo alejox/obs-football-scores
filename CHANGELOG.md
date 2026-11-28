@@ -3,6 +3,30 @@
 Each `## <version>` section becomes the description of that release, and the plugin's updater shows
 its items before installing (the Spanish ones when OBS is in Spanish, the English ones otherwise).
 
+## 0.4.0
+
+### Español
+
+- **Nuevo:** dock «Fútbol · Repeticiones» (Ver → Paneles). Vuelve a cualquier jugada del partido: la Cancha en vivo la repite con el balón viajando hasta ella, y el Relato, la Línea de tiempo y el Momentum conectados vuelven a ese minuto con el marcador de entonces.
+- Botones: primera jugada, anterior, **repetir**, siguiente y **VIVO** para volver al partido. Cada jugada de la lista se repite con un clic, y en la línea del partido (con los goles y tarjetas marcados) un clic en un minuto repite la jugada más cercana.
+- Filtros Todas, Goles, Remates y Tarjetas; velocidad del balón (lenta, normal, rápida).
+- **Repetir los goles automáticamente:** cuando llega un gol, la cancha lo repite y a los 12 segundos vuelve al vivo.
+- Marca «REPETICIÓN · 63'» en las fuentes mientras se repite (se puede apagar).
+- Atajos de teclado para primera, anterior, repetir, siguiente y vivo en Ajustes → Atajos.
+- Botón «Apoyar en Ko-fi» en el dock: el plugin sigue siendo gratis y completo.
+- El relato traduce bien los goles de penal.
+
+### English
+
+- **New:** "Football · Replays" dock (View → Docks). Go back to any play of the match: the Live pitch replays it with the ball travelling to it, and the linked Commentary, Timeline and Momentum go back to that minute with the score as it stood.
+- Buttons: first play, previous, **replay**, next and **LIVE** to return to the match. Any play in the list replays with a click, and on the match line (goals and cards marked) a click on a minute replays the nearest play.
+- All, Goals, Shots and Cards filters; ball speed (slow, normal, fast).
+- **Replay goals automatically:** when a goal comes in, the pitch replays it and goes back to live after 12 seconds.
+- "REPLAY · 63'" mark on the sources while replaying (can be turned off).
+- Hotkeys for first, previous, replay, next and live in Settings → Hotkeys.
+- "Support on Ko-fi" button in the dock: the plugin stays free and complete.
+- Penalty goals are now narrated properly in Spanish.
+
 ## 0.3.2
 
 ### Español
